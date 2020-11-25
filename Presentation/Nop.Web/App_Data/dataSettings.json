@@ -1,0 +1,5 @@
+﻿{
+  "DataConnectionString": "Data Source=scp.realhost.pro;Initial Catalog=medlook;Integrated Security=False;Persist Security Info=False;User ID=medlook_db_user;Password=MdAdmin11",
+  "DataProvider": "sqlserver",
+  "RawDataSettings": {}
+}
