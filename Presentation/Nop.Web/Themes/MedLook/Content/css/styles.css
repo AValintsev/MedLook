@@ -58,7 +58,9 @@ input[type="email"],
 input[type="tel"],
 input[type="password"],
 textarea {
-	border-radius: 0;
+	border-radius: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
 }
 
 input[type="button"],
@@ -99,6 +101,7 @@ a {
 
 	a img {
 		opacity: 0.99; /*firefox scale bug fix*/
+		border-radius: 5px;
 	}
 
 table {
@@ -113,7 +116,6 @@ input[type="password"],
 textarea, select {
 	height: 36px; /*safari padding fix*/
 	border: 1px solid #ddd;
-	border-radius: 2px;
 	padding: 8px;
 	vertical-align: middle;
 }
@@ -132,6 +134,7 @@ select {
 	min-width: 50px;
 	height: 32px; /*safari padding fix*/
 	padding: 6px;
+	border-radius: 5px;
 }
 
 	input[type="text"]:focus,
@@ -190,6 +193,45 @@ label, label + * {
 		display: block;
 		clear: both;
 	}
+
+.home-page-categories {
+	margin: 32px 0;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	width: 100%;
+}
+
+	.home-page-categories h2 {
+		display: flex;
+		padding: 16px;
+		font-size: 22px;
+		font-weight: 400;
+		color: #4d4d4d;
+	}
+
+/*.home-page-categories {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 100%;
+}
+
+	.home-page-categories h2 {
+		display: flex;
+		width: calc(100% / 3);
+		font-size: 22px;
+		font-weight: 400;
+		color: #4d4d4d;
+	}
+
+		.home-page-categories h2:nth-of-type(even) {
+			order: 1;
+		}
+		.home-page-categories h2:nth-of-type(odd) {
+			order: 2;
+		*/ }
 
 .page {
 	min-height: 200px;
@@ -1015,10 +1057,16 @@ label, label + * {
 
 	.language-selector a {
 		padding: 0 15px;
+		margin: 0 5px;
+		background-color: #88CFF1;
+		border-radius: 5px;
+		color: white;
 	}
 
 		.language-selector a.selected {
 			background-color: #CFD8DC;
+			color: #777;
+			cursor: default;
 		}
 
 #wishlistlink {
@@ -1093,6 +1141,7 @@ label, label + * {
 }
 
 .home-page-logo a {
+	text-align: center;
 }
 
 	.home-page-logo a img {
@@ -1108,6 +1157,7 @@ label, label + * {
 .home-page-logo .topic-block-title h2 {
 	font-size: 38px;
 	font-weight: 700;
+	text-align: center;
 }
 
 .home-page-logo .topic-block-body p {
@@ -1287,7 +1337,6 @@ label, label + * {
 		float: left;
 		width: 180px;
 		height: 36px;
-		margin: 0 -1px 0 0;
 	}
 
 .newsletter-subscribe-button {
@@ -1566,8 +1615,28 @@ label, label + * {
 	}
 
 
-/********** CATEGORY PAGE **********/
+.btn-logout, .btn-register, .btn-login, .btn-account {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: #88CFF1;
+	border: none;
+	vertical-align: middle;
+	height: 40px;
+	width: 96%;
+	text-align: center;
+	font-size: 15px;
+	color: #fff;
+	text-transform: uppercase;
+	position: absolute;
+	bottom: 16px;
+	margin-left: 2%;
+}
 
+.btn-register, .btn-account {
+	bottom: 64px;
+}
+/********** CATEGORY PAGE **********/
 @media all and (max-width: 481px) {
 	.breadcrumb {
 		display: none;
@@ -1776,14 +1845,42 @@ label, label + * {
 	clear: both;
 }
 
+.glider::-webkit-scrollbar {
+	display: none;
+}
+
+.glider-dot.active, .glider-dot:hover {
+	background-color: #747474 !important;
+}
+
+.glider-next, .glider-prev {
+	background-color: rgba(232,232,232,1) !important;
+	background-position: center center !important;
+	background-repeat: no-repeat !important;
+	background-size: 20px !important;
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+}
+
+.glider-next {
+	background-image: url('../images/arrow-right.svg') !important;
+	right: -10px !important;
+}
+
+.glider-prev {
+	background-image: url('../images/arrow-left.svg') !important;
+	left: -7px !important;
+}
+
 .item-box {
 	position: relative;
 	width: 100%;
 	float: left;
-	margin: 0 0 80px;
+	margin: 32px 0;
 	text-align: left;
-	box-shadow: 5px 5px 10px #ddd;
 }
+
 
 	.item-box .picture {
 		z-index: 1;
@@ -1837,6 +1934,7 @@ label, label + * {
 
 		.item-box .product-title a {
 			display: block;
+			min-height: 44px;
 		}
 
 			.item-box .product-title a:hover {
@@ -4175,6 +4273,7 @@ label, label + * {
 	display: inline-block;
 	min-width: 160px;
 	border: none;
+	border-radius: 5px;
 	background-color: #88CFF1;
 	padding: 10px 20px;
 	font-size: 16px;
@@ -4242,7 +4341,6 @@ label, label + * {
 			float: left;
 			width: 60%;
 			height: 36px; /*safari padding fix*/
-			margin: 0 -1px 0 0;
 		}
 
 		.cart-collaterals .coupon-code input[type="submit"] {
@@ -4515,6 +4613,7 @@ label, label + * {
 	min-width: 180px;
 	margin: 5px;
 	border: none;
+	border-radius: 5px;
 	background-color: #aaa;
 	padding: 10px 20px;
 	font-size: 15px;
@@ -7993,7 +8092,6 @@ pre {
 	}
 
 	.item-box .buttons {
-		text-align: left;
 	}
 
 	.home-page .product-grid .item-box,

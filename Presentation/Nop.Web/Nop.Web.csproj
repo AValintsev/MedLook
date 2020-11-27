@@ -42,6 +42,10 @@
 
     <Content Include="Themes\MedLook\Views\Shared\Components\HeaderLinks\Default.cshtml" />
 
+    <Content Include="Themes\MedLook\Views\Shared\Components\HomepageCategories\Default.cshtml" />
+
+    <Content Include="Themes\MedLook\Views\Shared\Components\HomepageProducts\Default.cshtml" />
+
     <Content Include="Themes\MedLook\Views\Shared\Components\LanguageSelector\Default.cshtml" />
 
     <Content Include="Themes\MedLook\Views\Shared\Components\TopMenu\Default.cshtml" />
@@ -87,6 +91,7 @@
     <!-- We copy the \Logs directory -->
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
     <Content Remove="Themes\MedLook\Content\images\medlook.svg" />
+    <Content Remove="Themes\MedLook\Content\js\carousel.default.js" />
     <None Remove="Themes\MedLook\Content\css\menu.css" />
     <None Remove="Themes\MedLook\Content\css\print.css" />
     <None Remove="Themes\MedLook\Content\css\styles.css" />
@@ -143,6 +148,8 @@
     <None Remove="Themes\MedLook\preview.jpg" />
     <None Remove="Themes\MedLook\Views\Home\Index.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\HeaderLinks\Default.cshtml" />
+    <None Remove="Themes\MedLook\Views\Shared\Components\HomepageCategories\Default.cshtml" />
+    <None Remove="Themes\MedLook\Views\Shared\Components\HomepageProducts\Default.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\LanguageSelector\Default.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\TopMenu\Default.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\_AddressAttributes.cshtml" />
@@ -187,6 +194,14 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <Content Update="Themes\MedLook\Views\Shared\Components\HeaderLinks\Default.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Shared\Components\HomepageCategories\Default.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Shared\Components\HomepageProducts\Default.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

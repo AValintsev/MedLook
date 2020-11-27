@@ -1,5 +1,14 @@
 ﻿@model TopMenuModel
+
+@using Nop.Core
+@using Nop.Services.Customers
+
+@inject IWorkContext workContext
+@inject ICustomerService customerService
+@inject IWebHelper webHelper
+
 @{
+	var isRegisterCustomer = customerService.IsRegistered(workContext.CurrentCustomer);
 	var rootCategoriesResponsive = Model.Categories.ToList();
 
 	<div class="hamburger-menu">
@@ -41,21 +50,49 @@
 			{
 				<li><a class="menu__item" href="@Url.RouteUrl("ProductSearch")">@T("Search")</a></li>
 			}
-			@if (Model.DisplayCustomerInfoMenuItem)
-			{
-				<li><a class="menu__item" href="@Url.RouteUrl("CustomerInfo")">@T("Account.MyAccount")</a></li>
-			}
+
 			@*@if (Model.BlogEnabled && Model.DisplayBlogMenuItem)
-		{
-			<li><a class="menu__item" href="@Url.RouteUrl("Blog")">@T("Blog")</a></li>
-		}*@
+				{
+					<li><a class="menu__item" href="@Url.RouteUrl("Blog")">@T("Blog")</a></li>
+				}*@
 			@if (Model.DisplayContactUsMenuItem)
 			{
 				<li><a class="menu__item" href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>
 			}
 
+			@if (isRegisterCustomer)
+			{
+				@if (Model.DisplayCustomerInfoMenuItem)
+				{
+					<li>
+						<input type="button"
+									 class="button-2 btn-account" onclick="window.location='@Url.RouteUrl("CustomerInfo")';"
+									 value="@T("Account.MyAccount")" />
+					</li>
+				}
+				<li>
+					<input type="button"
+								 class="button-2 btn-logout" onclick="window.location='@Url.RouteUrl("Logout")';"
+								 value="@T("Account.Logout")" />
+				</li>
+			}
+			else
+			{
+				var returnUrl = Context.Request.Query.TryGetValue("returnUrl", out var url) && !StringValues.IsNullOrEmpty(url)
+						? url.ToString()
+						: webHelper.GetRawUrl(Context.Request);
 
-			<li><a href="@Url.RouteUrl("Logout")" class="ico-logout">@T("Account.Logout")</a></li>
+				<li>
+					<input type="button"
+								 class="button-2 btn-register" onclick="window.location='@Url.RouteUrl("Register", new { returnUrl })';"
+								 value="@T("Account.Register")" />
+				</li>
+				<li>
+					<input type="button"
+								 class="button-2 btn-login" onclick="window.location='@Url.RouteUrl("Login", new { returnUrl })';"
+								 value="@T("Account.Login")" />
+				</li>
+			}
 
 			@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.MobHeaderMenuAfter })
 		</ul>
