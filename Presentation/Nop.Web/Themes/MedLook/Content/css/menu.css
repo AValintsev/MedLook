@@ -1,5 +1,6 @@
-﻿#menu__toggle {
+﻿#menu__toggle, #gtx-trans {
 	opacity: 0;
+	display: none;
 }
 
 	#menu__toggle:checked ~ .menu__btn > span {
