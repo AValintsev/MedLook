@@ -91,11 +91,12 @@
 	font-weight: 400;
 	color: #4d4d4d;
 }
-	.menu__item-category:hover {
-		background-color: #CFD8DC;
-	}
 
 .menu__item-categor-container {
 	margin-left: 24px;
 	padding: 12px 8px;
 }
+
+	.menu__item-categor-container:hover {
+		background-color: #CFD8DC;
+	}
