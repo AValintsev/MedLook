@@ -1,0 +1,53 @@
+﻿@model CatalogPagingFilteringModel.PriceRangeFilterModel
+@{
+	var selectedItem = Model.Items.FirstOrDefault(x => x.Selected);
+
+	var fromStr = Model.Items.Min(i => i.From).Replace(",", ".");
+	var toStr = Model.Items.Max(i => i.To).Replace(",", ".");
+
+	var minPrice = double.Parse(fromStr.Split(".")[0]);
+	var maxPrice = double.Parse(toStr.Split(".")[0]);
+
+	var baseUri = Model.Items.First().FilterUrl.Split("?")[0];
+}
+
+@if (Model.Enabled)
+{
+	<div class="product-filter price-range-filter">
+		<div class="filter-title">
+			<strong>@T("Filtering.PriceRangeFilter")</strong>
+		</div>
+		<div class="filter-content">
+			<div class="filter-items">
+				<input id="minPrice" class="" type="text" maxlength="20" value="@minPrice">
+				<span> — </span>
+				<input id="maxPrice" class="" type="text" maxlength="20" value="@maxPrice">
+				<button class="button-1 button" type="submit" onclick="doFilter()">OK</button>
+			</div>
+			<div id="slider-range"></div>
+		</div>
+	</div>
+}
+
+@{
+	Html.AddInlineScriptParts(ResourceLocation.Footer,
+	string.Format(@"<script type='text/javascript'>
+function doFilter() {{
+window.location.href = '{2}' + '?price=' + $('#minPrice').val() + '-' + $('#maxPrice').val();
+}}
+
+$(function () {{
+$('#slider-range').slider({{
+range: true,
+min: {0},
+max: {1},
+values: [{0}, {1}],
+slide: function (event, ui) {{
+$('#minPrice').val(ui.values[0]);
+$('#maxPrice').val(ui.values[1]);
+}}
+}});
+}});
+</script>", minPrice, maxPrice, baseUri)
+	);
+}

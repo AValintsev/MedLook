@@ -162,6 +162,10 @@ label, label + * {
 	vertical-align: middle;
 }
 
+.glider-dots {
+	margin-top: -50px !important;
+}
+
 .master-wrapper-content {
 	position: relative;
 	z-index: 0;
@@ -220,6 +224,7 @@ label, label + * {
 		.home-page-categories h2:hover {
 			background-color: #f0f0f0;
 		}
+
 /*.home-page-categories {
 	display: flex;
 	flex-direction: row;
@@ -1784,61 +1789,120 @@ label, label + * {
 	.product-filter .filter-content {
 		padding: 10px;
 		color: #444;
+		display: flex;
+		align-items: center;
 	}
 
-	.product-filter .available-items:after {
-		content: "";
-		display: block;
-		clear: both;
+@media (max-width: 581px) {
+	.product-filter .filter-content {
+		flex-wrap: wrap;
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+
+
+.product-filter .filter-content input {
+	width: 90px;
+	margin: 5px;
+}
+
+.product-filter .filter-content button {
+	height: 36px;
+	width: 70px;
+	background-color: #88CFF1;
+	border: 1px solid #ddd;
+	padding: 8px;
+	vertical-align: middle;
+	border-radius: 5px;
+	margin: 5px;
+	text-align: center;
+	font-size: 15px;
+	color: #fff;
+	text-transform: uppercase;
+}
+
+	.product-filter .filter-content button:hover {
+		background-color: #248ece;
 	}
 
-	.product-filter .group {
-		margin: 0 0 10px;
+
+.product-filter .filter-content #slider-range {
+	margin: 15px;
+	height: 4px;
+	display: flex;
+	flex-grow: 1;
+}
+
+	.product-filter .filter-content #slider-range .ui-slider-range {
+		background: none;
+		background-color: #88CFF1;
 	}
 
-		.product-filter .group li {
-			font-size: 15px;
+	.product-filter .filter-content #slider-range span.ui-state-default {
+		background: none;
+		border: none;
+		background-color: #eaeaea;
+		border-radius: 50%;
+	}
+
+	.product-filter .filter-content #slider-range .ui-slider-handle {
+		top: -0.6em;
+	}
+
+.product-filter .available-items:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+.product-filter .group {
+	margin: 0 0 10px;
+}
+
+	.product-filter .group li {
+		font-size: 15px;
+	}
+
+		.product-filter .group li a,
+		.product-filter .group li strong {
+			display: inline-block;
+			padding: 5px 0;
 		}
 
-			.product-filter .group li a,
-			.product-filter .group li strong {
-				display: inline-block;
-				padding: 5px 0;
+			.product-filter .group li a:hover {
+				color: #88CFF1;
 			}
 
-				.product-filter .group li a:hover {
-					color: #88CFF1;
-				}
+		.product-filter .group li.item {
+			display: inline-block;
+			position: relative;
+			margin: 0 15px 0 0;
+			padding: 0 0 0 15px;
+		}
 
-			.product-filter .group li.item {
-				display: inline-block;
-				position: relative;
-				margin: 0 15px 0 0;
-				padding: 0 0 0 15px;
+			.product-filter .group li.item:before {
+				content: "";
+				position: absolute;
+				top: 12px;
+				left: 0;
+				width: 5px;
+				height: 5px;
+				background-color: #ddd;
 			}
 
-				.product-filter .group li.item:before {
-					content: "";
-					position: absolute;
-					top: 12px;
-					left: 0;
-					width: 5px;
-					height: 5px;
-					background-color: #ddd;
-				}
+		.product-filter .group li.color-item {
+			padding: 0;
+			display: inline-block;
+		}
 
-			.product-filter .group li.color-item {
+			.product-filter .group li.color-item a {
 				padding: 0;
-				display: inline-block;
 			}
 
-				.product-filter .group li.color-item a {
-					padding: 0;
-				}
-
-				.product-filter .group li.color-item:before {
-					display: none;
-				}
+			.product-filter .group li.color-item:before {
+				display: none;
+			}
 
 .filtered-items .title {
 	margin: 0 0 5px;
@@ -2061,7 +2125,7 @@ label, label + * {
 	}
 
 	.item-box .add-to-compare-list-button {
-		background-image: url('../images/compare-button.png');
+		background-image: url('../images/compare.svg');
 	}
 
 	.item-box .add-to-wishlist-button {
@@ -2398,16 +2462,22 @@ label, label + * {
 	}
 
 .overview .add-to-compare-list-button {
-	background-image: url('../images/compare-button.png');
+	background-image: url('../images/compare.svg');
+	background-size: 22px;
+	background-position-x: 15px;
 }
 
 .overview .email-a-friend-button {
-	background-image: url('../images/email-button.png');
+	background-image: url('../images/email.svg');
+	background-size: 22px;
+	background-position-x: 15px;
 }
 
 .overview .subscribe-button,
 .variant-overview .subscribe-button {
-	background-image: url('../images/email-button.png');
+	background-image: url('../images/email.svg');
+	background-size: 22px;
+	background-position-x: 15px;
 }
 
 .overview .download-sample-button,
@@ -2419,6 +2489,7 @@ label, label + * {
 .variant-overview .add-to-wishlist-button {
 	background-image: url('../images/heart.svg');
 	background-size: 20px;
+	background-position-x: 15px;
 }
 
 .overview .manufacturers {

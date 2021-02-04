@@ -40,6 +40,8 @@
 
     <Content Include="Themes\MedLook\Views\Home\Index.cshtml" />
 
+    <Content Include="Themes\MedLook\Views\Catalog\_FilterPriceBox.cshtml" />
+
     <Content Include="Themes\MedLook\Views\Shared\Components\HeaderLinks\Default.cshtml" />
 
     <Content Include="Themes\MedLook\Views\Shared\Components\HomepageCategories\Default.cshtml" />
@@ -92,6 +94,7 @@
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
     <Content Remove="Themes\MedLook\Content\images\medlook.svg" />
     <Content Remove="Themes\MedLook\Content\js\carousel.default.js" />
+    <Content Remove="Themes\MedLook\Content\js\slider-init.js" />
     <None Remove="Themes\MedLook\Content\css\menu.css" />
     <None Remove="Themes\MedLook\Content\css\print.css" />
     <None Remove="Themes\MedLook\Content\css\styles.css" />
@@ -147,6 +150,7 @@
     <None Remove="Themes\MedLook\Content\images\wishlist-button.png" />
     <None Remove="Themes\MedLook\preview.jpg" />
     <None Remove="Themes\MedLook\Views\Home\Index.cshtml" />
+    <None Remove="Themes\MedLook\Views\Catalog\_FilterPriceBox.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\HeaderLinks\Default.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\HomepageCategories\Default.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\HomepageProducts\Default.cshtml" />
@@ -190,6 +194,10 @@
 
   <ItemGroup>
     <Content Update="Themes\MedLook\Views\Home\Index.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Catalog\_FilterPriceBox.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

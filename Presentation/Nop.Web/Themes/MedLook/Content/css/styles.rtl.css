@@ -1586,10 +1586,10 @@ label, label + * {
 	font-size: 0;
 }
 .item-box .add-to-compare-list-button {
-	background-image: url('../images/compare-button.png');
+	background-image: url('../images/compare.svg');
 }
 .item-box .add-to-wishlist-button {
-	background-image: url('../images/wishlist-button.png');
+	background-image: url('../images/heart.svg');
 }
 .item-box .add-to-compare-list-button:hover,
 .item-box .add-to-wishlist-button:hover {
