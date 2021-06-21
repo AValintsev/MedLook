@@ -35,6 +35,9 @@
     <Content Remove="Plugins\**;Themes\**" />
     <EmbeddedResource Remove="Plugins\**;Themes\**" />
     <None Remove="Plugins\**;Themes\**" />
+    <Content Include="App_Data\appsettings.json" />
+    <Content Include="App_Data\dataSettings.json" />
+    <Content Include="App_Data\plugins.json" />
 
     <Content Include="Plugins\bin\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
 
@@ -134,6 +137,7 @@
       
       More details here: https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals#concurrent-garbage-collection-->
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <UserSecretsId>c360f686-25f2-4aa8-b9a3-990b84fd69ae</UserSecretsId>
   </PropertyGroup>
 
 </Project>

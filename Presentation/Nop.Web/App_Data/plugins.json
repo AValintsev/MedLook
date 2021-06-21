@@ -2,7 +2,20 @@
   "InstalledPluginNames": [
     "Obsolete field, using only for compatibility"
   ],
-  "InstalledPlugins": [],
+  "InstalledPlugins": [
+    {
+      "SystemName": "Pickup.PickupInStore",
+      "Version": "1.39"
+    },
+    {
+      "SystemName": "Payments.CashOnDelivery",
+      "Version": "1.44"
+    },
+    {
+      "SystemName": "Shipping.FixedByWeightByTotal",
+      "Version": "2.28"
+    }
+  ],
   "PluginNamesToUninstall": [],
   "PluginNamesToDelete": [],
   "PluginNamesToInstall": []
