@@ -5,7 +5,7 @@
 
 @{
 	var storeContext = EngineContext.Current.Resolve<IStoreContext>();
-	var storeName = storeContext.CurrentStore.Name;
+	var storeName = storeContext.GetCurrentStore().Name;
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksBefore })

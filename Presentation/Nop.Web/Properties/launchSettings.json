@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:15536/",
-      "sslPort": 0
+      "applicationUrl": "http://localhost:65283/",
+      "sslPort": 44369
     }
   },
   "profiles": {
@@ -21,7 +21,17 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:55390"
+      "applicationUrl": "https://localhost:55390;http://localhost:55389"
+    },
+    "WSL 2": {
+      "commandName": "WSL2",
+      "launchBrowser": true,
+      "launchUrl": "https://localhost:5001",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "https://localhost:55211;http://localhost:55211",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "distributionName": ""
     }
   }
 }

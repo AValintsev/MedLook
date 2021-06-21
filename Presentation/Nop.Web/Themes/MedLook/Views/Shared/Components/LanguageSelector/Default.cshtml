@@ -11,7 +11,7 @@
 				var languages = Model.AvailableLanguages.Select(lang => new SelectListItem
 				{
 					Text = lang.Name,
-					Value = Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.CurrentRequestProtocol),
+					Value = Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.GetCurrentRequestProtocol()),
 					Selected = lang.Id.Equals(Model.CurrentLanguageId)
 				});
 

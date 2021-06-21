@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Nop.Core;
 using Nop.Core.Domain.Cms;
 using Nop.Core.Domain.Tasks;
@@ -11,13 +12,14 @@ using Nop.Services.Plugins;
 using Nop.Services.Stores;
 using Nop.Services.Tasks;
 using Nop.Web.Framework.Infrastructure;
+using Task = System.Threading.Tasks.Task;
 
-namespace Nop.Plugin.Misc.SendinBlue
+namespace Nop.Plugin.Misc.Sendinblue
 {
     /// <summary>
-    /// Represents the SendinBlue plugin
+    /// Represents the Sendinblue plugin
     /// </summary>
-    public class SendinBluePlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
+    public class SendinbluePlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
     {
         #region Fields
 
@@ -35,7 +37,7 @@ namespace Nop.Plugin.Misc.SendinBlue
 
         #region Ctor
 
-        public SendinBluePlugin(IEmailAccountService emailAccountService,
+        public SendinbluePlugin(IEmailAccountService emailAccountService,
             IGenericAttributeService genericAttributeService,
             ILocalizationService localizationService,
             IMessageTemplateService messageTemplateService,
@@ -63,10 +65,13 @@ namespace Nop.Plugin.Misc.SendinBlue
         /// <summary>
         /// Gets widget zones where this widget should be rendered
         /// </summary>
-        /// <returns>Widget zones</returns>
-        public IList<string> GetWidgetZones()
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the widget zones
+        /// </returns>
+        public Task<IList<string>> GetWidgetZonesAsync()
         {
-            return new List<string> { PublicWidgetZones.HeadHtmlTag };
+            return Task.FromResult<IList<string>>(new List<string> { PublicWidgetZones.HeadHtmlTag });
         }
 
         /// <summary>
@@ -76,7 +81,7 @@ namespace Nop.Plugin.Misc.SendinBlue
         /// <returns>View component name</returns>
         public string GetWidgetViewComponentName(string widgetZone)
         {
-            return SendinBlueDefaults.TRACKING_VIEW_COMPONENT_NAME;
+            return SendinblueDefaults.TRACKING_VIEW_COMPONENT_NAME;
         }
 
         /// <summary>
@@ -84,150 +89,152 @@ namespace Nop.Plugin.Misc.SendinBlue
         /// </summary>
         public override string GetConfigurationPageUrl()
         {
-            return $"{_webHelper.GetStoreLocation()}Admin/SendinBlue/Configure";
+            return $"{_webHelper.GetStoreLocation()}Admin/Sendinblue/Configure";
         }
 
         /// <summary>
         /// Install the plugin
         /// </summary>
-        public override void Install()
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public override async Task InstallAsync()
         {
             //settings
-            _settingService.SaveSetting(new SendinBlueSettings
+            await _settingService.SaveSettingAsync(new SendinblueSettings
             {
                 //prepopulate a tracking script
-                TrackingScript = $@"<!-- SendinBlue tracting code -->
+                TrackingScript = $@"<!-- Sendinblue tracking code -->
                 <script>
                     (function() {{
-                        window.sib = {{ equeue: [], client_key: '{SendinBlueDefaults.TrackingScriptId}' }};
-                        window.sib.email_id = '{SendinBlueDefaults.TrackingScriptCustomerEmail}';
+                        window.sib = {{ equeue: [], client_key: '{SendinblueDefaults.TrackingScriptId}' }};
+                        window.sib.email_id = '{SendinblueDefaults.TrackingScriptCustomerEmail}';
                         window.sendinblue = {{}}; for (var j = ['track', 'identify', 'trackLink', 'page'], i = 0; i < j.length; i++) {{ (function(k) {{ window.sendinblue[k] = function() {{ var arg = Array.prototype.slice.call(arguments); (window.sib[k] || function() {{ var t = {{}}; t[k] = arg; window.sib.equeue.push(t);}})(arg[0], arg[1], arg[2]);}};}})(j[i]);}}var n = document.createElement('script'),i = document.getElementsByTagName('script')[0]; n.type = 'text/javascript', n.id = 'sendinblue-js', n.async = !0, n.src = 'https://sibautomation.com/sa.js?key=' + window.sib.client_key, i.parentNode.insertBefore(n, i), window.sendinblue.page();
                     }})();
                 </script>"
             });
 
-            if (!_widgetSettings.ActiveWidgetSystemNames.Contains(SendinBlueDefaults.SystemName))
+            if (!_widgetSettings.ActiveWidgetSystemNames.Contains(SendinblueDefaults.SystemName))
             {
-                _widgetSettings.ActiveWidgetSystemNames.Add(SendinBlueDefaults.SystemName);
-                _settingService.SaveSetting(_widgetSettings);
+                _widgetSettings.ActiveWidgetSystemNames.Add(SendinblueDefaults.SystemName);
+                await _settingService.SaveSettingAsync(_widgetSettings);
             }
 
             //install synchronization task
-            if (_scheduleTaskService.GetTaskByType(SendinBlueDefaults.SynchronizationTask) == null)
+            if (await _scheduleTaskService.GetTaskByTypeAsync(SendinblueDefaults.SynchronizationTask) == null)
             {
-                _scheduleTaskService.InsertTask(new ScheduleTask
+                await _scheduleTaskService.InsertTaskAsync(new ScheduleTask
                 {
                     Enabled = true,
-                    Seconds = SendinBlueDefaults.DefaultSynchronizationPeriod * 60 * 60,
-                    Name = SendinBlueDefaults.SynchronizationTaskName,
-                    Type = SendinBlueDefaults.SynchronizationTask,
+                    Seconds = SendinblueDefaults.DefaultSynchronizationPeriod * 60 * 60,
+                    Name = SendinblueDefaults.SynchronizationTaskName,
+                    Type = SendinblueDefaults.SynchronizationTask,
                 });
             }
 
             //locales
-            _localizationService.AddPluginLocaleResource(new Dictionary<string, string>
+            await _localizationService.AddLocaleResourceAsync(new Dictionary<string, string>
             {
-                ["Plugins.Misc.SendinBlue.AccountInfo"] = "Account info",
-                ["Plugins.Misc.SendinBlue.AccountInfo.Hint"] = "Display account information.",
-                ["Plugins.Misc.SendinBlue.ActivateSMTP"] = "On your SendinBlue account, the SMTP has not been enabled yet. To request its activation, simply send an email to our support team at contact@sendinblue.com and mention that you will be using the SMTP with the nopCommerce plugin.",
-                ["Plugins.Misc.SendinBlue.AddNewSMSNotification"] = "Add new SMS notification",
-                ["Plugins.Misc.SendinBlue.BillingAddressPhone"] = "Billing address phone number",
-                ["Plugins.Misc.SendinBlue.CustomerPhone"] = "Customer phone number",
-                ["Plugins.Misc.SendinBlue.EditTemplate"] = "Edit template",
-                ["Plugins.Misc.SendinBlue.Fields.AllowedTokens"] = "Allowed message variables",
-                ["Plugins.Misc.SendinBlue.Fields.AllowedTokens.Hint"] = "This is a list of the message variables you can use in your SMS.",
-                ["Plugins.Misc.SendinBlue.Fields.ApiKey"] = "API v3 key",
-                ["Plugins.Misc.SendinBlue.Fields.ApiKey.Hint"] = "Paste your SendinBlue account API v3 key.",
-                ["Plugins.Misc.SendinBlue.Fields.CampaignList"] = "List",
-                ["Plugins.Misc.SendinBlue.Fields.CampaignList.Hint"] = "Choose list of contacts to send SMS campaign.",
-                ["Plugins.Misc.SendinBlue.Fields.CampaignSenderName"] = "Send SMS campaign from",
-                ["Plugins.Misc.SendinBlue.Fields.CampaignSenderName.Hint"] = "Input the name of the sender. The number of characters is limited to 11 (alphanumeric format).",
-                ["Plugins.Misc.SendinBlue.Fields.CampaignText"] = "Text",
-                ["Plugins.Misc.SendinBlue.Fields.CampaignText.Hint"] = "Specify SMS campaign content. The number of characters is limited to 160 for one message.",
-                ["Plugins.Misc.SendinBlue.Fields.List"] = "List",
-                ["Plugins.Misc.SendinBlue.Fields.List.Hint"] = "Select the SendinBlue list where your nopCommerce newsletter subscribers will be added.",
-                ["Plugins.Misc.SendinBlue.Fields.MaKey"] = "Tracker ID",
-                ["Plugins.Misc.SendinBlue.Fields.MaKey.Hint"] = "Input your Tracker ID.",
-                ["Plugins.Misc.SendinBlue.Fields.Sender"] = "Send emails from",
-                ["Plugins.Misc.SendinBlue.Fields.Sender.Hint"] = "Choose sender of your transactional emails.",
-                ["Plugins.Misc.SendinBlue.Fields.SmsSenderName"] = "Send SMS from",
-                ["Plugins.Misc.SendinBlue.Fields.SmsSenderName.Hint"] = "Input the name of the sender. The number of characters is limited to 11 (alphanumeric format).",
-                ["Plugins.Misc.SendinBlue.Fields.SmtpKey"] = "SMTP key",
-                ["Plugins.Misc.SendinBlue.Fields.SmtpKey.Hint"] = "Specify SMTP key (password).",
-                ["Plugins.Misc.SendinBlue.Fields.StoreOwnerPhoneNumber"] = "Store owner phone number",
-                ["Plugins.Misc.SendinBlue.Fields.StoreOwnerPhoneNumber.Hint"] = "Input store owner phone number for SMS notifications.",
-                ["Plugins.Misc.SendinBlue.Fields.TrackingScript"] = "Tracking script",
-                ["Plugins.Misc.SendinBlue.Fields.TrackingScript.Hint"] = $"Paste the tracking script generated by SendinBlue here. {SendinBlueDefaults.TrackingScriptId} and {SendinBlueDefaults.TrackingScriptCustomerEmail} will be dynamically replaced.",
-                ["Plugins.Misc.SendinBlue.Fields.UseMarketingAutomation"] = "Use Marketing Automation",
-                ["Plugins.Misc.SendinBlue.Fields.UseMarketingAutomation.Hint"] = "Check for enable SendinBlue Automation.",
-                ["Plugins.Misc.SendinBlue.Fields.UseSmsNotifications"] = "Use SMS notifications",
-                ["Plugins.Misc.SendinBlue.Fields.UseSmsNotifications.Hint"] = "Check for sending transactional SMS.",
-                ["Plugins.Misc.SendinBlue.Fields.UseSmtp"] = "Use SendinBlue SMTP",
-                ["Plugins.Misc.SendinBlue.Fields.UseSmtp.Hint"] = "Check for using SendinBlue SMTP for sending transactional emails.",
-                ["Plugins.Misc.SendinBlue.General"] = "General",
-                ["Plugins.Misc.SendinBlue.ImportProcess"] = "Your import is in process",
-                ["Plugins.Misc.SendinBlue.ManualSync"] = "Manual synchronization",
-                ["Plugins.Misc.SendinBlue.SyncNow"] = "Sync now",
-                ["Plugins.Misc.SendinBlue.MarketingAutomation"] = "Marketing Automation",
-                ["Plugins.Misc.SendinBlue.MyPhone"] = "Store owner phone number",
-                ["Plugins.Misc.SendinBlue.PhoneType"] = "Type of phone number",
-                ["Plugins.Misc.SendinBlue.PhoneType.Hint"] = "Specify the type of phone number to send SMS.",
-                ["Plugins.Misc.SendinBlue.SMS"] = "SMS",
-                ["Plugins.Misc.SendinBlue.SMS.Campaigns"] = "SMS campaigns",
-                ["Plugins.Misc.SendinBlue.SMS.Campaigns.Sent"] = "Campaign successfully sent",
-                ["Plugins.Misc.SendinBlue.SMS.Campaigns.Submit"] = "Send campaign",
-                ["Plugins.Misc.SendinBlue.SMSText"] = "Text",
-                ["Plugins.Misc.SendinBlue.SMSText.Hint"] = "Enter SMS text to send.",
-                ["Plugins.Misc.SendinBlue.Synchronization"] = "Contacts",
-                ["Plugins.Misc.SendinBlue.Transactional"] = "Transactional emails",
-                ["Plugins.Misc.SendinBlue.UseSendinBlueTemplate"] = "SendinBlue template"
+                ["Plugins.Misc.Sendinblue.AccountInfo"] = "Account info",
+                ["Plugins.Misc.Sendinblue.AccountInfo.Hint"] = "Display account information.",
+                ["Plugins.Misc.Sendinblue.ActivateSMTP"] = "On your Sendinblue account, the SMTP has not been enabled yet. To request its activation, simply send an email to our support team at contact@sendinblue.com and mention that you will be using the SMTP with the nopCommerce plugin.",
+                ["Plugins.Misc.Sendinblue.AddNewSMSNotification"] = "Add new SMS notification",
+                ["Plugins.Misc.Sendinblue.BillingAddressPhone"] = "Billing address phone number",
+                ["Plugins.Misc.Sendinblue.CustomerPhone"] = "Customer phone number",
+                ["Plugins.Misc.Sendinblue.EditTemplate"] = "Edit template",
+                ["Plugins.Misc.Sendinblue.Fields.AllowedTokens"] = "Allowed message variables",
+                ["Plugins.Misc.Sendinblue.Fields.AllowedTokens.Hint"] = "This is a list of the message variables you can use in your SMS.",
+                ["Plugins.Misc.Sendinblue.Fields.ApiKey"] = "API v3 key",
+                ["Plugins.Misc.Sendinblue.Fields.ApiKey.Hint"] = "Paste your Sendinblue account API v3 key.",
+                ["Plugins.Misc.Sendinblue.Fields.CampaignList"] = "List",
+                ["Plugins.Misc.Sendinblue.Fields.CampaignList.Hint"] = "Choose list of contacts to send SMS campaign.",
+                ["Plugins.Misc.Sendinblue.Fields.CampaignSenderName"] = "Send SMS campaign from",
+                ["Plugins.Misc.Sendinblue.Fields.CampaignSenderName.Hint"] = "Input the name of the sender. The number of characters is limited to 11 (alphanumeric format).",
+                ["Plugins.Misc.Sendinblue.Fields.CampaignText"] = "Text",
+                ["Plugins.Misc.Sendinblue.Fields.CampaignText.Hint"] = "Specify SMS campaign content. The number of characters is limited to 160 for one message.",
+                ["Plugins.Misc.Sendinblue.Fields.List"] = "List",
+                ["Plugins.Misc.Sendinblue.Fields.List.Hint"] = "Select the Sendinblue list where your nopCommerce newsletter subscribers will be added.",
+                ["Plugins.Misc.Sendinblue.Fields.MaKey"] = "Tracker ID",
+                ["Plugins.Misc.Sendinblue.Fields.MaKey.Hint"] = "Input your Tracker ID.",
+                ["Plugins.Misc.Sendinblue.Fields.Sender"] = "Send emails from",
+                ["Plugins.Misc.Sendinblue.Fields.Sender.Hint"] = "Choose sender of your transactional emails.",
+                ["Plugins.Misc.Sendinblue.Fields.SmsSenderName"] = "Send SMS from",
+                ["Plugins.Misc.Sendinblue.Fields.SmsSenderName.Hint"] = "Input the name of the sender. The number of characters is limited to 11 (alphanumeric format).",
+                ["Plugins.Misc.Sendinblue.Fields.SmtpKey"] = "SMTP key",
+                ["Plugins.Misc.Sendinblue.Fields.SmtpKey.Hint"] = "Specify SMTP key (password).",
+                ["Plugins.Misc.Sendinblue.Fields.StoreOwnerPhoneNumber"] = "Store owner phone number",
+                ["Plugins.Misc.Sendinblue.Fields.StoreOwnerPhoneNumber.Hint"] = "Input store owner phone number for SMS notifications.",
+                ["Plugins.Misc.Sendinblue.Fields.TrackingScript"] = "Tracking script",
+                ["Plugins.Misc.Sendinblue.Fields.TrackingScript.Hint"] = $"Paste the tracking script generated by Sendinblue here. {SendinblueDefaults.TrackingScriptId} and {SendinblueDefaults.TrackingScriptCustomerEmail} will be dynamically replaced.",
+                ["Plugins.Misc.Sendinblue.Fields.UseMarketingAutomation"] = "Use Marketing Automation",
+                ["Plugins.Misc.Sendinblue.Fields.UseMarketingAutomation.Hint"] = "Check for enable Sendinblue Automation.",
+                ["Plugins.Misc.Sendinblue.Fields.UseSmsNotifications"] = "Use SMS notifications",
+                ["Plugins.Misc.Sendinblue.Fields.UseSmsNotifications.Hint"] = "Check for sending transactional SMS.",
+                ["Plugins.Misc.Sendinblue.Fields.UseSmtp"] = "Use Sendinblue SMTP",
+                ["Plugins.Misc.Sendinblue.Fields.UseSmtp.Hint"] = "Check for using Sendinblue SMTP for sending transactional emails.",
+                ["Plugins.Misc.Sendinblue.General"] = "General",
+                ["Plugins.Misc.Sendinblue.ImportProcess"] = "Your import is in process",
+                ["Plugins.Misc.Sendinblue.ManualSync"] = "Manual synchronization",
+                ["Plugins.Misc.Sendinblue.SyncNow"] = "Sync now",
+                ["Plugins.Misc.Sendinblue.MarketingAutomation"] = "Marketing Automation",
+                ["Plugins.Misc.Sendinblue.MyPhone"] = "Store owner phone number",
+                ["Plugins.Misc.Sendinblue.PhoneType"] = "Type of phone number",
+                ["Plugins.Misc.Sendinblue.PhoneType.Hint"] = "Specify the type of phone number to send SMS.",
+                ["Plugins.Misc.Sendinblue.SMS"] = "SMS",
+                ["Plugins.Misc.Sendinblue.SMS.Campaigns"] = "SMS campaigns",
+                ["Plugins.Misc.Sendinblue.SMS.Campaigns.Sent"] = "Campaign successfully sent",
+                ["Plugins.Misc.Sendinblue.SMS.Campaigns.Submit"] = "Send campaign",
+                ["Plugins.Misc.Sendinblue.SMSText"] = "Text",
+                ["Plugins.Misc.Sendinblue.SMSText.Hint"] = "Enter SMS text to send.",
+                ["Plugins.Misc.Sendinblue.Synchronization"] = "Contacts",
+                ["Plugins.Misc.Sendinblue.Transactional"] = "Transactional emails",
+                ["Plugins.Misc.Sendinblue.UseSendinblueTemplate"] = "Sendinblue template"
             });
 
-            base.Install();
+            await base.InstallAsync();
         }
 
         /// <summary>
         /// Uninstall the plugin
         /// </summary>
-        public override void Uninstall()
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public override async Task UninstallAsync()
         {
             //smtp accounts
-            foreach (var store in _storeService.GetAllStores())
+            foreach (var store in await _storeService.GetAllStoresAsync())
             {
-                var key = $"{nameof(SendinBlueSettings)}.{nameof(SendinBlueSettings.EmailAccountId)}";
-                var emailAccountId = _settingService.GetSettingByKey<int>(key, storeId: store.Id, loadSharedValueIfNotFound: true);
-                var emailAccount = _emailAccountService.GetEmailAccountById(emailAccountId);
+                var key = $"{nameof(SendinblueSettings)}.{nameof(SendinblueSettings.EmailAccountId)}";
+                var emailAccountId = await _settingService.GetSettingByKeyAsync<int>(key, storeId: store.Id, loadSharedValueIfNotFound: true);
+                var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(emailAccountId);
                 if (emailAccount != null)
-                    _emailAccountService.DeleteEmailAccount(emailAccount);
+                    await _emailAccountService.DeleteEmailAccountAsync(emailAccount);
             }
 
             //settings
-            if (_widgetSettings.ActiveWidgetSystemNames.Contains(SendinBlueDefaults.SystemName))
+            if (_widgetSettings.ActiveWidgetSystemNames.Contains(SendinblueDefaults.SystemName))
             {
-                _widgetSettings.ActiveWidgetSystemNames.Remove(SendinBlueDefaults.SystemName);
-                _settingService.SaveSetting(_widgetSettings);
+                _widgetSettings.ActiveWidgetSystemNames.Remove(SendinblueDefaults.SystemName);
+                await _settingService.SaveSettingAsync(_widgetSettings);
             }
-            _settingService.DeleteSetting<SendinBlueSettings>();
+            await _settingService.DeleteSettingAsync<SendinblueSettings>();
 
             //generic attributes
-            foreach (var store in _storeService.GetAllStores())
+            foreach (var store in await _storeService.GetAllStoresAsync())
             {
-                var messageTemplates = _messageTemplateService.GetAllMessageTemplates(store.Id);
+                var messageTemplates = await _messageTemplateService.GetAllMessageTemplatesAsync(store.Id);
                 foreach (var messageTemplate in messageTemplates)
                 {
-                    _genericAttributeService.SaveAttribute<int?>(messageTemplate, SendinBlueDefaults.TemplateIdAttribute, null);
+                    await _genericAttributeService.SaveAttributeAsync<int?>(messageTemplate, SendinblueDefaults.TemplateIdAttribute, null);
                 }
             }
 
             //schedule task
-            var task = _scheduleTaskService.GetTaskByType(SendinBlueDefaults.SynchronizationTask);
+            var task = await _scheduleTaskService.GetTaskByTypeAsync(SendinblueDefaults.SynchronizationTask);
             if (task != null)
-                _scheduleTaskService.DeleteTask(task);
+                await _scheduleTaskService.DeleteTaskAsync(task);
 
             //locales
-            _localizationService.DeletePluginLocaleResources("Plugins.Misc.SendinBlue");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Misc.Sendinblue");
 
-            base.Uninstall();
+            await base.UninstallAsync();
         }
 
         #endregion

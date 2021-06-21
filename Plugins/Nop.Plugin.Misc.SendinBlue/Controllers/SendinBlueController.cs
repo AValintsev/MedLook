@@ -1,15 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Messages;
-using Nop.Plugin.Misc.SendinBlue.Models;
-using Nop.Plugin.Misc.SendinBlue.Services;
-using Nop.Services.Caching;
+using Nop.Plugin.Misc.Sendinblue.Models;
+using Nop.Plugin.Misc.Sendinblue.Services;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -24,14 +24,13 @@ using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Framework.Mvc.ModelBinding;
 
-namespace Nop.Plugin.Misc.SendinBlue.Controllers
+namespace Nop.Plugin.Misc.Sendinblue.Controllers
 {
     [AutoValidateAntiforgeryToken]
-    public class SendinBlueController : BasePluginController
+    public class SendinblueController : BasePluginController
     {
         #region Fields
 
-        private readonly ICacheKeyService _cacheKeyService;
         private readonly IEmailAccountService _emailAccountService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ILocalizationService _localizationService;
@@ -46,14 +45,13 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
         private readonly MessageTemplatesSettings _messageTemplatesSettings;
-        private readonly SendinBlueManager _sendinBlueEmailManager;
+        private readonly SendinblueManager _sendinblueEmailManager;
 
         #endregion
 
         #region Ctor
 
-        public SendinBlueController(ICacheKeyService cacheKeyService,
-            IEmailAccountService emailAccountService,
+        public SendinblueController(IEmailAccountService emailAccountService,
             IGenericAttributeService genericAttributeService,
             ILocalizationService localizationService,
             ILogger logger,
@@ -67,9 +65,8 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
             IStoreService storeService,
             IWorkContext workContext,
             MessageTemplatesSettings messageTemplatesSettings,
-            SendinBlueManager sendinBlueEmailManager)
+            SendinblueManager sendinblueEmailManager)
         {
-            _cacheKeyService = cacheKeyService;
             _emailAccountService = emailAccountService;
             _genericAttributeService = genericAttributeService;
             _localizationService = localizationService;
@@ -84,7 +81,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
             _storeService = storeService;
             _workContext = workContext;
             _messageTemplatesSettings = messageTemplatesSettings;
-            _sendinBlueEmailManager = sendinBlueEmailManager;
+            _sendinblueEmailManager = sendinblueEmailManager;
         }
 
         #endregion
@@ -92,123 +89,114 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         #region Utilities
 
         /// <summary>
-        /// Prepare SendinBlueModel
+        /// Prepare SendinblueModel
         /// </summary>
         /// <param name="model">Model</param>
-        private void PrepareModel(ConfigurationModel model)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        private async Task PrepareModelAsync(ConfigurationModel model)
         {
             //load settings for active store scope
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var sendinblueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>(storeId);
 
             //whether plugin is configured
-            if (string.IsNullOrEmpty(sendinBlueSettings.ApiKey))
+            if (string.IsNullOrEmpty(sendinblueSettings.ApiKey))
                 return;
 
             //prepare common properties
             model.ActiveStoreScopeConfiguration = storeId;
-            model.ApiKey = sendinBlueSettings.ApiKey;
-            model.ListId = sendinBlueSettings.ListId;
-            model.SmtpKey = sendinBlueSettings.SmtpKey;
-            model.SenderId = sendinBlueSettings.SenderId;
-            model.UseSmsNotifications = sendinBlueSettings.UseSmsNotifications;
-            model.SmsSenderName = sendinBlueSettings.SmsSenderName;
-            model.StoreOwnerPhoneNumber = sendinBlueSettings.StoreOwnerPhoneNumber;
-            model.UseMarketingAutomation = sendinBlueSettings.UseMarketingAutomation;
-            model.TrackingScript = sendinBlueSettings.TrackingScript;
+            model.ApiKey = sendinblueSettings.ApiKey;
+            model.ListId = sendinblueSettings.ListId;
+            model.SmtpKey = sendinblueSettings.SmtpKey;
+            model.SenderId = sendinblueSettings.SenderId;
+            model.UseSmsNotifications = sendinblueSettings.UseSmsNotifications;
+            model.SmsSenderName = sendinblueSettings.SmsSenderName;
+            model.StoreOwnerPhoneNumber = sendinblueSettings.StoreOwnerPhoneNumber;
+            model.UseMarketingAutomation = sendinblueSettings.UseMarketingAutomation;
+            model.TrackingScript = sendinblueSettings.TrackingScript;
 
-            model.HideGeneralBlock = _genericAttributeService.GetAttribute<bool>(_workContext.CurrentCustomer, SendinBlueDefaults.HideGeneralBlock);
-            model.HideSynchronizationBlock = _genericAttributeService.GetAttribute<bool>(_workContext.CurrentCustomer, SendinBlueDefaults.HideSynchronizationBlock);
-            model.HideTransactionalBlock = _genericAttributeService.GetAttribute<bool>(_workContext.CurrentCustomer, SendinBlueDefaults.HideTransactionalBlock);
-            model.HideSmsBlock = _genericAttributeService.GetAttribute<bool>(_workContext.CurrentCustomer, SendinBlueDefaults.HideSmsBlock);
-            model.HideMarketingAutomationBlock = _genericAttributeService.GetAttribute<bool>(_workContext.CurrentCustomer, SendinBlueDefaults.HideMarketingAutomationBlock);
+            model.HideGeneralBlock = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), SendinblueDefaults.HideGeneralBlock);
+            model.HideSynchronizationBlock = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), SendinblueDefaults.HideSynchronizationBlock);
+            model.HideTransactionalBlock = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), SendinblueDefaults.HideTransactionalBlock);
+            model.HideSmsBlock = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), SendinblueDefaults.HideSmsBlock);
+            model.HideMarketingAutomationBlock = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), SendinblueDefaults.HideMarketingAutomationBlock);
 
             //prepare nested search models
             model.MessageTemplateSearchModel.SetGridPageSize();
             model.SmsSearchModel.SetGridPageSize();
 
             //prepare add SMS model
-            model.AddSms.AvailablePhoneTypes.Add(new SelectListItem(_localizationService.GetResource("Plugins.Misc.SendinBlue.MyPhone"), "0"));
-            model.AddSms.AvailablePhoneTypes.Add(new SelectListItem(_localizationService.GetResource("Plugins.Misc.SendinBlue.CustomerPhone"), "1"));
-            model.AddSms.AvailablePhoneTypes.Add(new SelectListItem(_localizationService.GetResource("Plugins.Misc.SendinBlue.BillingAddressPhone"), "2"));
+            model.AddSms.AvailablePhoneTypes.Add(new SelectListItem(await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.MyPhone"), "0"));
+            model.AddSms.AvailablePhoneTypes.Add(new SelectListItem(await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.CustomerPhone"), "1"));
+            model.AddSms.AvailablePhoneTypes.Add(new SelectListItem(await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.BillingAddressPhone"), "2"));
             model.AddSms.DefaultSelectedPhoneTypeId = model.AddSms.AvailablePhoneTypes.First().Value;
 
-            model.AddSms.AvailableMessages = _messageTemplateService.GetAllMessageTemplates(storeId).Select(messageTemplate =>
+            var stores = await _storeService.GetAllStoresAsync();
+            var messageTemplates = await _messageTemplateService.GetAllMessageTemplatesAsync(storeId);
+            model.AddSms.AvailableMessages = await messageTemplates.SelectAwait(async messageTemplate =>
             {
                 var name = messageTemplate.Name;
                 if (storeId == 0 && messageTemplate.LimitedToStores)
                 {
-                    var storeIds = _storeMappingService.GetStoresIdsWithAccess(messageTemplate);
-                    var storeNames = _storeService.GetAllStores().Where(store => storeIds.Contains(store.Id)).Select(store => store.Name);
+                    var storeIds = await _storeMappingService.GetStoresIdsWithAccessAsync(messageTemplate);
+                    var storeNames = stores.Where(store => storeIds.Contains(store.Id)).Select(store => store.Name);
                     name = $"{name} ({string.Join(',', storeNames)})";
                 }
 
                 return new SelectListItem(name, messageTemplate.Id.ToString());
-            }).ToList();
+            }).ToListAsync();
             var defaultSelectedMessage = model.AddSms.AvailableMessages.FirstOrDefault();
             model.AddSms.DefaultSelectedMessageId = defaultSelectedMessage?.Value ?? "0";
 
             //check whether email account exists
-            if (sendinBlueSettings.UseSmtp && _emailAccountService.GetEmailAccountById(sendinBlueSettings.EmailAccountId) != null)
-                model.UseSmtp = sendinBlueSettings.UseSmtp;
+            if (sendinblueSettings.UseSmtp && await _emailAccountService.GetEmailAccountByIdAsync(sendinblueSettings.EmailAccountId) != null)
+                model.UseSmtp = sendinblueSettings.UseSmtp;
 
             //get account info
-            var (accountInfo, marketingAutomationEnabled, maKey, accountErrors) = _sendinBlueEmailManager.GetAccountInfo();
+            var (accountInfo, marketingAutomationEnabled, maKey, accountErrors) = await _sendinblueEmailManager.GetAccountInfoAsync();
             model.AccountInfo = accountInfo;
             model.MarketingAutomationKey = maKey;
             model.MarketingAutomationDisabled = !marketingAutomationEnabled;
             if (!string.IsNullOrEmpty(accountErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {accountErrors}");
+                _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {accountErrors}");
 
             //prepare overridable settings
             if (storeId > 0)
             {
-                model.ListId_OverrideForStore = _settingService.SettingExists(sendinBlueSettings, settings => settings.ListId, storeId);
-                model.UseSmtp_OverrideForStore = _settingService.SettingExists(sendinBlueSettings, settings => settings.UseSmtp, storeId);
-                model.SenderId_OverrideForStore = _settingService.SettingExists(sendinBlueSettings, settings => settings.SenderId, storeId);
-                model.UseSmsNotifications_OverrideForStore = _settingService.SettingExists(sendinBlueSettings, settings => settings.UseSmsNotifications, storeId);
-                model.SmsSenderName_OverrideForStore = _settingService.SettingExists(sendinBlueSettings, settings => settings.SmsSenderName, storeId);
-                model.UseMarketingAutomation_OverrideForStore = _settingService.SettingExists(sendinBlueSettings, settings => settings.UseMarketingAutomation, storeId);
+                model.ListId_OverrideForStore = await _settingService.SettingExistsAsync(sendinblueSettings, settings => settings.ListId, storeId);
+                model.UseSmtp_OverrideForStore = await _settingService.SettingExistsAsync(sendinblueSettings, settings => settings.UseSmtp, storeId);
+                model.SenderId_OverrideForStore = await _settingService.SettingExistsAsync(sendinblueSettings, settings => settings.SenderId, storeId);
+                model.UseSmsNotifications_OverrideForStore = await _settingService.SettingExistsAsync(sendinblueSettings, settings => settings.UseSmsNotifications, storeId);
+                model.SmsSenderName_OverrideForStore = await _settingService.SettingExistsAsync(sendinblueSettings, settings => settings.SmsSenderName, storeId);
+                model.UseMarketingAutomation_OverrideForStore = await _settingService.SettingExistsAsync(sendinblueSettings, settings => settings.UseMarketingAutomation, storeId);
             }
 
             //check SMTP status
-            var (smtpEnabled, smtpErrors) = _sendinBlueEmailManager.SmtpIsEnabled();
+            var (smtpEnabled, smtpErrors) = await _sendinblueEmailManager.SmtpIsEnabledAsync();
             if (!string.IsNullOrEmpty(smtpErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {smtpErrors}");
+                _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {smtpErrors}");
 
             //get available contact lists to synchronize
-            var (lists, listsErrors) = _sendinBlueEmailManager.GetLists();
+            var (lists, listsErrors) = await _sendinblueEmailManager.GetListsAsync();
             model.AvailableLists = lists.Select(list => new SelectListItem(list.Name, list.Id)).ToList();
             model.AvailableLists.Insert(0, new SelectListItem("Select list", "0"));
             if (!string.IsNullOrEmpty(listsErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {listsErrors}");
+                _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {listsErrors}");
 
             //get available senders of emails from account
-            var (senders, sendersErrors) = _sendinBlueEmailManager.GetSenders();
+            var (senders, sendersErrors) = await _sendinblueEmailManager.GetSendersAsync();
             model.AvailableSenders = senders.Select(list => new SelectListItem(list.Name, list.Id)).ToList();
             model.AvailableSenders.Insert(0, new SelectListItem("Select sender", "0"));
             if (!string.IsNullOrEmpty(sendersErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {sendersErrors}");
+                _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {sendersErrors}");
 
             //get allowed tokens
-            model.AllowedTokens = string.Join(", ", _messageTokenProvider.GetListOfAllowedTokens());
+            model.AllowedTokens = string.Join(", ", await _messageTokenProvider.GetListOfAllowedTokensAsync());
 
             //create attributes in account
-            var attributesErrors = _sendinBlueEmailManager.PrepareAttributes();
+            var attributesErrors = await _sendinblueEmailManager.PrepareAttributesAsync();
             if (!string.IsNullOrEmpty(attributesErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {attributesErrors}");
-
-            //try to set account partner
-            if (!sendinBlueSettings.PartnerValueSet)
-            {
-                var partnerSet = _sendinBlueEmailManager.SetPartner();
-                if (partnerSet)
-                {
-                    sendinBlueSettings.PartnerValueSet = true;
-                    _settingService.SaveSetting(sendinBlueSettings, settings => settings.PartnerValueSet, clearCache: false);
-                    _settingService.ClearCache();
-                }
-            }
+                _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {attributesErrors}");            
         }
 
         #endregion
@@ -217,75 +205,75 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public IActionResult Configure()
+        public async Task<IActionResult> Configure()
         {
             var model = new ConfigurationModel();
-            PrepareModel(model);
+            await PrepareModelAsync(model);
 
-            return View("~/Plugins/Misc.SendinBlue/Views/Configure.cshtml", model);
+            return View("~/Plugins/Misc.Sendinblue/Views/Configure.cshtml", model);
         }
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("save")]
-        public IActionResult Configure(ConfigurationModel model)
+        public async Task<IActionResult> Configure(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
-                return Configure();
+                return await Configure();
 
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var sendinblueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>(storeId);
 
             //set API key
-            sendinBlueSettings.ApiKey = model.ApiKey;
-            _settingService.SaveSetting(sendinBlueSettings, settings => settings.ApiKey, clearCache: false);
-            _settingService.ClearCache();
+            sendinblueSettings.ApiKey = model.ApiKey;
+            await _settingService.SaveSettingAsync(sendinblueSettings, settings => settings.ApiKey, clearCache: false);
+            await _settingService.ClearCacheAsync();
 
-            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return Configure();
+            return await Configure();
         }
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("saveSync")]
-        public IActionResult SaveSynchronization(ConfigurationModel model)
+        public async Task<IActionResult> SaveSynchronization(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
-                return Configure();
+                return await Configure();
 
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var sendinblueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>(storeId);
 
             //create webhook for the unsubscribe event
-            sendinBlueSettings.UnsubscribeWebhookId = _sendinBlueEmailManager.GetUnsubscribeWebHookId();
-            _settingService.SaveSetting(sendinBlueSettings, settings => settings.UnsubscribeWebhookId, clearCache: false);
+            sendinblueSettings.UnsubscribeWebhookId = await _sendinblueEmailManager.GetUnsubscribeWebHookIdAsync();
+            await _settingService.SaveSettingAsync(sendinblueSettings, settings => settings.UnsubscribeWebhookId, clearCache: false);
 
             //set list of contacts to synchronize
-            sendinBlueSettings.ListId = model.ListId;
-            _settingService.SaveSettingOverridablePerStore(sendinBlueSettings, settings => settings.ListId, model.ListId_OverrideForStore, storeId, false);
+            sendinblueSettings.ListId = model.ListId;
+            await _settingService.SaveSettingOverridablePerStoreAsync(sendinblueSettings, settings => settings.ListId, model.ListId_OverrideForStore, storeId, false);
 
             //now clear settings cache
-            _settingService.ClearCache();
+            await _settingService.ClearCacheAsync();
 
-            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return Configure();
+            return await Configure();
         }
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("sync")]
-        public IActionResult Synchronization(ConfigurationModel model)
+        public async Task<IActionResult> Synchronization(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
-                return Configure();
+                return await Configure();
 
             //synchronize contacts of selected store
-            var messages = _sendinBlueEmailManager.Synchronize(false, _storeContext.ActiveStoreScopeConfiguration);
+            var messages = await _sendinblueEmailManager.SynchronizeAsync(false, await _storeContext.GetActiveStoreScopeConfigurationAsync());
             foreach (var message in messages)
             {
                 _notificationService.Notification(message.Type, message.Message, false);
@@ -293,18 +281,20 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
             if (!messages.Any(message => message.Type == NotifyType.Error))
             {
                 ViewData["synchronizationStart"] = true;
-                _notificationService.SuccessNotification(_localizationService.GetResource("Plugins.Misc.SendinBlue.ImportProcess"));
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.ImportProcess"));
             }
 
-            return Configure();
+            return await Configure();
         }
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public string GetSynchronizationInfo()
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task<string> GetSynchronizationInfo()
         {
-            var res = _staticCacheManager.Get(_cacheKeyService.PrepareKeyForDefaultCache(SendinBlueDefaults.SyncKeyCache), () => string.Empty);
-            _staticCacheManager.Remove(SendinBlueDefaults.SyncKeyCache);
+            var res = await _staticCacheManager.GetAsync(_staticCacheManager.PrepareKeyForDefaultCache(SendinblueDefaults.SyncKeyCache), () => string.Empty);
+            await _staticCacheManager.RemoveAsync(SendinblueDefaults.SyncKeyCache);
+
             return res;
         }
 
@@ -312,89 +302,91 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         [Area(AreaNames.Admin)]
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("saveSMTP")]
-        public IActionResult ConfigureSMTP(ConfigurationModel model)
+        public async Task<IActionResult> ConfigureSMTP(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
-                return Configure();
+                return await Configure();
 
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var sendinblueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>(storeId);
 
             if (model.UseSmtp)
             {
-                //set case invariant for true because tokens are used in uppercase format in SendinBlue's transactional emails
+                //set case invariant for true because tokens are used in uppercase format in Sendinblue's transactional emails
                 _messageTemplatesSettings.CaseInvariantReplacement = true;
-                _settingService.SaveSetting(_messageTemplatesSettings, settings => settings.CaseInvariantReplacement, clearCache: false);
+                await _settingService.SaveSettingAsync(_messageTemplatesSettings, settings => settings.CaseInvariantReplacement, clearCache: false);
 
                 //check whether SMTP enabled on account
-                var (smtpIsEnabled, smtpErrors) = _sendinBlueEmailManager.SmtpIsEnabled();
+                var (smtpIsEnabled, smtpErrors) = await _sendinblueEmailManager.SmtpIsEnabledAsync();
                 if (smtpIsEnabled)
                 {
                     //get email account or create new one
-                    var (emailAccountId, emailAccountErrors) = _sendinBlueEmailManager.GetEmailAccountId(model.SenderId, model.SmtpKey);
-                    sendinBlueSettings.EmailAccountId = emailAccountId;
-                    _settingService.SaveSetting(sendinBlueSettings, settings => settings.EmailAccountId, storeId, false);
+                    var (emailAccountId, emailAccountErrors) = await _sendinblueEmailManager.GetEmailAccountIdAsync(model.SenderId, model.SmtpKey);
+                    sendinblueSettings.EmailAccountId = emailAccountId;
+                    await _settingService.SaveSettingAsync(sendinblueSettings, settings => settings.EmailAccountId, storeId, false);
                     if (!string.IsNullOrEmpty(emailAccountErrors))
-                        _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {emailAccountErrors}");
+                        _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {emailAccountErrors}");
                 }
                 else
                 {
                     //need to activate SMTP account
-                    _notificationService.WarningNotification(_localizationService.GetResource("Plugins.Misc.SendinBlue.ActivateSMTP"));
+                    _notificationService.WarningNotification(await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.ActivateSMTP"));
                     model.UseSmtp = false;
                 }
                 if (!string.IsNullOrEmpty(smtpErrors))
-                    _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {smtpErrors}");
+                    _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {smtpErrors}");
             }
 
             //set whether to use SMTP 
-            sendinBlueSettings.UseSmtp = model.UseSmtp;
-            _settingService.SaveSettingOverridablePerStore(sendinBlueSettings, settings => settings.UseSmtp, model.UseSmtp_OverrideForStore, storeId, false);
+            sendinblueSettings.UseSmtp = model.UseSmtp;
+            await _settingService.SaveSettingOverridablePerStoreAsync(sendinblueSettings, settings => settings.UseSmtp, model.UseSmtp_OverrideForStore, storeId, false);
 
             //set sender of transactional emails
-            sendinBlueSettings.SenderId = model.SenderId;
-            _settingService.SaveSettingOverridablePerStore(sendinBlueSettings, settings => settings.SenderId, model.SenderId_OverrideForStore, storeId, false);
+            sendinblueSettings.SenderId = model.SenderId;
+            await _settingService.SaveSettingOverridablePerStoreAsync(sendinblueSettings, settings => settings.SenderId, model.SenderId_OverrideForStore, storeId, false);
 
             //set SMTP key
-            sendinBlueSettings.SmtpKey = model.SmtpKey;
-            _settingService.SaveSetting(sendinBlueSettings, settings => settings.SmtpKey, clearCache: false);
+            sendinblueSettings.SmtpKey = model.SmtpKey;
+            await _settingService.SaveSettingAsync(sendinblueSettings, settings => settings.SmtpKey, clearCache: false);
 
             //now clear settings cache
-            _settingService.ClearCache();
+            await _settingService.ClearCacheAsync();
 
-            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return Configure();
+            return await Configure();
         }
 
         [HttpPost]
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public IActionResult MessageList(SendinBlueMessageTemplateSearchModel searchModel)
+        public async Task<IActionResult> MessageList(SendinblueMessageTemplateSearchModel searchModel)
         {
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var messageTemplates = _messageTemplateService.GetAllMessageTemplates(storeId).ToPagedList(searchModel);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var messageTemplates = (await _messageTemplateService.GetAllMessageTemplatesAsync(storeId)).ToPagedList(searchModel);
 
             //prepare list model
-            var model = new SendinBlueMessageTemplateListModel().PrepareToGrid(searchModel, messageTemplates, () =>
+            var model = await new SendinblueMessageTemplateListModel().PrepareToGridAsync(searchModel, messageTemplates, () =>
             {
-                return messageTemplates.Select(messageTemplate =>
+                return messageTemplates.SelectAwait(async messageTemplate =>
                 {
-                    //standard template of message is edited in the admin area, SendinBlue template is edited in the SendinBlue account
-                    var templateId = _genericAttributeService.GetAttribute<int?>(messageTemplate, SendinBlueDefaults.TemplateIdAttribute);
-                    var stores = _storeService.GetAllStores()
-                        .Where(store => !messageTemplate.LimitedToStores || _storeMappingService.GetStoresIdsWithAccess(messageTemplate).Contains(store.Id))
-                        .Aggregate(string.Empty, (current, next) => $"{current}, {next.Name}").Trim(',');
+                    //standard template of message is edited in the admin area, Sendinblue template is edited in the Sendinblue account
+                    var templateId = await _genericAttributeService.GetAttributeAsync<int?>(messageTemplate, SendinblueDefaults.TemplateIdAttribute);
+                    var stores = (await (await _storeService.GetAllStoresAsync())
+                        .WhereAwait(async store => !messageTemplate.LimitedToStores
+                            || (await _storeMappingService.GetStoresIdsWithAccessAsync(messageTemplate)).Contains(store.Id))
+                        .AggregateAsync(string.Empty, (current, next) => $"{current}, {next.Name}"))
+                        .Trim(',');
 
-                    return new SendinBlueMessageTemplateModel
+                    return new SendinblueMessageTemplateModel
                     {
                         Id = messageTemplate.Id,
                         Name = messageTemplate.Name,
                         IsActive = messageTemplate.IsActive,
                         ListOfStores = stores,
-                        UseSendinBlueTemplate = templateId.HasValue,
+                        UseSendinblueTemplate = templateId.HasValue,
                         EditLink = templateId.HasValue
-                            ? $"{string.Format(SendinBlueDefaults.EditMessageTemplateUrl, templateId.Value)}"
+                            ? $"{string.Format(SendinblueDefaults.EditMessageTemplateUrl, templateId.Value)}"
                             : Url.Action("Edit", "MessageTemplate", new { id = messageTemplate.Id, area = AreaNames.Admin })
                     };
                 });
@@ -406,30 +398,30 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         [HttpPost]
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public IActionResult MessageUpdate(SendinBlueMessageTemplateModel model)
+        public async Task<IActionResult> MessageUpdate(SendinblueMessageTemplateModel model)
         {
             if (!ModelState.IsValid)
                 return ErrorJson(ModelState.SerializeErrors().ToString());
 
-            var message = _messageTemplateService.GetMessageTemplateById(model.Id);
+            var message = await _messageTemplateService.GetMessageTemplateByIdAsync(model.Id);
 
-            //SendinBlue message template
-            if (model.UseSendinBlueTemplate)
+            //Sendinblue message template
+            if (model.UseSendinblueTemplate)
             {
-                var storeId = _storeContext.ActiveStoreScopeConfiguration;
-                var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+                var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var sendinblueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>(storeId);
 
                 //get template or create new one
-                var currentTemplateId = _genericAttributeService.GetAttribute<int?>(message, SendinBlueDefaults.TemplateIdAttribute);
-                var templateId = _sendinBlueEmailManager.GetTemplateId(currentTemplateId, message,
-                    _emailAccountService.GetEmailAccountById(sendinBlueSettings.EmailAccountId));
-                _genericAttributeService.SaveAttribute(message, SendinBlueDefaults.TemplateIdAttribute, templateId);
-                model.EditLink = $"{string.Format(SendinBlueDefaults.EditMessageTemplateUrl, templateId)}";
+                var currentTemplateId = await _genericAttributeService.GetAttributeAsync<int?>(message, SendinblueDefaults.TemplateIdAttribute);
+                var templateId = await _sendinblueEmailManager.GetTemplateIdAsync(currentTemplateId, message,
+                    await _emailAccountService.GetEmailAccountByIdAsync(sendinblueSettings.EmailAccountId));
+                await _genericAttributeService.SaveAttributeAsync(message, SendinblueDefaults.TemplateIdAttribute, templateId);
+                model.EditLink = $"{string.Format(SendinblueDefaults.EditMessageTemplateUrl, templateId)}";
             }
             else
             {
                 //standard message template
-                _genericAttributeService.SaveAttribute<int?>(message, SendinBlueDefaults.TemplateIdAttribute, null);
+                await _genericAttributeService.SaveAttributeAsync<int?>(message, SendinblueDefaults.TemplateIdAttribute, null);
                 model.EditLink = Url.Action("Edit", "MessageTemplate", new { id = model.Id, area = AreaNames.Admin });
             }
 
@@ -438,7 +430,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
                 return new NullJsonResult();
 
             message.IsActive = model.IsActive;
-            _messageTemplateService.UpdateMessageTemplate(message);
+            await _messageTemplateService.UpdateMessageTemplateAsync(message);
 
             return new NullJsonResult();
         }
@@ -447,63 +439,67 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         [Area(AreaNames.Admin)]
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("saveSMS")]
-        public IActionResult ConfigureSMS(ConfigurationModel model)
+        public async Task<IActionResult> ConfigureSMS(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
-                return Configure();
+                return await Configure();
 
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var sendinblueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>(storeId);
 
-            sendinBlueSettings.UseSmsNotifications = model.UseSmsNotifications;
-            _settingService.SaveSettingOverridablePerStore(sendinBlueSettings, settings => settings.UseSmsNotifications, model.UseSmsNotifications_OverrideForStore, storeId, false);
-            sendinBlueSettings.SmsSenderName = model.SmsSenderName;
-            _settingService.SaveSettingOverridablePerStore(sendinBlueSettings, settings => settings.SmsSenderName, model.SmsSenderName_OverrideForStore, storeId, false);
-            sendinBlueSettings.StoreOwnerPhoneNumber = model.StoreOwnerPhoneNumber;
-            _settingService.SaveSetting(sendinBlueSettings, settings => settings.StoreOwnerPhoneNumber, clearCache: false);
+            sendinblueSettings.UseSmsNotifications = model.UseSmsNotifications;
+            await _settingService.SaveSettingOverridablePerStoreAsync(sendinblueSettings, settings => settings.UseSmsNotifications, model.UseSmsNotifications_OverrideForStore, storeId, false);
+            sendinblueSettings.SmsSenderName = model.SmsSenderName;
+            await _settingService.SaveSettingOverridablePerStoreAsync(sendinblueSettings, settings => settings.SmsSenderName, model.SmsSenderName_OverrideForStore, storeId, false);
+            sendinblueSettings.StoreOwnerPhoneNumber = model.StoreOwnerPhoneNumber;
+            await _settingService.SaveSettingAsync(sendinblueSettings, settings => settings.StoreOwnerPhoneNumber, clearCache: false);
 
             //now clear settings cache
-            _settingService.ClearCache();
+            await _settingService.ClearCacheAsync();
 
-            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return Configure();
+            return await Configure();
         }
 
         [HttpPost]
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public IActionResult SMSList(SmsSearchModel searchModel)
+        public async Task<IActionResult> SMSList(SmsSearchModel searchModel)
         {
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
 
             //get message templates which are sending in SMS
-            var messageTemplates = _messageTemplateService.GetAllMessageTemplates(storeId)
-                .Where(messageTemplate => _genericAttributeService.GetAttribute<bool>(messageTemplate, SendinBlueDefaults.UseSmsAttribute))
-                .ToList().ToPagedList(searchModel);
+            var allMessageTemplates = await _messageTemplateService.GetAllMessageTemplatesAsync(storeId);
+            var messageTemplates = await allMessageTemplates
+                
+                .WhereAwait(async messageTemplate => await _genericAttributeService.GetAttributeAsync<bool>(messageTemplate, SendinblueDefaults.UseSmsAttribute))
+                .ToPagedListAsync(searchModel);
 
             //prepare list model
-            var model = new SmsListModel().PrepareToGrid(searchModel, messageTemplates, () =>
+            var model = await new SmsListModel().PrepareToGridAsync(searchModel, messageTemplates, () =>
             {
-                return messageTemplates.Select(messageTemplate =>
+                return messageTemplates.SelectAwait(async messageTemplate =>
                 {
-                    var phoneTypeID = _genericAttributeService.GetAttribute<int>(messageTemplate, SendinBlueDefaults.PhoneTypeAttribute);
+                    var phoneTypeID = await _genericAttributeService.GetAttributeAsync<int>(messageTemplate, SendinblueDefaults.PhoneTypeAttribute);
+
                     var smsModel = new SmsModel
                     {
                         Id = messageTemplate.Id,
                         MessageId = messageTemplate.Id,
                         Name = messageTemplate.Name,
                         PhoneTypeId = phoneTypeID,
-                        Text = _genericAttributeService.GetAttribute<string>(messageTemplate, SendinBlueDefaults.SmsTextAttribute)
+
+                        Text = await _genericAttributeService.GetAttributeAsync<string>(messageTemplate, SendinblueDefaults.SmsTextAttribute)
                     };
 
                     if (storeId == 0)
                     {
                         if (storeId == 0 && messageTemplate.LimitedToStores)
                         {
-                            var storeIds = _storeMappingService.GetStoresIdsWithAccess(messageTemplate);
-                            var storeNames = _storeService.GetAllStores().Where(store => storeIds.Contains(store.Id)).Select(store => store.Name);
+                            var storeIds = await _storeMappingService.GetStoresIdsWithAccessAsync(messageTemplate);
+                            var storeNames = (await _storeService.GetAllStoresAsync()).Where(store => storeIds.Contains(store.Id)).Select(store => store.Name);
+
                             smsModel.Name = $"{smsModel.Name} ({string.Join(',', storeNames)})";
                         }
                     }
@@ -513,13 +509,13 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
                     switch (phoneTypeID)
                     {
                         case 0:
-                            smsModel.PhoneType = _localizationService.GetResource("Plugins.Misc.SendinBlue.MyPhone");
+                            smsModel.PhoneType = await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.MyPhone");
                             break;
                         case 1:
-                            smsModel.PhoneType = _localizationService.GetResource("Plugins.Misc.SendinBlue.CustomerPhone");
+                            smsModel.PhoneType = await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.CustomerPhone");
                             break;
                         case 2:
-                            smsModel.PhoneType = _localizationService.GetResource("Plugins.Misc.SendinBlue.BillingAddressPhone");
+                            smsModel.PhoneType = await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.BillingAddressPhone");
                             break;
                         default:
                             break;
@@ -535,17 +531,17 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         [HttpPost]
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public IActionResult SMSAdd(SmsModel model)
+        public async Task<IActionResult> SMSAdd(SmsModel model)
         {
             if (!ModelState.IsValid)
                 return ErrorJson(ModelState.SerializeErrors());
 
-            var message = _messageTemplateService.GetMessageTemplateById(model.MessageId);
+            var message = await _messageTemplateService.GetMessageTemplateByIdAsync(model.MessageId);
             if (message != null)
             {
-                _genericAttributeService.SaveAttribute(message, SendinBlueDefaults.UseSmsAttribute, true);
-                _genericAttributeService.SaveAttribute(message, SendinBlueDefaults.SmsTextAttribute, model.Text);
-                _genericAttributeService.SaveAttribute(message, SendinBlueDefaults.PhoneTypeAttribute, model.PhoneTypeId);
+                await _genericAttributeService.SaveAttributeAsync(message, SendinblueDefaults.UseSmsAttribute, true);
+                await _genericAttributeService.SaveAttributeAsync(message, SendinblueDefaults.SmsTextAttribute, model.Text);
+                await _genericAttributeService.SaveAttributeAsync(message, SendinblueDefaults.PhoneTypeAttribute, model.PhoneTypeId);
             }
 
             return Json(new { Result = true });
@@ -554,18 +550,18 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         [HttpPost]
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public IActionResult SMSDelete(SmsModel model)
+        public async Task<IActionResult> SMSDelete(SmsModel model)
         {
             if (!ModelState.IsValid)
                 return ErrorJson(ModelState.SerializeErrors());
 
             //delete generic attributes
-            var message = _messageTemplateService.GetMessageTemplateById(model.Id);
+            var message = await _messageTemplateService.GetMessageTemplateByIdAsync(model.Id);
             if (message != null)
             {
-                _genericAttributeService.SaveAttribute<bool?>(message, SendinBlueDefaults.UseSmsAttribute, null);
-                _genericAttributeService.SaveAttribute<string>(message, SendinBlueDefaults.SmsTextAttribute, null);
-                _genericAttributeService.SaveAttribute<int?>(message, SendinBlueDefaults.PhoneTypeAttribute, null);
+                await _genericAttributeService.SaveAttributeAsync<bool?>(message, SendinblueDefaults.UseSmsAttribute, null);
+                await _genericAttributeService.SaveAttributeAsync<string>(message, SendinblueDefaults.SmsTextAttribute, null);
+                await _genericAttributeService.SaveAttributeAsync<int?>(message, SendinblueDefaults.PhoneTypeAttribute, null);
             }
 
             return new NullJsonResult();
@@ -575,84 +571,84 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
         [Area(AreaNames.Admin)]
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("submitCampaign")]
-        public IActionResult SubmitCampaign(ConfigurationModel model)
+        public async Task<IActionResult> SubmitCampaign(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
-                return Configure();
+                return await Configure();
 
-            var campaignErrors = _sendinBlueEmailManager.SendSMSCampaign(model.CampaignListId, model.CampaignSenderName, model.CampaignText);
+            var campaignErrors = await _sendinblueEmailManager.SendSMSCampaignAsync(model.CampaignListId, model.CampaignSenderName, model.CampaignText);
             if (!string.IsNullOrEmpty(campaignErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {campaignErrors}");
+                _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {campaignErrors}");
             else
-                _notificationService.SuccessNotification(_localizationService.GetResource("Plugins.Misc.SendinBlue.SMS.Campaigns.Sent"));
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Misc.Sendinblue.SMS.Campaigns.Sent"));
 
-            return Configure();
+            return await Configure();
         }
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("saveMA")]
-        public IActionResult ConfigureMA(ConfigurationModel model)
+        public async Task<IActionResult> ConfigureMA(ConfigurationModel model)
         {
             if (!ModelState.IsValid)
-                return Configure();
+                return await Configure();
 
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var sendinBlueSettings = _settingService.LoadSetting<SendinBlueSettings>(storeId);
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var sendinblueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>(storeId);
 
-            sendinBlueSettings.UseMarketingAutomation = model.UseMarketingAutomation;
-            _settingService.SaveSettingOverridablePerStore(sendinBlueSettings, settings => settings.UseMarketingAutomation, model.UseMarketingAutomation_OverrideForStore, storeId, false);
+            sendinblueSettings.UseMarketingAutomation = model.UseMarketingAutomation;
+            await _settingService.SaveSettingOverridablePerStoreAsync(sendinblueSettings, settings => settings.UseMarketingAutomation, model.UseMarketingAutomation_OverrideForStore, storeId, false);
 
-            var (accountInfo, marketingAutomationEnabled, maKey, accountErrors) = _sendinBlueEmailManager.GetAccountInfo();
-            sendinBlueSettings.MarketingAutomationKey = maKey;
+            var (accountInfo, marketingAutomationEnabled, maKey, accountErrors) = await _sendinblueEmailManager.GetAccountInfoAsync();
+            sendinblueSettings.MarketingAutomationKey = maKey;
             if (!string.IsNullOrEmpty(accountErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {accountErrors}");
+                _notificationService.ErrorNotification($"{SendinblueDefaults.NotificationMessage} {accountErrors}");
 
-            _settingService.SaveSetting(sendinBlueSettings, settings => settings.MarketingAutomationKey, clearCache: false);
-            sendinBlueSettings.TrackingScript = model.TrackingScript;
-            _settingService.SaveSetting(sendinBlueSettings, settings => settings.TrackingScript, clearCache: false);
+            await _settingService.SaveSettingAsync(sendinblueSettings, settings => settings.MarketingAutomationKey, clearCache: false);
+            sendinblueSettings.TrackingScript = model.TrackingScript;
+            await _settingService.SaveSettingAsync(sendinblueSettings, settings => settings.TrackingScript, clearCache: false);
 
             //now clear settings cache
-            _settingService.ClearCache();
+            await _settingService.ClearCacheAsync();
 
-            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Plugins.Saved"));
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
-            return Configure();
+            return await Configure();
         }
 
-        public IActionResult ImportContacts(BaseNopModel model, IFormCollection form)
+        public async Task<IActionResult> ImportContacts(BaseNopModel model, IFormCollection form)
         {
             try
             {
                 //logging info
-                var logInfo = string.Format("SendinBlue synchronization: New emails {1},{0} Existing emails {2},{0} Invalid emails {3},{0} Duplicates emails {4}{0}",
+                var logInfo = string.Format("Sendinblue synchronization: New emails {1},{0} Existing emails {2},{0} Invalid emails {3},{0} Duplicates emails {4}{0}",
                     Environment.NewLine, form["new_emails"], form["emails_exists"], form["invalid_email"], form["duplicates_email"]);
-                _logger.Information(logInfo);
+                await _logger.InformationAsync(logInfo);
 
                 //display info on configuration page in case of the manually synchronization
-                _staticCacheManager.Set(_cacheKeyService.PrepareKeyForDefaultCache(SendinBlueDefaults.SyncKeyCache), logInfo);
+                await _staticCacheManager.SetAsync(_staticCacheManager.PrepareKeyForDefaultCache(SendinblueDefaults.SyncKeyCache), logInfo);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
-                _staticCacheManager.Set(_cacheKeyService.PrepareKeyForDefaultCache(SendinBlueDefaults.SyncKeyCache), ex.Message);
+                await _logger.ErrorAsync(ex.Message, ex);
+                await _staticCacheManager.SetAsync(_staticCacheManager.PrepareKeyForDefaultCache(SendinblueDefaults.SyncKeyCache), ex.Message);
             }
 
             return Ok();
         }
 
         [HttpPost]
-        public IActionResult UnsubscribeWebHook()
+        public async Task<IActionResult> UnsubscribeWebHook()
         {
             try
             {
                 using var streamReader = new StreamReader(Request.Body);
-                _sendinBlueEmailManager.UnsubscribeWebhook(streamReader.ReadToEnd());
+                await _sendinblueEmailManager.UnsubscribeWebhookAsync(await streamReader.ReadToEndAsync());
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message, ex);
+                await _logger.ErrorAsync(ex.Message, ex);
             }
 
             return Ok();

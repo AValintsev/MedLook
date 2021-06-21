@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -17,17 +18,16 @@ using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Orders;
 using Nop.Services.Seo;
-using Nop.Services.Shipping;
-using SendinBlueMarketingAutomation.Api;
-using SendinBlueMarketingAutomation.Client;
-using SendinBlueMarketingAutomation.Model;
+using SendinblueMarketingAutomation.Api;
+using SendinblueMarketingAutomation.Client;
+using SendinblueMarketingAutomation.Model;
 
-namespace Nop.Plugin.Misc.SendinBlue.Services
+namespace Nop.Plugin.Misc.Sendinblue.Services
 {
     /// <summary>
-    /// Represents SendinBlue marketing automation manager
+    /// Represents Sendinblue marketing automation manager
     /// </summary>
-    public class SendinBlueMarketingAutomationManager
+    public class SendinblueMarketingAutomationManager
     {
         #region Fields
 
@@ -52,13 +52,13 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         private readonly IUrlRecordService _urlRecordService;
         private readonly IWebHelper _webHelper;
         private readonly IWorkContext _workContext;
-        private readonly SendinBlueSettings _sendinBlueSettings;
+        private readonly SendinblueSettings _sendinblueSettings;
 
         #endregion
 
         #region Ctor
 
-        public SendinBlueMarketingAutomationManager(CurrencySettings currencySettings,
+        public SendinblueMarketingAutomationManager(CurrencySettings currencySettings,
             IActionContextAccessor actionContextAccessor,
             IAddressService addressService,
             ICategoryService categoryService,
@@ -79,7 +79,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             IUrlRecordService urlRecordService,
             IWebHelper webHelper,
             IWorkContext workContext,
-            SendinBlueSettings sendinBlueSettings)
+            SendinblueSettings sendinblueSettings)
         {
             _currencySettings = currencySettings;
             _actionContextAccessor = actionContextAccessor;
@@ -102,7 +102,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             _urlRecordService = urlRecordService;
             _webHelper = webHelper;
             _workContext = workContext;
-            _sendinBlueSettings = sendinBlueSettings;
+            _sendinblueSettings = sendinblueSettings;
         }
 
         #endregion
@@ -116,16 +116,16 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         private MarketingAutomationApi CreateMarketingAutomationClient()
         {
             //validate tracker identifier
-            if (string.IsNullOrEmpty(_sendinBlueSettings.MarketingAutomationKey))
+            if (string.IsNullOrEmpty(_sendinblueSettings.MarketingAutomationKey))
                 throw new NopException($"Marketing automation not configured");
 
             var apiConfiguration = new Configuration()
             {
                 MaKey = new Dictionary<string, string>
                 {
-                    [SendinBlueDefaults.MarketingAutomationKeyHeader] = _sendinBlueSettings.MarketingAutomationKey
+                    [SendinblueDefaults.MarketingAutomationKeyHeader] = _sendinblueSettings.MarketingAutomationKey
                 },
-                UserAgent = SendinBlueDefaults.UserAgent
+                UserAgent = SendinblueDefaults.UserAgent
             };
 
             return new MarketingAutomationApi(apiConfiguration);
@@ -139,13 +139,14 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         /// Handle shopping cart changed event
         /// </summary>
         /// <param name="cartItem">Shopping cart item</param>
-        public void HandleShoppingCartChangedEvent(ShoppingCartItem cartItem)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleShoppingCartChangedEventAsync(ShoppingCartItem cartItem)
         {
             //whether marketing automation is enabled
-            if (!_sendinBlueSettings.UseMarketingAutomation)
+            if (!_sendinblueSettings.UseMarketingAutomation)
                 return;
 
-            var customer = _customerService.GetCustomerById(cartItem.CustomerId);
+            var customer = await _customerService.GetCustomerByIdAsync(cartItem.CustomerId);
 
             try
             {
@@ -153,18 +154,18 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 var client = CreateMarketingAutomationClient();
 
                 //first, try to identify current customer
-                client.Identify(new Identify(customer.Email));
+                await client.IdentifyAsync(new Identify(customer.Email));
 
                 //get shopping cart GUID
-                var shoppingCartGuid = _genericAttributeService
-                    .GetAttribute<Guid?>(customer, SendinBlueDefaults.ShoppingCartGuidAttribute);
+                var shoppingCartGuid = await _genericAttributeService
+                    .GetAttributeAsync<Guid?>(customer, SendinblueDefaults.ShoppingCartGuidAttribute);
 
                 //create track event object
                 var trackEvent = new TrackEvent(customer.Email, string.Empty);
 
                 //get current customer's shopping cart
-                var cart = _shoppingCartService
-                    .GetShoppingCart(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+                var cart = await _shoppingCartService
+                    .GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, (await _storeContext.GetCurrentStoreAsync()).Id);
 
                 if (cart.Any())
                 {
@@ -172,26 +173,25 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                     var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
 
                     //get shopping cart amounts
-                    _orderTotalCalculationService.GetShoppingCartSubTotal(cart,
-                        _workContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                        out var cartDiscount, out _, out var cartSubtotal, out _);
-                    var cartTax = _orderTotalCalculationService.GetTaxTotal(cart, false);
-                    var cartShipping = _orderTotalCalculationService.GetShoppingCartShippingTotal(cart);
-                    var cartTotal = _orderTotalCalculationService.GetShoppingCartTotal(cart, false, false);
+                    var (_, cartDiscount, _, cartSubtotal, _) = await _orderTotalCalculationService.GetShoppingCartSubTotalAsync(cart,
+                        await _workContext.GetTaxDisplayTypeAsync() == TaxDisplayType.IncludingTax);
+                    var cartTax = await _orderTotalCalculationService.GetTaxTotalAsync(cart, false);
+                    var cartShipping = await _orderTotalCalculationService.GetShoppingCartShippingTotalAsync(cart);
+                    var (cartTotal, _, _, _, _, _) = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, false, false);
 
                     //get products data by shopping cart items
-                    var itemsData = cart.Where(item => item.ProductId != 0).Select(item =>
+                    var itemsData = await cart.Where(item => item.ProductId != 0).SelectAwait(async item =>
                     {
-                        var product = _productService.GetProductById(item.ProductId);
+                        var product = await _productService.GetProductByIdAsync(item.ProductId);
 
                         //try to get product attribute combination
-                        var combination = _productAttributeParser.FindProductAttributeCombination(product, item.AttributesXml);
+                        var combination = await _productAttributeParser.FindProductAttributeCombinationAsync(product, item.AttributesXml);
 
                         //get default product picture
-                        var picture = _pictureService.GetProductPicture(product, item.AttributesXml);
+                        var picture = await _pictureService.GetProductPictureAsync(product, item.AttributesXml);
 
                         //get product SEO slug name
-                        var seName = _urlRecordService.GetSeName(product);
+                        var seName = await _urlRecordService.GetSeNameAsync(product);
 
                         //create product data
                         return new
@@ -201,31 +201,31 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                             variant_id = combination?.Id ?? product.Id,
                             variant_name = combination?.Sku ?? product.Name,
                             sku = combination?.Sku ?? product.Sku,
-                            category = _categoryService.GetProductCategoriesByProductId(item.ProductId).Aggregate(",", (all, pc) =>
+                            category = await (await _categoryService.GetProductCategoriesByProductIdAsync(item.ProductId)).AggregateAwaitAsync(",", async (all, pc) =>
                             {
-                                var res = _categoryService.GetCategoryById(pc.CategoryId).Name;
+                                var res = (await _categoryService.GetCategoryByIdAsync(pc.CategoryId)).Name;
                                 res = all == "," ? res : all + ", " + res;
                                 return res;
                             }),
-                            url = urlHelper.RouteUrl("Product", new { SeName = seName }, _webHelper.CurrentRequestProtocol),
-                            image = _pictureService.GetPictureUrl(ref picture),
+                            url = urlHelper.RouteUrl("Product", new { SeName = seName }, _webHelper.GetCurrentRequestProtocol()),
+                            image = (await _pictureService.GetPictureUrlAsync(picture)).Url,
                             quantity = item.Quantity,
-                            price = _shoppingCartService.GetSubTotal(item)
+                            price = (await _shoppingCartService.GetSubTotalAsync(item, true)).subTotal
                         };
-                    }).ToArray();
+                    }).ToArrayAsync();
 
                     //prepare cart data
                     var cartData = new
                     {
-                        affiliation = _storeContext.CurrentStore.Name,
+                        affiliation = (await _storeContext.GetCurrentStoreAsync()).Name,
                         subtotal = cartSubtotal,
                         shipping = cartShipping ?? decimal.Zero,
                         total_before_tax = cartSubtotal + cartShipping ?? decimal.Zero,
                         tax = cartTax,
                         discount = cartDiscount,
                         revenue = cartTotal ?? decimal.Zero,
-                        url = urlHelper.RouteUrl("ShoppingCart", null, _webHelper.CurrentRequestProtocol),
-                        currency = _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)?.CurrencyCode,
+                        url = urlHelper.RouteUrl("ShoppingCart", null, _webHelper.GetCurrentRequestProtocol()),
+                        currency = (await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
                         //gift_wrapping = string.Empty, //currently we can't get this value
                         items = itemsData
                     };
@@ -240,27 +240,27 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                         //otherwise cart is updated
                         shoppingCartGuid ??= Guid.NewGuid();
                     }
-                    trackEvent.EventName = SendinBlueDefaults.CartUpdatedEventName;
+                    trackEvent.EventName = SendinblueDefaults.CartUpdatedEventName;
                     trackEvent.EventData = new { id = $"cart:{shoppingCartGuid}", data = cartData };
                 }
                 else
                 {
                     //there are no items in the cart, so the cart is deleted
                     shoppingCartGuid ??= Guid.NewGuid();
-                    trackEvent.EventName = SendinBlueDefaults.CartDeletedEventName;
+                    trackEvent.EventName = SendinblueDefaults.CartDeletedEventName;
                     trackEvent.EventData = new { id = $"cart:{shoppingCartGuid}" };
                 }
 
                 //track event
-                client.TrackEvent(trackEvent);
+                await client.TrackEventAsync(trackEvent);
 
                 //update GUID for the current customer's shopping cart
-                _genericAttributeService.SaveAttribute(customer, SendinBlueDefaults.ShoppingCartGuidAttribute, shoppingCartGuid);
+                await _genericAttributeService.SaveAttributeAsync(customer, SendinblueDefaults.ShoppingCartGuidAttribute, shoppingCartGuid);
             }
             catch (Exception exception)
             {
                 //log full error
-                _logger.Error($"SendinBlue Marketing Automation error: {exception.Message}.", exception, customer);
+                await _logger.ErrorAsync($"Sendinblue Marketing Automation error: {exception.Message}.", exception, customer);
             }
         }
 
@@ -268,16 +268,17 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         /// Handle order completed event
         /// </summary>
         /// <param name="order">Order</param>
-        public void HandleOrderCompletedEvent(Order order)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleOrderCompletedEventAsync(Order order)
         {
             //whether marketing automation is enabled
-            if (!_sendinBlueSettings.UseMarketingAutomation)
+            if (!_sendinblueSettings.UseMarketingAutomation)
                 return;
 
             if (order is null)
                 throw new ArgumentNullException(nameof(order));
 
-            var customer = _customerService.GetCustomerById(order.CustomerId);
+            var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
 
             try
             {
@@ -285,24 +286,24 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 var client = CreateMarketingAutomationClient();
 
                 //first, try to identify current customer
-                client.Identify(new Identify(customer.Email));
+                await client.IdentifyAsync(new Identify(customer.Email));
 
                 //get URL helper
                 var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
 
                 //get products data by order items
-                var itemsData = _orderService.GetOrderItems(order.Id).Select(item =>
+                var itemsData = await (await _orderService.GetOrderItemsAsync(order.Id)).SelectAwait(async item =>
                 {
-                    var product = _productService.GetProductById(item.ProductId);
+                    var product = await _productService.GetProductByIdAsync(item.ProductId);
 
                     //try to get product attribute combination
-                    var combination = _productAttributeParser.FindProductAttributeCombination(product, item.AttributesXml);
+                    var combination = await _productAttributeParser.FindProductAttributeCombinationAsync(product, item.AttributesXml);
 
                     //get default product picture
-                    var picture = _pictureService.GetProductPicture(product, item.AttributesXml);
+                    var picture = await _pictureService.GetProductPictureAsync(product, item.AttributesXml);
 
                     //get product SEO slug name
-                    var seName = _urlRecordService.GetSeName(product);
+                    var seName = await _urlRecordService.GetSeNameAsync(product);
 
                     //create product data
                     return new
@@ -312,21 +313,21 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                         variant_id = combination?.Id ?? product.Id,
                         variant_name = combination?.Sku ?? product.Name,
                         sku = combination?.Sku ?? product.Sku,
-                        category = _categoryService.GetProductCategoriesByProductId(item.ProductId).Aggregate(",", (all, pc) =>
+                        category = await (await _categoryService.GetProductCategoriesByProductIdAsync(item.ProductId)).AggregateAwaitAsync(",", async (all, pc) =>
                         {
-                            var res = _categoryService.GetCategoryById(pc.CategoryId).Name;
+                            var res = (await _categoryService.GetCategoryByIdAsync(pc.CategoryId)).Name;
                             res = all == "," ? res : all + ", " + res;
                             return res;
                         }),
-                        url = urlHelper.RouteUrl("Product", new { SeName = seName }, _webHelper.CurrentRequestProtocol),
-                        image = _pictureService.GetPictureUrl(ref picture),
+                        url = urlHelper.RouteUrl("Product", new { SeName = seName }, _webHelper.GetCurrentRequestProtocol()),
+                        image = (await _pictureService.GetPictureUrlAsync(picture)).Url,
                         quantity = item.Quantity,
                         price = item.PriceInclTax,
                     };
-                }).ToArray();
+                }).ToArrayAsync();
 
-                var shippingAddress = _addressService.GetAddressById(order.ShippingAddressId ?? 0);
-                var billingAddress = _addressService.GetAddressById(order.BillingAddressId);
+                var shippingAddress = await _addressService.GetAddressByIdAsync(order.ShippingAddressId ?? 0);
+                var billingAddress = await _addressService.GetAddressByIdAsync(order.BillingAddressId);
 
                 var shippingAddressData = new
                 {
@@ -337,8 +338,8 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                     address1 = shippingAddress?.Address1,
                     address2 = shippingAddress?.Address2,
                     city = shippingAddress?.City,
-                    country = _countryService.GetCountryByAddress(shippingAddress)?.Name,
-                    state = _stateProvinceService.GetStateProvinceByAddress(shippingAddress)?.Name,
+                    country = (await _countryService.GetCountryByAddressAsync(shippingAddress))?.Name,
+                    state = (await _stateProvinceService.GetStateProvinceByAddressAsync(shippingAddress))?.Name,
                     zipcode = shippingAddress?.ZipPostalCode
                 };
 
@@ -351,8 +352,8 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                     address1 = billingAddress?.Address1,
                     address2 = billingAddress?.Address2,
                     city = billingAddress?.City,
-                    country = _countryService.GetCountryByAddress(billingAddress)?.Name,
-                    state = _stateProvinceService.GetStateProvinceByAddress(billingAddress)?.Name,
+                    country = (await _countryService.GetCountryByAddressAsync(billingAddress))?.Name,
+                    state = (await _stateProvinceService.GetStateProvinceByAddressAsync(billingAddress))?.Name,
                     zipcode = billingAddress?.ZipPostalCode
                 };
 
@@ -360,7 +361,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 var cartData = new
                 {
                     id = order.Id,
-                    affiliation = customer.AffiliateId > 0 ? customer.AffiliateId.ToString() : _storeContext.CurrentStore.Name,
+                    affiliation = customer.AffiliateId > 0 ? customer.AffiliateId.ToString() : (await _storeContext.GetCurrentStoreAsync()).Name,
                     date = order.PaidDateUtc?.ToString("yyyy-MM-dd"),
                     subtotal = order.OrderSubtotalInclTax,
                     shipping = order.OrderShippingInclTax,
@@ -368,7 +369,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                     tax = order.OrderTax,
                     discount = order.OrderDiscount,
                     revenue = order.OrderTotal,
-                    url = urlHelper.RouteUrl("OrderDetails", new { orderId = order.Id }, _webHelper.CurrentRequestProtocol),
+                    url = urlHelper.RouteUrl("OrderDetails", new { orderId = order.Id }, _webHelper.GetCurrentRequestProtocol()),
                     currency = order.CustomerCurrencyCode,
                     //gift_wrapping = string.Empty, //currently we can't get this value
                     items = itemsData,
@@ -377,23 +378,23 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 };
 
                 //get shopping cart GUID
-                var shoppingCartGuid = _genericAttributeService.GetAttribute<Guid?>(order,
-                    SendinBlueDefaults.ShoppingCartGuidAttribute) ?? Guid.NewGuid();
+                var shoppingCartGuid = await _genericAttributeService.GetAttributeAsync<Guid?>(order,
+                    SendinblueDefaults.ShoppingCartGuidAttribute) ?? Guid.NewGuid();
 
                 //create track event object
-                var trackEvent = new TrackEvent(customer.Email, SendinBlueDefaults.OrderCompletedEventName,
+                var trackEvent = new TrackEvent(customer.Email, SendinblueDefaults.OrderCompletedEventName,
                     eventData: new { id = $"cart:{shoppingCartGuid}", data = cartData });
 
                 //track event
                 client.TrackEvent(trackEvent);
 
                 //update GUID for the current customer's shopping cart
-                _genericAttributeService.SaveAttribute<Guid?>(order, SendinBlueDefaults.ShoppingCartGuidAttribute, null);
+                await _genericAttributeService.SaveAttributeAsync<Guid?>(order, SendinblueDefaults.ShoppingCartGuidAttribute, null);
             }
             catch (Exception exception)
             {
                 //log full error
-                _logger.Error($"SendinBlue Marketing Automation error: {exception.Message}.", exception, customer);
+                await _logger.ErrorAsync($"Sendinblue Marketing Automation error: {exception.Message}.", exception, customer);
             }
         }
 
@@ -401,15 +402,16 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         /// Handle order placed event
         /// </summary>
         /// <param name="order">Order</param>
-        public void HandleOrderPlacedEvent(Order order)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleOrderPlacedEventAsync(Order order)
         {
             //whether marketing automation is enabled
-            if (!_sendinBlueSettings.UseMarketingAutomation)
+            if (!_sendinblueSettings.UseMarketingAutomation)
                 return;
 
             //copy shopping cart GUID to order
-            var shoppingCartGuid = _genericAttributeService.GetAttribute<Customer, Guid?>(order.CustomerId, SendinBlueDefaults.ShoppingCartGuidAttribute);
-            _genericAttributeService.SaveAttribute(order, SendinBlueDefaults.ShoppingCartGuidAttribute, shoppingCartGuid);
+            var shoppingCartGuid = await _genericAttributeService.GetAttributeAsync<Customer, Guid?>(order.CustomerId, SendinblueDefaults.ShoppingCartGuidAttribute);
+            await _genericAttributeService.SaveAttributeAsync(order, SendinblueDefaults.ShoppingCartGuidAttribute, shoppingCartGuid);
         }
 
         #endregion

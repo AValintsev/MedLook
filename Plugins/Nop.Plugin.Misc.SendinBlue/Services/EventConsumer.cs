@@ -1,4 +1,5 @@
-﻿using Nop.Core.Domain.Customers;
+﻿using System.Threading.Tasks;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Messages;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Stores;
@@ -7,7 +8,7 @@ using Nop.Services.Common;
 using Nop.Services.Events;
 using Nop.Services.Messages;
 
-namespace Nop.Plugin.Misc.SendinBlue.Services
+namespace Nop.Plugin.Misc.Sendinblue.Services
 {
     /// <summary>
     /// Represents event consumer
@@ -26,20 +27,20 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         #region Fields
 
         private readonly IGenericAttributeService _genericAttributeService;
-        private readonly SendinBlueManager _sendinBlueEmailManager;
-        private readonly SendinBlueMarketingAutomationManager _sendinBlueMarketingAutomationManager;
+        private readonly SendinblueManager _sendinblueEmailManager;
+        private readonly SendinblueMarketingAutomationManager _sendinblueMarketingAutomationManager;
 
         #endregion
 
         #region Ctor
 
         public EventConsumer(IGenericAttributeService genericAttributeService,
-            SendinBlueManager sendinBlueEmailManager,
-            SendinBlueMarketingAutomationManager sendinBlueMarketingAutomationManager)
+            SendinblueManager sendinblueEmailManager,
+            SendinblueMarketingAutomationManager sendinblueMarketingAutomationManager)
         {
             _genericAttributeService = genericAttributeService;
-            _sendinBlueEmailManager = sendinBlueEmailManager;
-            _sendinBlueMarketingAutomationManager = sendinBlueMarketingAutomationManager;
+            _sendinblueEmailManager = sendinblueEmailManager;
+            _sendinblueMarketingAutomationManager = sendinblueMarketingAutomationManager;
         }
 
         #endregion
@@ -50,91 +51,102 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         /// Handle the email unsubscribed event.
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(EmailUnsubscribedEvent eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(EmailUnsubscribedEvent eventMessage)
         {
             //unsubscribe contact
-            _sendinBlueEmailManager.Unsubscribe(eventMessage.Subscription);
+            await _sendinblueEmailManager.UnsubscribeAsync(eventMessage.Subscription);
         }
 
         /// <summary>
         /// Handle the email subscribed event.
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(EmailSubscribedEvent eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(EmailSubscribedEvent eventMessage)
         {
             //subscribe contact
-            _sendinBlueEmailManager.Subscribe(eventMessage.Subscription);
+            await _sendinblueEmailManager.SubscribeAsync(eventMessage.Subscription);
         }
 
         /// <summary>
         /// Handle the add shopping cart item event
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(EntityInsertedEvent<ShoppingCartItem> eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(EntityInsertedEvent<ShoppingCartItem> eventMessage)
         {
             //handle event
-            _sendinBlueMarketingAutomationManager.HandleShoppingCartChangedEvent(eventMessage.Entity);
+            await _sendinblueMarketingAutomationManager.HandleShoppingCartChangedEventAsync(eventMessage.Entity);
         }
 
         /// <summary>
         /// Handle the update shopping cart item event
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(EntityUpdatedEvent<ShoppingCartItem> eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(EntityUpdatedEvent<ShoppingCartItem> eventMessage)
         {
             //handle event
-            _sendinBlueMarketingAutomationManager.HandleShoppingCartChangedEvent(eventMessage.Entity);
+            await _sendinblueMarketingAutomationManager.HandleShoppingCartChangedEventAsync(eventMessage.Entity);
         }
 
         /// <summary>
         /// Handle the delete shopping cart item event
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(EntityDeletedEvent<ShoppingCartItem> eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(EntityDeletedEvent<ShoppingCartItem> eventMessage)
         {
             //handle event
-            _sendinBlueMarketingAutomationManager.HandleShoppingCartChangedEvent(eventMessage.Entity);
+            await _sendinblueMarketingAutomationManager.HandleShoppingCartChangedEventAsync(eventMessage.Entity);
         }
 
         /// <summary>
         /// Handle the order paid event
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(OrderPaidEvent eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(OrderPaidEvent eventMessage)
         {
             //handle event
-            _sendinBlueMarketingAutomationManager.HandleOrderCompletedEvent(eventMessage.Order);
-            _sendinBlueEmailManager.UpdateContactAfterCompletingOrder(eventMessage.Order);
+            await _sendinblueMarketingAutomationManager.HandleOrderCompletedEventAsync(eventMessage.Order);
+            await _sendinblueEmailManager.UpdateContactAfterCompletingOrderAsync(eventMessage.Order);
         }
 
         /// <summary>
         /// Handle the order placed event
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(OrderPlacedEvent eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(OrderPlacedEvent eventMessage)
         {
             //handle event
-            _sendinBlueMarketingAutomationManager.HandleOrderPlacedEvent(eventMessage.Order);
+            await _sendinblueMarketingAutomationManager.HandleOrderPlacedEventAsync(eventMessage.Order);
         }
 
         /// <summary>
         /// Handle the store tokens added event
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(EntityTokensAddedEvent<Store, Token> eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public Task HandleEventAsync(EntityTokensAddedEvent<Store, Token> eventMessage)
         {
             //handle event
             eventMessage.Tokens.Add(new Token("Store.Id", eventMessage.Entity.Id));
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Handle the customer tokens added event
         /// </summary>
         /// <param name="eventMessage">The event message.</param>
-        public void HandleEvent(EntityTokensAddedEvent<Customer, Token> eventMessage)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public async Task HandleEventAsync(EntityTokensAddedEvent<Customer, Token> eventMessage)
         {
             //handle event
-            var phone = _genericAttributeService.GetAttribute<string>(eventMessage.Entity, NopCustomerDefaults.PhoneAttribute);
+            var phone = await _genericAttributeService.GetAttributeAsync<string>(eventMessage.Entity, NopCustomerDefaults.PhoneAttribute);
             eventMessage.Tokens.Add(new Token("Customer.PhoneNumber", phone));
         }
 

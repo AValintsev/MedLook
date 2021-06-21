@@ -1,11 +1,11 @@
 ﻿using Nop.Web.Framework.Models;
 
-namespace Nop.Plugin.Misc.SendinBlue.Models
+namespace Nop.Plugin.Misc.Sendinblue.Models
 {
     /// <summary>
     /// Represents message template list model
     /// </summary>
-    public class SendinBlueMessageTemplateListModel : BasePagedListModel<SendinBlueMessageTemplateModel>
+    public record SendinblueMessageTemplateListModel : BasePagedListModel<SendinblueMessageTemplateModel>
     {
     }
 }

@@ -8,7 +8,7 @@
 @inject IWebHelper webHelper
 
 @{
-	var isRegisterCustomer = customerService.IsRegistered(workContext.CurrentCustomer);
+	var isRegisterCustomer = await customerService.IsRegisteredAsync(await workContext.GetCurrentCustomerAsync());
 	var rootCategoriesResponsive = Model.Categories.ToList();
 
 	<div class="hamburger-menu">
