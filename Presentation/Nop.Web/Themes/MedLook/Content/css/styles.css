@@ -4224,17 +4224,33 @@ label, label + * {
 		color: #fff;
 	}
 
-		.shopping-cart-page .common-buttons input:hover {
-			background-color: #999;
+	.shopping-cart-page .common-buttons button {
+		display: inline-block;
+		border: none;
+		border-radius: 5px;
+		background-color: #88CFF1;
+		padding: 10px 20px;
+		font-size: 16px;
+		color: #fff;
+		margin: 0 5px;
+	}
+
+		.shopping-cart-page .common-buttons button:hover {
+			background-color: #248ece;
 		}
 
-		.shopping-cart-page .common-buttons input:first-child {
-			background-color: #88CFF1;
-		}
 
-			.shopping-cart-page .common-buttons input:first-child:hover {
-				background-color: #248ece;
-			}
+	.shopping-cart-page .common-buttons input:hover {
+		background-color: #999;
+	}
+
+	.shopping-cart-page .common-buttons input:first-child {
+		background-color: #88CFF1;
+	}
+
+		.shopping-cart-page .common-buttons input:first-child:hover {
+			background-color: #248ece;
+		}
 
 .checkout-attributes {
 	margin: -30px 0 30px;
@@ -4927,6 +4943,11 @@ label, label + * {
 		display: block;
 		font-size: 0 !important;
 	}
+
+		.payment-method .payment-logo label img {
+			max-width: 200px;
+			max-height: 130px;
+		}
 
 .payment-method .payment-details {
 	min-width: 180px;
