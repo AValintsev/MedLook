@@ -10,3 +10,11 @@ mdAdmin11
 
 medlook_api_key
 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
+
+DB
+Data Source=scp.realhost.pro;
+Initial Catalog=medlook;
+Integrated Security=False;
+Persist Security Info=False;
+User ID=medlook_db_user;
+Password=MdAdmin11
