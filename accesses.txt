@@ -7,3 +7,6 @@ hevdwbqcua5rjsnziotm
 
 medlook.com.ua_dploy
 mdAdmin11
+
+medlook_api_key
+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
