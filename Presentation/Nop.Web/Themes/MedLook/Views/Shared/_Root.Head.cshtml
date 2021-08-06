@@ -58,6 +58,7 @@
 	@await Html.PartialAsync("Head")
 	@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeadHtmlTag })
 	@Html.NopCssFiles(ResourceLocation.Head)
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glider-js@1/glider.min.css">
 	@Html.NopScripts(ResourceLocation.Head)
 	@Html.NopCanonicalUrls()
 	@await Component.InvokeAsync("NewsRssHeaderLink")
@@ -69,16 +70,14 @@
 		<mini-profiler />
 	}
 	@Html.NopInlineScripts(ResourceLocation.Head)
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glider-js@1/glider.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/glider-js@1/glider.min.js"></script>
 	<!--Powered by nopCommerce - https://www.nopCommerce.com-->
 </head>
 <body>
 	@RenderBody()
+	<script src="https://cdn.jsdelivr.net/npm/glider-js@1/glider.min.js"></script>
 	@Html.NopCssFiles(ResourceLocation.Footer)
 	@Html.NopScripts(ResourceLocation.Footer)
 	@Html.NopInlineScripts(ResourceLocation.Footer)
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-
 </body>
 </html>

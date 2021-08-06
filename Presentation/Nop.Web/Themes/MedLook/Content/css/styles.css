@@ -246,7 +246,7 @@ label, label + * {
 		.home-page-categories h2:nth-of-type(odd) {
 			order: 2;
 		*/
-}
+/*}*/
 
 .page {
 	min-height: 200px;
@@ -2146,6 +2146,10 @@ label, label + * {
 		.item-box .add-to-wishlist-button:hover {
 			background-color: #ddd;
 		}
+
+.home-page .topic-block {
+	margin-top: 48px;
+}
 
 .home-page-category-grid,
 .sub-category-grid,
