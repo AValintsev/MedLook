@@ -1149,7 +1149,7 @@ label, label + * {
 
 .home-page-logo {
 	display: flex;
-	margin-top: 32px;
+	margin-bottom: 32px;
 }
 
 
@@ -1170,7 +1170,7 @@ label, label + * {
 	}
 
 .home-page-logo .header-prompt {
-	margin-top: 26px;
+	/*margin-top: 26px;*/
 }
 
 .home-page-logo .topic-block-title h2 {

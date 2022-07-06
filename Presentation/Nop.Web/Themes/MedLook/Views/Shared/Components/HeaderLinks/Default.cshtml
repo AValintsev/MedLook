@@ -11,7 +11,7 @@
 @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksBefore })
 
 <div class="header-logo">
-	@await Component.InvokeAsync("Logo")
+	@*@await Component.InvokeAsync("Logo")*@
 	<a href="@Url.RouteUrl("Homepage")">
 		<div class="medlook_svg"></div>
 	</a>
