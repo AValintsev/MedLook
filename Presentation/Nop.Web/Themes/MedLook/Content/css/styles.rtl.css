@@ -52,7 +52,7 @@ input[type="reset"] {
     -webkit-appearance: none;
 }
 input:-webkit-autofill {
-	-webkit-box-shadow: inset 0 0 0 1000px #fff;
+	-webkit-box-shadow: inset 0 0 0 1000px #feffff;
 }
 script {
     display: none !important;
@@ -66,12 +66,12 @@ script {
 body {
     max-width: 100%;
 	overflow-x: hidden;
-	background-color: #fff;
+	background-color: #feffff;
 	font: normal 14px Arial, Helvetica, sans-serif;
     color: #777;
 }
 h1,h2,h3,h4,h5,h6 {
-	color: #444;
+	color: #00659C;
 }
 a {
 	color: inherit;
@@ -113,7 +113,7 @@ input[type="tel"]:focus,
 input[type="password"]:focus,
 textarea:focus, select:focus {
     border-color: #ccc;
-    color: #444;
+    color: #00659C;
 }
 input[type="checkbox"],
 input[type="radio"],
@@ -239,7 +239,7 @@ label, label + * {
 	margin: 0 0 15px;
 	padding: 0 10px;
 	font-size: 20px;
-	color: #444;
+	color: #00659C;
 }
 .fieldset .title strong,
 .section .title strong {
@@ -269,7 +269,7 @@ label, label + * {
 	margin: 0 0 10px;
 	text-align: center;
     font-size: 14px; /*reset zeroing*/
-	color: #444;
+	color: #00659C;
 }
 .inputs input[type="text"],
 .inputs input[type="email"],
@@ -278,7 +278,7 @@ label, label + * {
 .inputs select, .inputs textarea {
     width: 400px;
     max-width: 100%;
-    background-color: #fff;
+    background-color: #feffff;
 }
 
 .inputs.custom-attributes {
@@ -293,7 +293,7 @@ label, label + * {
 	display: inline-block;
 	margin: 5px;
 	border: 1px solid #ddd;
-	background-color: #fff;
+	background-color: #feffff;
 	padding: 8px 10px;
 }
 .inputs .option-list label {
@@ -401,9 +401,9 @@ label, label + * {
 	border-width: 1px;
 	border-style: solid;
     border-color: transparent #ddd #ddd;
-    background-color: #fff;
+    background-color: #feffff;
     padding: 20px;
-	color: #444;
+	color: #00659C;
 }
 .forum-table td {
 	min-width: 90px;
@@ -436,7 +436,7 @@ label, label + * {
 .data-table .product a,
 .data-table .info a {
     font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .cart .product a:hover,
 .data-table .product a:hover,
@@ -474,7 +474,7 @@ label, label + * {
 .cart td.subtotal,
 .data-table td.total {
 	white-space: nowrap;
-    color: #444;
+    color: #00659C;
 }
 .cart td.subtotal .discount, .cart td.subtotal .discount-additional-info {
     font-style: italic;
@@ -483,7 +483,7 @@ label, label + * {
 
 .data-table em a {
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .data-table div.download {
 	margin: 10px 0 0;
@@ -501,7 +501,7 @@ label, label + * {
     z-index: 1000;
     width: 100%;
     line-height: 16px;
-    color: #fff;
+    color: #feffff;
     opacity: 0.95;
 }
 .bar-notification.success {
@@ -522,7 +522,7 @@ label, label + * {
 	margin: 0 0 0 10px;
 }
 .bar-notification .content a {
-	color: #fff;
+	color: #feffff;
 	text-decoration: underline;
 }
 .bar-notification .close {
@@ -532,7 +532,7 @@ label, label + * {
 	width: 32px;
 	height: 32px;
 	margin: 7px;
-	background: #fff url('../images/close.png') center no-repeat;
+	background: #feffff url('../images/close.png') center no-repeat;
 	cursor: pointer;
 }
 .popup-notification {
@@ -556,7 +556,7 @@ label, label + * {
 	padding: 30px 15px;
     text-align: center;
 	line-height: 22px;
-    color: #444;
+    color: #00659C;
 }
 
 .ajax-loading-block-window {
@@ -581,7 +581,7 @@ label, label + * {
 	border: 1px solid #ddd;
 	box-shadow: 0 0 2px rgba(0,0,0,0.15);
 	overflow: hidden;
-	background-color: #fff;
+	background-color: #feffff;
 	/*override jQuery UI styles, do not delete doubled properties*/
 	border-radius: 0;
 	padding: 0;
@@ -612,7 +612,7 @@ label, label + * {
 .ui-dialog-titlebar > span {
 	float: right;
 	font-size: 18px;
-	color: #444;
+	color: #00659C;
 	/*override jQuery UI styles, do not delete doubled properties*/
 	float: right !important;
 	margin: 0 !important;
@@ -646,7 +646,7 @@ label, label + * {
 	padding: 15px;
 	line-height: 20px;
 	/*override jQuery UI styles, do not delete doubled properties*/
-	background-color: #fff !important;
+	background-color: #feffff !important;
 	padding: 15px 15px 20px 15px !important;
 	color: #777;
 }
@@ -674,7 +674,7 @@ label, label + * {
 	background-color: #4ab2f1;
     padding: 10px 15px;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .ui-dialog-content .back-in-stock-subscription-page .button-1:hover {
@@ -691,7 +691,7 @@ label, label + * {
     margin: -90px -160px 0 0;
     border: 1px solid #ccc;
 	box-shadow: 0 0 2px rgba(0,0,0,0.15);
-    background-color: #fff;
+    background-color: #feffff;
     padding: 20px;
 	text-align: center;
 }
@@ -706,7 +706,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 8px 12px;
 	font-size: 14px;
-	color: #fff;
+	color: #feffff;
 }
 .eu-cookie-bar-notification button:hover {
 	background-color: #248ece;
@@ -876,14 +876,14 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 0 15px;
 	text-align: center;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .search-box .search-box-button:hover {
 	background-color: #248ece;
 }
 .search-box .ui-autocomplete-loading {
-	background: #fff url('../images/ajax-loader-small.gif') left center no-repeat;
+	background: #feffff url('../images/ajax-loader-small.gif') left center no-repeat;
 }
 .ui-helper-hidden-accessible {
 	display: none !important;
@@ -893,7 +893,7 @@ label, label + * {
 	border: 1px solid #ddd;
 	border-top: none;
 	overflow: hidden;
-	background-color: #fff;
+	background-color: #feffff;
 	text-align: right;
 	/*override jQuery UI styles, do not delete doubled properties*/
 	border-radius: 0;
@@ -959,7 +959,7 @@ label, label + * {
 	background: #4ab2f1 url('../images/toggle-white.png') left center no-repeat;
 	padding: 10px 15px;
 	font-size: 20px;
-	color: #fff;
+	color: #feffff;
 	cursor: pointer;
 }
 .footer-block .title strong {
@@ -968,7 +968,7 @@ label, label + * {
 .footer-block .list {
 	display: none;
 	margin: 0 0 20px;
-	background-color: #fff;
+	background-color: #feffff;
 	padding: 10px 15px;
 }
 .footer-block .list a {
@@ -987,7 +987,7 @@ label, label + * {
 .follow-us .title {
 	margin: 0 0 10px;
 	background: none;
-	color: #444;
+	color: #00659C;
 	cursor: auto;
 }
 .follow-us .social ul {
@@ -1040,7 +1040,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 0 15px;
 	text-align: center;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .newsletter-subscribe-button:hover {
@@ -1114,7 +1114,7 @@ label, label + * {
 	background: #f6f6f6 url('../images/toggle-gray.png') left 14px no-repeat;
 	padding: 12px 10px 12px 30px;
 	font-size: 20px;
-	color: #444;
+	color: #00659C;
 	cursor: pointer;
 }
 .block .title strong {
@@ -1133,7 +1133,7 @@ label, label + * {
 	position: relative;
 	padding: 5px 0;
 	font-size: 16px;
-	color: #444;
+	color: #00659C;
     -webkit-transition: all 0.1s ease;
 	transition: all 0.1s ease;
 }
@@ -1196,7 +1196,7 @@ label, label + * {
 .product-tags-all-page li a {
 	float: right;
 	line-height: 30px;
-	color: #444;
+	color: #00659C;
 }
 .block .tags li a:hover,
 .product-tags-all-page li a:hover {
@@ -1210,7 +1210,7 @@ label, label + * {
 	padding: 10px 15px;
 	font-size: 15px;
 	font-weight: normal;
-	color: #444;
+	color: #00659C;
 	text-transform: uppercase;
 }
 .poll-options,
@@ -1218,7 +1218,7 @@ label, label + * {
 	margin: 10px 0 15px;
 	overflow: hidden;
 	font-size: 15px;
-	color: #444;
+	color: #00659C;
 }
 .poll-options li,
 .poll-results li {
@@ -1241,7 +1241,7 @@ label, label + * {
 	background-color: #aaa;
 	padding: 10px 20px;
 	font-size: 13px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;	
 }
 .poll .buttons input:hover {
@@ -1252,7 +1252,7 @@ label, label + * {
 	margin: 10px 0 0;
 	font-weight: bold;
 	font-style: italic;
-	color: #444;
+	color: #00659C;
 }
 
 .home-page-polls {
@@ -1260,7 +1260,7 @@ label, label + * {
 }
 .home-page-polls .title {
     border-bottom: 1px solid #ddd;
-    color: #444;
+    color: #00659C;
     font-size: 30px;
     font-weight: normal;
     margin: 0 0 30px;
@@ -1318,7 +1318,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 10px 15px;
 	font-size: 14px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .contact-vendor .button-2:hover {
@@ -1370,14 +1370,14 @@ label, label + * {
 	background-color: #f6f6f6;
 	padding: 10px;
 	font-size: 17px;
-	color: #444;
+	color: #00659C;
 }
 .product-filter .filter-title strong {
 	font-weight: normal;
 }
 .product-filter .filter-content {
 	padding: 10px;
-	color: #444;
+	color: #00659C;
 }
 .product-filter .available-items:after {
 	content: "";
@@ -1439,7 +1439,7 @@ label, label + * {
 	background-color: #aaa;
 	padding: 10px 20px;
 	font-size: 13px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;	
 }
 .remove-filter a:hover {
@@ -1461,7 +1461,7 @@ label, label + * {
 .item-box .picture {
 	z-index: 1;
 	overflow: hidden;
-	background-color: #fff;
+	background-color: #feffff;
     margin: 0 0 20px;
 }
 .item-box .picture a {
@@ -1570,7 +1570,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .item-box .product-box-add-to-cart-button:hover {
@@ -1579,7 +1579,7 @@ label, label + * {
 .item-box .add-to-compare-list-button,
 .item-box .add-to-wishlist-button {
 	width: 20%;
-	border-right: 1px solid #fff !important;
+	border-right: 1px solid #feffff !important;
 	background-color: #eaeaea;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -1634,7 +1634,7 @@ label, label + * {
 	padding: 0 0 15px;
 	font-size: 30px;
 	font-weight: normal;
-	color: #444;
+	color: #00659C;
 }
 .product-grid .title strong {
 	font-weight: normal;
@@ -1693,7 +1693,7 @@ label, label + * {
 .pager li span {
 	border-color: transparent;
 	background-color: #4ab2f1;
-	color: #fff;
+	color: #feffff;
 }
 .pager li.previous-page *,
 .pager li.next-page *,
@@ -1702,7 +1702,7 @@ label, label + * {
 	background-position: center;
 	background-repeat: no-repeat;
 	font-size: 0;
-	color: #fff;
+	color: #feffff;
 }
 .pager li.previous-page * {
 	background-image: url('../images/next.png');
@@ -1815,7 +1815,7 @@ label, label + * {
 .product-no-reviews,
 .product-reviews-overview {
 	margin: 0 0 25px;
-	color: #444;
+	color: #00659C;
 }
 .product-no-reviews a {
 	text-decoration: underline;
@@ -1853,7 +1853,7 @@ label, label + * {
 }
 .overview .value,
 .variant-overview .value {
-	color: #444;
+	color: #00659C;
 }
 .overview .value a,
 .variant-overview .value a {
@@ -1941,7 +1941,7 @@ label, label + * {
 .variant-overview .min-qty-notification {
 	margin: 10px 0;
     font-style: italic;
-	color: #444;
+	color: #00659C;
 }
 .overview .free-shipping,
 .variant-overview .free-shipping {
@@ -1950,7 +1950,7 @@ label, label + * {
     background: url('../images/shipping.png') right center no-repeat;
     padding: 2px 28px 2px 0;
     font-weight: bold;
-    color: #444;
+    color: #00659C;
 }
 .overview .free-shipping.invisible,
 .variant-overview .free-shipping.invisible {
@@ -1991,7 +1991,7 @@ label, label + * {
 .variant-overview .product-price {
 	font-size: 20px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .overview .tax-shipping-info a,
 .variant-overview .tax-shipping-info a {
@@ -2010,7 +2010,7 @@ label, label + * {
 	display: block;
 	margin: 0 0 5px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .customer-entered-price .price-input input {
 	width: 170px;
@@ -2030,7 +2030,7 @@ label, label + * {
 .tier-prices table td {
 	border: 1px solid #ddd;
 	padding: 10px;
-	color: #444;
+	color: #00659C;
 }
 .tier-prices .field-header {
 	min-width: 80px;
@@ -2064,14 +2064,14 @@ label, label + * {
 	padding: 0 12px;
 	text-align: center;
     font-size: 15px;
-	color: #444;
+	color: #00659C;
 }
 .overview .qty-dropdown,
 .variant-overview .qty-dropdown {
     height: 43px;
     padding: 0 12px;
     font-size: 15px;
-    color: #444;
+    color: #00659C;
 }
 .overview .add-to-cart-button,
 .variant-overview .add-to-cart-button {
@@ -2080,7 +2080,7 @@ label, label + * {
 	background-color: #4ab2f1;
     padding: 0 24px;
     font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .overview .add-to-cart-button:hover,
@@ -2103,7 +2103,7 @@ label, label + * {
 .product-collateral .title {
 	margin: 0 0 10px;
 	font-size: 18px;
-	color: #444;
+	color: #00659C;
 }
 .product-collateral .title strong {
 	font-weight: normal;
@@ -2174,7 +2174,7 @@ label, label + * {
 	line-height: 24px;
 }
 .product-tags-list a:hover {
-	color: #444;
+	color: #00659C;
 }
 
 .attributes {
@@ -2190,7 +2190,7 @@ label, label + * {
 	margin: 0 0 5px;
 	white-space: nowrap; 
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .attributes dd,
 .attribute-data {
@@ -2211,7 +2211,7 @@ label, label + * {
 .attributes .datepicker {
 	width: 280px;
 	text-align: center;
-	color: #444;
+	color: #00659C;
 }
 
 .attributes .qty-box input{
@@ -2223,7 +2223,7 @@ label, label + * {
 .ui-datepicker {
 	width: 280px;
 	box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
-	background-color: #fff;
+	background-color: #feffff;
 	text-align: center;
 	/*override jQuery UI styles, do not delete doubled properties*/
 	border: none;
@@ -2236,7 +2236,7 @@ label, label + * {
 	position: relative;
 	height: 32px;
 	background-color: #4ab2f1;
-	color: #fff;
+	color: #feffff;
 	/*override jQuery UI styles, do not delete doubled properties*/
 	border: none;
 	border-radius: 0;
@@ -2301,7 +2301,7 @@ label, label + * {
 	display: block;
 	min-height: 32px;
 	line-height: 32px;
-	color: #444;
+	color: #00659C;
 }
 .ui-datepicker-calendar td a {
 	/*override jQuery UI styles, do not delete doubled properties*/
@@ -2309,7 +2309,7 @@ label, label + * {
 	background: none !important;
 	padding: 0;
 	text-align: center;
-	color: #444 !important;
+	color: #00659C !important;
 }
 .ui-datepicker-calendar .ui-state-active {
 	outline: 2px solid #4ab2f1;
@@ -2342,7 +2342,7 @@ label, label + * {
     display: table !important;
     width: 32px !important;
     height: 32px !important;
-    border: 1px solid #444 !important;
+    border: 1px solid #00659C !important;
     cursor: pointer;
 }
 .attribute-squares .selected-value .attribute-square-container {
@@ -2407,7 +2407,7 @@ label, label + * {
     margin:5px;
 }
 .tooltip-container .tooltip-body img {
-    border: 0px #FFF;
+    border: 0px #feffff;
     width: 190px;
 }
 .giftcard {
@@ -2421,7 +2421,7 @@ label, label + * {
 	display: block;
 	margin: 0 auto 5px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .giftcard input,
 .giftcard textarea {
@@ -2448,7 +2448,7 @@ label, label + * {
 .product-reviews-page .title {
 	margin: 0 0 20px;
 	font-size: 20px;
-	color: #444;
+	color: #00659C;
 }
 .product-reviews-page .title strong {
 	font-weight: normal;
@@ -2465,7 +2465,7 @@ label, label + * {
     position: initial;
     display: inline-block;
     border-bottom: 1px dotted black;
-    color: #444;
+    color: #00659C;
 }
 
 .tooltip .tooltiptext {
@@ -2524,7 +2524,7 @@ label, label + * {
     padding: 10px 25px;
 	text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .write-review .button-1:hover {
@@ -2550,7 +2550,7 @@ label, label + * {
 .product-review-item .review-title {
 	line-height: 20px;
 	font-size: 15px;
-	color: #444;
+	color: #00659C;
 }
 .product-review-item .product-review-box {
 	margin: 3px 0 0;
@@ -2561,7 +2561,7 @@ label, label + * {
 .product-review-item .review-text {
 	margin: 0 0 15px;
 	line-height: 22px;
-	color: #444;
+	color: #00659C;
 }
 .product-review-item .avatar {
 	margin: 0 0 10px;
@@ -2649,7 +2649,7 @@ label, label + * {
 	text-align: center;
 	line-height: 20px;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 }
 .wishlist-content .update-wishlist-button,
 .wishlist-content .wishlist-add-to-cart-button {
@@ -2675,7 +2675,7 @@ label, label + * {
 }
 .wishlist-page .share-info a {
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .wishlist-page .share-info a:hover {
 	color: #4ab2f1;
@@ -2694,7 +2694,7 @@ label, label + * {
 	background-color: #4ab2f1;
     padding: 10px 15px;
 	font-size: 12px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .compare-products-page .clear-list:hover {
@@ -2707,11 +2707,11 @@ label, label + * {
 .compare-products-table td {
 	min-width: 150px;
 	border: 1px solid #ddd;
-    background-color: #fff;
+    background-color: #feffff;
     padding: 20px;
 	text-align: right;
 	vertical-align: top;
-	color: #444;
+	color: #00659C;
 }
 .compare-products-table td:first-child {
 	min-width: 0;
@@ -2797,7 +2797,7 @@ label, label + * {
 }
 .topic-block strong,
 .topic-page strong {
-	color: #444;
+	color: #00659C;
 }
 
 .home-page .topic-block {
@@ -2816,7 +2816,7 @@ label, label + * {
 }
 .enter-password-title {
 	margin: 0 0 20px;
-	color: #444;
+	color: #00659C;
 }
 .enter-password-form {
 	display: inline-block;
@@ -2836,7 +2836,7 @@ label, label + * {
 	border: none;
 	background-color: #4ab2f1;
 	padding: 0 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .enter-password-form input[type="submit"]:hover {
@@ -2870,7 +2870,7 @@ label, label + * {
     padding: 10px 30px;
 	text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .contact-page .button-1:hover,
@@ -2936,7 +2936,7 @@ label, label + * {
 	background-color: #888;
 	padding: 10px 15px;
 	font-size: 12px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 #check-availability-button:hover {
@@ -2972,7 +2972,7 @@ label, label + * {
     padding: 10px 30px;
 	text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .registration-page .button-1:hover,
@@ -3028,7 +3028,7 @@ label, label + * {
 .login-page .title {
 	margin: 0 0 15px;
 	font-size: 20px;
-	color: #444;
+	color: #00659C;
 }
 .login-page .title strong {
 	font-weight: normal;
@@ -3047,7 +3047,7 @@ label, label + * {
 	margin: 0;
 }
 .login-page .new-wrapper .topic-block-body strong {
-	color: #444;
+	color: #00659C;
 }
 .login-page .new-wrapper .button-1 {
 	margin: 0 0 5px;
@@ -3067,7 +3067,7 @@ label, label + * {
 	width: auto;
 	margin: 5px;
 	font-size: 14px; /*reset zeroing*/
-	color: #444;
+	color: #00659C;
 }
 .login-page .returning-wrapper .inputs.reversed a:hover {
 	color: #4ab2f1;
@@ -3076,7 +3076,7 @@ label, label + * {
 	margin: -15px 0 20px;
 }
 .login-page .returning-wrapper .buttons {
-	background-color: #fff;
+	background-color: #feffff;
 	padding: 30px 0;
 }
 
@@ -3088,7 +3088,7 @@ label, label + * {
 .external-authentication .title {
 	margin: 0 0 15px;
 	font-size: 20px;
-	color: #444;
+	color: #00659C;
 }
 .external-authentication .buttons {
     margin: 0 0 30px;
@@ -3099,7 +3099,7 @@ label, label + * {
 	color: #e4444c;
 }
 .external-auth-association {
-	color: #444;
+	color: #00659C;
 }
 .external-auth-association a {
 	color: #4ab2f1;
@@ -3111,7 +3111,7 @@ label, label + * {
 .password-recovery-page .result {
 	margin: 0 0 5px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .password-recovery-page .tooltip {
 	margin: 0 0 25px;
@@ -3154,7 +3154,7 @@ label, label + * {
 	background-color: #f9f9f9;
     padding: 20px;
 	line-height: 26px;
-	color: #444;
+	color: #00659C;
 }
 .address-list-page .info .name,
 .order-list-page .info .name {
@@ -3168,7 +3168,7 @@ label, label + * {
 	border: none;
 	padding: 0 18px 0 0;
 	font-size: 12px;
-	color: #444;
+	color: #00659C;
 }
 .edit-address-button {
 	background: url('../images/edit.png') right center no-repeat;
@@ -3224,7 +3224,7 @@ label, label + * {
 	background-color: #f9f9f9;
     padding: 20px;
 	line-height: 22px;
-	color: #444;
+	color: #00659C;
 }
 .return-request-list-page label {
 	margin: 0 0 0 5px;
@@ -3239,18 +3239,18 @@ label, label + * {
 	margin: 10px 0 0;
 	font-size: 15px;
 	font-style: italic;
-	color: #444;
+	color: #00659C;
 }
 
 .downloadable-products-page table td {
-	color: #444;
+	color: #00659C;
 }
 
 .reward-points-overview {
     margin: 0 0 25px;
 }
 .reward-points-history table td {
-	color: #444;
+	color: #00659C;
 }
 .reward-points-history table td:first-child {
 	min-width: 120px;
@@ -3293,14 +3293,14 @@ label, label + * {
 	background-color: #888;
 	padding: 10px 15px;
 	font-size: 14px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .avatar-page .button-2:hover {
 	background-color: #999;
 }
 .avatar-page .info {
-	color: #444;
+	color: #00659C;
 }
 
 .vendorinfo-page .button-2 {
@@ -3308,7 +3308,7 @@ label, label + * {
     background-color: #888;
     padding: 10px 15px;
     font-size: 14px;
-    color: #fff;
+    color: #feffff;
     text-transform: uppercase;
 }
 .vendorinfo-page .button-2:hover {
@@ -3357,7 +3357,7 @@ label, label + * {
 	display: block;
 	min-width: 70px;
 	font-size: 14px; /*reset zeroing*/
-	color: #444;
+	color: #00659C;
 }
 .order-progress a:before {
 	content: "";
@@ -3366,7 +3366,7 @@ label, label + * {
 	height: 40px;
 	margin: 0 auto 15px;
 	border: 1px solid #bbb;
-	background: #fff url('../images/pointer.png') center no-repeat;
+	background: #feffff url('../images/pointer.png') center no-repeat;
 }
 .order-progress li.active-step a {
 	cursor: pointer;
@@ -3417,7 +3417,7 @@ label, label + * {
 	background-color: #aaa;
 	padding: 10px 20px;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 }
 .shopping-cart-page .common-buttons input:hover {
 	background-color: #999;
@@ -3431,7 +3431,7 @@ label, label + * {
 
 .checkout-attributes {
 	margin: -30px 0 30px;
-	color: #444;
+	color: #00659C;
 }
 .checkout-attributes dt {
 	margin: 0 0 5px;
@@ -3451,7 +3451,7 @@ label, label + * {
 	display: inline-block;
 	margin: 5px;
 	border: 1px solid #ddd;
-	background-color: #fff;
+	background-color: #feffff;
 	padding: 8px 10px;
 	font-size: 14px; /*reset zeroing*/
 }
@@ -3467,7 +3467,7 @@ label, label + * {
 
 .selected-checkout-attributes {
 	margin: 30px 0;
-	color: #444;
+	color: #00659C;
 }
 .selected-checkout-attributes br {
 	content: "";
@@ -3490,7 +3490,7 @@ label, label + * {
 	margin: 0 auto 50px;
 	background-color: #f9f9f9;
 	padding: 10px;
-	color: #444;
+	color: #00659C;
 }
 .cart-footer .total-info {
 	margin: 0 0 20px;
@@ -3551,7 +3551,7 @@ label, label + * {
     text-align: center;
     background: #ffa500;
     border: 1px solid #c3891e;
-    color: #fff;
+    color: #feffff;
     padding: 15px 50px;
 }
 .cart-footer .checkout-button {
@@ -3561,7 +3561,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 10px 20px;
 	font-size: 16px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .cart-footer .checkout-button:hover {
@@ -3587,7 +3587,7 @@ label, label + * {
 	border: none;
 	background-color: #aaa;
 	padding: 10px 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .cart-collaterals .button-2:hover {
@@ -3597,7 +3597,7 @@ label, label + * {
 .cart-collaterals .title {
 	margin: 0 0 5px;
 	font-size: 18px;
-	color: #444;
+	color: #00659C;
 }
 .cart-collaterals .title strong {
 	font-weight: normal;
@@ -3642,7 +3642,7 @@ label, label + * {
 	width: 16px;
 	height: 16px;
 	border: 1px solid #999;
-	background: #fff url('../images/close.png') center no-repeat;
+	background: #feffff url('../images/close.png') center no-repeat;
 	cursor: pointer;
 }
 
@@ -3658,7 +3658,7 @@ label, label + * {
 .cart-collaterals .shipping-results li strong {
 	display: block;
 	margin: 0 0 5px;
-	color: #444;
+	color: #00659C;
 }
 .shopping-cart-page .no-data {
 	margin: 25px 0 0;
@@ -3671,7 +3671,7 @@ label, label + * {
 
 .estimate-shipping-popup {
   position: relative;
-  background: #FFF;
+  background: #feffff;
   padding: 25px 10px;
   width: auto;
   max-width: 800px;
@@ -3813,7 +3813,7 @@ label, label + * {
   border: none;
   padding: 8px 25px;
   background-color: #4ab2f1;
-  color: #fff;
+  color: #feffff;
 }
 
 .apply-shipping-button-container {
@@ -3825,7 +3825,7 @@ label, label + * {
   top: 0;
   z-index: 1;
   position: sticky;
-  background-color: #fff;
+  background-color: #feffff;
 }
 
 .shipping-options {
@@ -3834,7 +3834,7 @@ label, label + * {
   overflow: hidden;
   overflow-y: auto;
   max-height: 200px;
-  background: #FFF no-repeat;
+  background: #feffff no-repeat;
   background-image: -webkit-radial-gradient(50% 0, farthest-side, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)), -webkit-radial-gradient(50% 100%, farthest-side, rgba(242, 242, 242, 1), rgba(0, 0, 0, 0));
   background-image: -moz-radial-gradient(50% 0, farthest-side, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)), -moz-radial-gradient(50% 100%, farthest-side, rgba(242, 242, 242, 1), rgba(0, 0, 0, 0));
   background-image: radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)), radial-gradient(farthest-side at 50% 100%, rgba(242, 242, 242, 1), rgba(0, 0, 0, 0));
@@ -3850,16 +3850,16 @@ label, label + * {
   display: block;
   height: 30px;
   margin: 0 0 -30px;
-  background: -webkit-linear-gradient(top, #FFF, #FFF 30%, rgba(255, 255, 255, 0));
-  background: -moz-linear-gradient(top, #FFF, #FFF 30%, rgba(255, 255, 255, 0));
-  background: linear-gradient(to bottom, #FFF, #FFF 30%, rgba(255, 255, 255, 0));
+  background: -webkit-linear-gradient(top, #feffff, #feffff 30%, rgba(255, 255, 255, 0));
+  background: -moz-linear-gradient(top, #feffff, #feffff 30%, rgba(255, 255, 255, 0));
+  background: linear-gradient(to bottom, #feffff, #feffff 30%, rgba(255, 255, 255, 0));
 }
 
 .shipping-options:after {
   margin: -30px 0 0;
-  background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0), #FFF 70%, #FFF);
-  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0), #FFF 70%, #FFF);
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #FFF 70%, #FFF);
+  background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0), #feffff 70%, #feffff);
+  background: -moz-linear-gradient(top, rgba(255, 255, 255, 0), #feffff 70%, #feffff);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #feffff 70%, #feffff);
 }
 
 .no-shipping-options {
@@ -3886,7 +3886,7 @@ label, label + * {
   padding: 10px 20px;
   font-size: 15px;
   text-align: center;
-  color: #fff;
+  color: #feffff;
 }
 
 .shopping-cart-page .common-buttons .estimate-shipping-button:hover {
@@ -3908,7 +3908,7 @@ label, label + * {
 .product-estimate-shipping .shipping-title {
   font-size: 16px;
   font-weight: bold;
-  color: #444;
+  color: #00659C;
   margin-bottom: 5px;
   justify-content: center;
 }
@@ -3970,7 +3970,7 @@ label, label + * {
 	padding: 10px 30px;
 	text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .checkout-page .button-1:hover {
@@ -3986,7 +3986,7 @@ label, label + * {
 	margin: 0 0 15px;
 	background-color: #f9f9f9;
 	padding: 20px;
-	color: #444;
+	color: #00659C;
 }
 .checkout-page .address-item li {
 	padding: 5px 0;
@@ -4013,7 +4013,7 @@ label, label + * {
 .checkout-page .ship-to-same-address .selector {
 	margin: 0 0 5px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 
 .checkout-page .pickup-in-store {
@@ -4022,7 +4022,7 @@ label, label + * {
 .checkout-page .pickup-in-store .selector {
 	margin: 0 0 5px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 
 .select-pickup-point {
@@ -4052,7 +4052,7 @@ label, label + * {
 .payment-method .method-list li label {
 	font-size: 13px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .shipping-method .method-description {
 	margin: 5px 0 0;
@@ -4061,7 +4061,7 @@ label, label + * {
 .payment-method .use-reward-points {
 	margin: 0 0 30px;
 	text-align: center;
-	color: #444;
+	color: #00659C;
 }
 .payment-method .payment-logo {
 	display: inline-block;
@@ -4081,7 +4081,7 @@ label, label + * {
 
 .payment-info .info {
 	padding: 30px 15px;
-	color: #444;
+	color: #00659C;
 }
 .payment-info .info tr {
 	display: block;
@@ -4129,7 +4129,7 @@ label, label + * {
 	margin: 0 auto 40px;
 	background-color: #f9f9f9;
 	padding: 20px;
-	color: #444;
+	color: #00659C;
 }
 .order-review-data li,
 .order-details-area li,
@@ -4159,7 +4159,7 @@ label, label + * {
 	margin: 0 0 30px;
 	padding: 30px 15px;
 	text-align: center;
-	color: #444;
+	color: #00659C;
 }
 .order-completed .details div {
 	margin: 5px 0;
@@ -4195,12 +4195,12 @@ label, label + * {
 }
 .opc .allow .step-title .number,
 .opc .allow .step-title .title {
-	color: #fff;
+	color: #feffff;
 	cursor: pointer;
 }
 .opc .step-title .number {
 	width: 42px;
-	border-left: 1px solid #fff;
+	border-left: 1px solid #feffff;
 	text-align: center;
 }
 .opc .allow .step-title .number {
@@ -4236,7 +4236,7 @@ label, label + * {
 	margin: 0 -15px 0 0;
 	background: url('../images/back-button.png') right center no-repeat;
 	padding: 0 18px 0 0;
-	color: #444;
+	color: #00659C;
 }
 .opc .back-link a:hover {
 	color: #4ab2f1;
@@ -4283,7 +4283,7 @@ label, label + * {
 	background-image: none;
 	padding: 10px 20px;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 }
 .order-details-page .page-title a:hover {
 	background-color: #999;
@@ -4300,7 +4300,7 @@ label, label + * {
 	line-height: 26px;
 	text-align: center;
 	font-size: 16px;
-	color: #444;
+	color: #00659C;
 }
 .order-details-page .order-overview .order-number {
 	margin: 0 0 10px;
@@ -4318,7 +4318,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 10px 15px;
 	font-size: 12px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .order-details-page .repost .button-2:hover {
@@ -4344,7 +4344,7 @@ label, label + * {
     padding: 10px 30px;
     text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
     text-transform: uppercase;
 }
 .user-agreement-page .button-1:hover {
@@ -4374,7 +4374,7 @@ label, label + * {
 	background-image: none;
 	padding: 10px 20px;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 }
 .order-details-page .actions input:hover {
 	background-color: #999;
@@ -4395,7 +4395,7 @@ label, label + * {
 .order-details-page .total-info {
 	background-color: #f9f9f9;
 	padding: 15px 20px;
-	color: #444;
+	color: #00659C;
 }
 
 
@@ -4437,7 +4437,7 @@ label, label + * {
     padding: 10px 30px;
 	text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .search-input .button-1:hover {
@@ -4467,7 +4467,7 @@ label, label + * {
 .sitemap-page .entity-title h2 {
 	font-size: 20px;
 	font-weight: normal;
-	color: #444;
+	color: #00659C;
 }
 .sitemap-page .entity-body {
     border-top: 1px solid #e6e6e6;
@@ -4496,7 +4496,7 @@ label, label + * {
 	background-color: #ddd;
 }
 .sitemap-page .entity a {
-	color: #444;
+	color: #00659C;
 }
 .sitemap-page .entity a:hover {
 	color: #4ab2f1;
@@ -4512,7 +4512,7 @@ label, label + * {
 
 .block-blog-archive .number {
 	display: block;
-	color: #444;
+	color: #00659C;
 	cursor: auto;
 }
 .block-blog-archive .sublist {
@@ -4543,7 +4543,7 @@ label, label + * {
 	line-height: 20px;
     font-size: 16px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .post-title:hover,
 .news-title:hover {
@@ -4556,7 +4556,7 @@ label, label + * {
 	background-color: #f6f6f6;
 	padding: 10px;
 	font-style: italic;
-	color: #444;
+	color: #00659C;
 }
 .post-body,
 .news-body {
@@ -4575,7 +4575,7 @@ label, label + * {
 	display: inline-block;
 	margin: 0 0 3px 3px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .blog-page .tags ul,
 .blogpost-page .tags ul {
@@ -4611,7 +4611,7 @@ label, label + * {
 	display: block;
 	margin: 0 0 15px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .blog-posts .buttons .read-comments:hover {
 	color: #4ab2f1;
@@ -4623,7 +4623,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 10px 20px;
 	font-size: 12px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .blog-posts .buttons .read-more:hover,
@@ -4649,7 +4649,7 @@ label, label + * {
     padding: 10px 30px;
 	text-align: center;
 	font-size: 15px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .new-comment .button-1:hover {
@@ -4663,7 +4663,7 @@ label, label + * {
     margin: 0 0 15px;
     padding: 0 10px;
 	font-size: 20px;
-	color: #444;
+	color: #00659C;
 }
 .comment-list .title strong {
 	font-weight: normal;
@@ -4688,7 +4688,7 @@ label, label + * {
 	background-color: #f6f6f6;
 	padding: 11px 0;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .comment-info a.username:hover {
 	color: #4ab2f1;
@@ -4718,12 +4718,12 @@ label, label + * {
 }
 .comment-time span {
 	display: inline-block;
-	color: #444;
+	color: #00659C;
 }
 .comment-title {
 	margin: 0 0 15px;
 	font-size: 16px;
-	color: #444;
+	color: #00659C;
 }
 .comment-body {
 	line-height: 22px;
@@ -4738,7 +4738,7 @@ label, label + * {
 	padding: 0 0 15px;
 	font-size: 30px;
 	font-weight: normal;
-	color: #444;
+	color: #00659C;
 }
 .news-list-homepage .title strong {
 	font-weight: normal;
@@ -4747,7 +4747,7 @@ label, label + * {
 	text-align: center;
 }
 .news-list-homepage .view-all a {
-	color: #444;
+	color: #00659C;
 	text-decoration: underline;
 }
 .news-list-homepage .view-all a:hover {
@@ -4785,7 +4785,7 @@ label, label + * {
 }
 .forums-header .current-time {
 	margin: 0 0 15px;
-	color: #444;
+	color: #00659C;
 }
 .forum-search-box .basic {
 	overflow: hidden;
@@ -4793,7 +4793,7 @@ label, label + * {
 }
 .forum-search-box .advanced a {
 	line-height: 22px;
-	color: #444;
+	color: #00659C;
 	text-decoration: underline;
 }
 .forum-search-box .advanced a:hover {
@@ -4826,7 +4826,7 @@ label, label + * {
 .forums-table-section-title strong {
 	font-size: 22px;
 	font-weight: normal;
-	color: #444;
+	color: #00659C;
 }
 .forums-table-section-title a:hover {
 	color: #4ab2f1;
@@ -4853,7 +4853,7 @@ label, label + * {
 .forums-table-section .topic-title a {
 	font-size: 16px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .forums-table-section .forum-title a:hover,
 .forums-table-section .topic-title a:hover {
@@ -4891,7 +4891,7 @@ label, label + * {
 	background-color: #4ab2f1;
 	padding: 10px 15px;
 	font-size: 12px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .forums-table-section .view-all a:hover {
@@ -5003,7 +5003,7 @@ label, label + * {
 	background-color: #f6f6f6;
 	padding: 11px 0;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .topic-post a.username:hover {
 	color: #4ab2f1;
@@ -5042,7 +5042,7 @@ label, label + * {
 	display: inline-block;
 	margin: 0 3px 0 0;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .topic-post .pm-button,
 .profile-info-box .pm-button {
@@ -5051,7 +5051,7 @@ label, label + * {
 	background-color: #888;
 	padding: 10px 20px;
 	font-size: 12px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .topic-post .pm-button:hover,
@@ -5068,7 +5068,7 @@ label, label + * {
 }
 .topic-post .post-time span {
 	display: inline-block;
-	color: #444;
+	color: #00659C;
 }
 .topic-post .post-actions {
 	margin: 0 0 15px;
@@ -5107,18 +5107,18 @@ label, label + * {
 .topic-post .post-actions .quote-post-button {
 	background-color: #888;
 	padding: 10px 20px;
-	color: #fff;
+	color: #feffff;
 }
 .topic-post .post-actions .quote-post-button:hover {
 	background-color: #999;
-	color: #fff;
+	color: #feffff;
 }
 
 .topic-post .post-text {
 	/*topic post-text also gets style from blog post-body*/
 	padding: 0 10px 20px;
 	line-height: 22px;
-	color: #444;
+	color: #00659C;
     margin-bottom: 0;
 }
 
@@ -5190,7 +5190,7 @@ label, label + * {
 	max-width: 400px;
 	font-size: 22px; /*reset zeroing*/
 	font-weight: normal;
-	color: #444;
+	color: #00659C;
 	white-space: normal;
 }
 .forum-edit-page .inputs .topic-subject {
@@ -5236,7 +5236,7 @@ label, label + * {
     padding: 10px 30px;
     text-align: center;
     font-size: 15px;
-	color: #fff;
+	color: #feffff;
     text-transform: uppercase;
 }
 .forum-edit-page .buttons input:hover,
@@ -5290,7 +5290,7 @@ label, label + * {
 	padding: 0 !important;
 	line-height: normal;
 	font-weight: normal;
-	color: #444;
+	color: #00659C;
 }
 .ui-tabs-nav li {
 	margin: 0 0 -1px;
@@ -5308,7 +5308,7 @@ label, label + * {
 	padding: 12px 24px;
 	text-align: center;
 	font-size: 18px;
-	color: #444;
+	color: #00659C;
 	/*override jQuery UI styles, do not delete doubled properties*/
 	float: none !important;
 	padding: 12px 24px !important;
@@ -5340,7 +5340,7 @@ label, label + * {
 	white-space: nowrap;
 }
 .private-messages-page td.subject a {
-	color: #444;
+	color: #00659C;
 }
 .private-messages-page td.subject a.pm-unread {
 	color: #4ab2f1;
@@ -5371,7 +5371,7 @@ label, label + * {
 }
 .private-message-view-page .message-head span {
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .private-message-view-page .message-body {
 	border-top: 1px solid #ddd;
@@ -5403,7 +5403,7 @@ label, label + * {
 .profile-info-box .title {
 	margin: 0 0 10px;
 	font-size: 18px;
-	color: #444;
+	color: #00659C;
 }
 .profile-info-box .stats {
 	margin: 0 0 15px;
@@ -5428,7 +5428,7 @@ label, label + * {
 }
 .latest-posts .topic-title a {
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .latest-posts .topic-title a:hover {
 	color: #4ab2f1;
@@ -5438,7 +5438,7 @@ label, label + * {
 	line-height: 22px;
 }
 .latest-posts .topic-data {
-	color: #444;
+	color: #00659C;
 }
 
 /* BB codes */
@@ -5451,7 +5451,7 @@ pre {
 .csharpcode {
 	margin: 10px 0;
     border: 1px dashed #ccc;
-	background-color: #fff;
+	background-color: #feffff;
     padding: 10px; 
 	font-family: "Courier New", Courier, monospace;
 	color: #000;  
@@ -5637,7 +5637,7 @@ pre {
 	padding: 15px;
 	font-size: 15px;
 	font-weight: bold;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 	cursor: pointer;
 }
@@ -5659,7 +5659,7 @@ pre {
 }
 .top-menu .sublist {
 	display: none;
-	background-color: #fff;
+	background-color: #feffff;
 	padding: 5px 0;
 }
 .top-menu .sublist li {
@@ -5678,12 +5678,12 @@ pre {
 	left: 0;
 	width: 55px;
 	height: 55px;
-	border-right: 1px solid #fff;
+	border-right: 1px solid #feffff;
 	background: url('../images/toggle-black.png') center no-repeat;
 	padding: 15px;
 	font-size: 15px;
 	font-weight: bold;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 	cursor: pointer;
 }
@@ -5695,7 +5695,7 @@ pre {
 	background-color: #f6f6f6;
 }
 .sublist .sublist .sublist li {
-	background-color: #fff;
+	background-color: #feffff;
 }
 
 .block-category-navigation {
@@ -5994,7 +5994,7 @@ pre {
 	margin: 0 0 15px;
 	background: none;
 	padding: 0;
-	color: #444;
+	color: #00659C;
 	cursor: auto;
 }
 .footer-block .list {
@@ -6682,7 +6682,7 @@ pre {
 	z-index: 100;
 	width: 300px;
 	box-shadow: 0 0 2px rgba(0,0,0,0.25);
-	background-color: #fff;
+	background-color: #feffff;
 }
 .flyout-cart.active {
 	display: block;
@@ -6694,12 +6694,12 @@ pre {
 }
 .mini-shopping-cart .count {
 	padding: 5px 0 15px;
-	color: #444;
+	color: #00659C;
 }
 .mini-shopping-cart .count a {
 	margin: 0 2px;
 	font-weight: bold;
-	color: #444;
+	color: #00659C;
 }
 .mini-shopping-cart .items {
 	border-top: 1px solid #ddd;
@@ -6749,7 +6749,7 @@ pre {
 }
 .mini-shopping-cart .attributes {
 	margin: 5px 0;
-	color: #444;
+	color: #00659C;
 }
 .mini-shopping-cart .totals {
 	margin: 0 0 12px;
@@ -6757,7 +6757,7 @@ pre {
 }
 .mini-shopping-cart .totals strong {
 	font-size: 16px;
-	color: #444;
+	color: #00659C;
 }
 .mini-shopping-cart .buttons {
 	margin: 0 0 5px;
@@ -6768,7 +6768,7 @@ pre {
 	background-color: #4ab2f1;
 	padding: 10px 20px;
 	font-size: 12px;
-	color: #fff;
+	color: #feffff;
 	text-transform: uppercase;
 }
 .mini-shopping-cart input[type="button"]:hover {
@@ -6845,7 +6845,7 @@ pre {
 	position: absolute;
 	width: 200px;
 	box-shadow: 0 0 2px rgba(0,0,0,0.2);
-	background-color: #fff;
+	background-color: #feffff;
 	padding: 10px 0;
 	text-align: right;
 }
@@ -6857,7 +6857,7 @@ pre {
 	position: relative;
 	padding: 10px 30px 10px 20px;
 	font-size: 14px;
-	color: #444;
+	color: #00659C;
 }
 .header-menu .sublist li a:before {
 	content: "";

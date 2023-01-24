@@ -9,7 +9,6 @@
 		<h1 style="display: none">Medlook</h1>
 
 		<div class="home-page-logo">
-			@*@await Component.InvokeAsync("Logo")*@
 			@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageTop })
 			<div class="header-prompt">
 				@await Component.InvokeAsync("TopicBlock", new { systemName = "HomepageText" })

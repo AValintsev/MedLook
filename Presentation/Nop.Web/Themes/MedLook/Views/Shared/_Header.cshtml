@@ -1,23 +1,22 @@
 ﻿<div class="header">
-	@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderBefore })
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderBefore })
 
-	<div class="header-upper">
+    <div class="header-inner">
+        @await Component.InvokeAsync("Logo")
+        <div class="header-inner--actions">
+            @await Component.InvokeAsync("TopMenu")
+            @await Component.InvokeAsync("HeaderLinks")
+        </div>
+    </div>
 
-		@await Component.InvokeAsync("TopMenu")
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderSelectors })
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderMiddle })
 
-		<div class="header-selectors-wrapper">
-			@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderSelectors })
-		</div>
-
-	</div>
-
-	@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderMiddle })
-
-	<div class="header-lower">
-		@await Component.InvokeAsync("AdminHeaderLinks")
-		@*<div class="search-box">
-			@await Component.InvokeAsync("SearchBox")
-		</div>*@		
-	</div>
-	@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderAfter })
+    <div class="header-lower">
+        @await Component.InvokeAsync("AdminHeaderLinks")
+        @*<div class="search-box">
+        @await Component.InvokeAsync("SearchBox")
+        </div>*@
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderAfter })
 </div>
