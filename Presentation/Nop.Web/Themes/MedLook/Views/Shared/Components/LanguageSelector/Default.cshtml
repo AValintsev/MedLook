@@ -4,23 +4,25 @@
 
 @if (Model.AvailableLanguages.Count > 1)
 {
-	<div class="language-selector">
-		@{
-				var returnUrl = webHelper.GetRawUrl(Context.Request);
+    <div class="language-selector">
+        @{
+            var returnUrl = webHelper.GetRawUrl(Context.Request);
 
-				var languages = Model.AvailableLanguages.Select(lang => new SelectListItem
-				{
-					Text = lang.Name,
-					Value = Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.GetCurrentRequestProtocol()),
-					Selected = lang.Id.Equals(Model.CurrentLanguageId)
-				});
+            var languages = Model.AvailableLanguages.Select(lang => new SelectListItem
+                {
+                    Text = lang.Name,
+                    Value = Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.GetCurrentRequestProtocol()),
+                    Selected = lang.Id.Equals(Model.CurrentLanguageId)
+                });
 
-				foreach(var lang in languages)
-				{
-					<a href="@lang.Value" class="@(@lang.Selected ? "selected" : "")">@lang.Text</a>
-				}
+            //<p>@T("Languages.Selector.Label")</p>
+            <p>Mova:</p>
+            foreach (var lang in languages)
+            {
+                <a href="@lang.Value" class="@(@lang.Selected ? "selected" : "")">@lang.Text</a>
+            }
 
-			@*<select id="customerlanguage" name="customerlanguage" asp-items="@languages" onchange="setLocation(this.value);" aria-label="@T("Languages.Selector.Label")"></select>*@
-		}
-	</div>
+            @*<select id="customerlanguage" name="customerlanguage" asp-items="@languages" onchange="setLocation(this.value);" aria-label="@T("Languages.Selector.Label")"></select>*@
+        }
+    </div>
 }

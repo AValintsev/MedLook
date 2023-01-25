@@ -129,7 +129,7 @@
                                 @await Html.PartialAsync("_AddToWishlist", Model.AddToCart, dataDictAddToWishlist)
                             }
                             @await Html.PartialAsync("_CompareProductsButton", Model)
-                            @await Html.PartialAsync("_ProductEmailAFriendButton", Model)
+                            
                             @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsAfter, additionalData = Model })
                         </div>
                         @await Html.PartialAsync("_ShareButton", Model)

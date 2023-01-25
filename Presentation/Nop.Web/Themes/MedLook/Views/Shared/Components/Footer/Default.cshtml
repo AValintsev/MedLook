@@ -135,7 +135,7 @@
 			}
 			var result = { width: e[a + 'Width'], height: e[a + 'Height'] };
 			if (result.width < 769) {
-				$(this).siblings('.list').slideToggle('slow');
+				$(this).siblings('.list').slideToggle('fast');
 			}
 		});
 	});
@@ -150,7 +150,7 @@
 			}
 			var result = { width: e[a + 'Width'], height: e[a + 'Height'] };
 			if (result.width < 1001) {
-				$(this).siblings('.listbox').slideToggle('slow');
+				$(this).siblings('.listbox').slideToggle('fast');
 			}
 		});
 	});

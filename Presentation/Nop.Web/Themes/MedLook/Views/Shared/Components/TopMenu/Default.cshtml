@@ -82,8 +82,9 @@
                             <a href="@Url.RouteUrl("Login", new { returnUrl })">"@T("Account.Login")</a>
                         </li>
                     }
-                    
-                    @await Component.InvokeAsync("LanguageSelector")
+                    <li class="mobile-nav--item js-mobile-nav-item ">
+                        @await Component.InvokeAsync("LanguageSelector")
+                    </li>
                 </nav>
 
             </div>
