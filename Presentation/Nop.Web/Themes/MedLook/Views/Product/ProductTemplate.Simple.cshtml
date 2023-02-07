@@ -1,6 +1,6 @@
 ﻿@model ProductDetailsModel
 @using Nop.Core.Domain.Seo;
-@inject Nop.Core.IWebHelper webHelper 
+@inject Nop.Core.IWebHelper webHelper
 @inject SeoSettings seoSettings
 @{
     Layout = "_ColumnsOne";
@@ -45,14 +45,14 @@
 }
 <!--product breadcrumb-->
 @section Breadcrumb
-{
+    {
     @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
 }
-@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
-<div class="page product-details-page">
-    <div class="page-body">
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
-        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
+    <div class="page product-details-page">
+        <div class="page-body">
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
+            <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
             @if (seoSettings.MicrodataEnabled)
             {
                 @await Html.PartialAsync("_Microdata", Model)
@@ -75,6 +75,7 @@
                                 @Html.Raw(Model.ShortDescription)
                             </div>
                         }
+
                         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                         <!--product reviews-->
                         @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
@@ -120,6 +121,10 @@
 
                             @*@await Html.PartialAsync("_ProductEstimateShipping", Model.ProductEstimateShipping)*@
                         }
+                        <div class="info-links">
+                            <a href="@Url.RouteUrl("Topic", new { SeName = "розмірна-сітка" })">Pозмірна-сітка</a>
+                            <a href="@Url.RouteUrl("Topic", new { SeName = "обрати-розмір" })">Як обрати свій розмір?</a>
+                        </div>
                         <!--wishlist, compare, email a friend-->
                         <div class="overview-buttons">
                             @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore, additionalData = Model })
@@ -129,7 +134,7 @@
                                 @await Html.PartialAsync("_AddToWishlist", Model.AddToCart, dataDictAddToWishlist)
                             }
                             @await Html.PartialAsync("_CompareProductsButton", Model)
-                            
+
                             @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsInsideOverviewButtonsAfter, additionalData = Model })
                         </div>
                         @await Html.PartialAsync("_ShareButton", Model)

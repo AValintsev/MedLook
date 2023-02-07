@@ -682,7 +682,7 @@ label, label + * {
         cursor: pointer;
     }
 
-.popup-notification {    
+.popup-notification {
     padding: 3px;
     margin: 5px 0;
 }
@@ -718,6 +718,16 @@ label, label + * {
     margin: -16px 0 0 -16px;
     background: url('../images/loading.gif') center no-repeat;
 }
+
+.info-links {
+    font-size: 16px;
+    text-decoration: underline;
+    padding: 16px 0 32px;
+}
+
+    .info-links a {
+        margin-right: 16px;
+    }
 
 .please-wait {
     background: url('../images/ajax-loader-small.gif') no-repeat;

@@ -1,6 +1,6 @@
 ﻿@model ProductDetailsModel
 @using Nop.Core.Domain.Seo;
-@inject Nop.Core.IWebHelper webHelper 
+@inject Nop.Core.IWebHelper webHelper
 @inject SeoSettings seoSettings
 @{
     Layout = "_ColumnsOne";
@@ -45,14 +45,14 @@
 }
 <!--product breadcrumb-->
 @section Breadcrumb
-{
+    {
     @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
 }
-@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
-<div class="page product-details-page">
-    <div class="page-body">
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
-        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
+    <div class="page product-details-page">
+        <div class="page-body">
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
+            <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
             @if (seoSettings.MicrodataEnabled)
             {
                 @await Html.PartialAsync("_Microdata", Model)
@@ -74,7 +74,7 @@
                             <div class="short-description">
                                 @Html.Raw(Model.ShortDescription)
                             </div>
-                        }
+                        }                       
                         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                         <!--product reviews-->
                         @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)

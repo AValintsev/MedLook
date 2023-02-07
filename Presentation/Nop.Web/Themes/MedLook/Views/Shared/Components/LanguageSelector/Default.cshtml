@@ -15,8 +15,7 @@
                     Selected = lang.Id.Equals(Model.CurrentLanguageId)
                 });
 
-            //<p>@T("Languages.Selector.Label")</p>
-            <p>Mova:</p>
+            <p>@T("Languages.Selector.Label"):</p>
             foreach (var lang in languages)
             {
                 <a href="@lang.Value" class="@(@lang.Selected ? "selected" : "")">@lang.Text</a>
