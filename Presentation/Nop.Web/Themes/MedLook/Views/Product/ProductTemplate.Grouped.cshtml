@@ -48,11 +48,11 @@
     {
     @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
 }
-@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
-<div class="page product-details-page">
-    <div class="page-body">
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
-        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
+    <div class="page product-details-page">
+        <div class="page-body">
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsTop, additionalData = Model })
+            <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
             @if (seoSettings.MicrodataEnabled)
             {
                 @await Html.PartialAsync("_Microdata", Model)
@@ -75,6 +75,10 @@
                                 @Html.Raw(Model.ShortDescription)
                             </div>
                         }
+                        <div class="info-links">
+                            <a href="@Url.RouteUrl("Topic", new { SeName = "розмірна-сітка" })">Pозмірна-сітка</a>
+                            <a href="@Url.RouteUrl("Topic", new { SeName = "обрати-розмір" })">Як обрати свій розмір?</a>
+                        </div>
                         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                         <!--product reviews-->
                         @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
@@ -108,7 +112,7 @@
                                 {
                                     <div class="variant-picture">
                                         <img alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl"
-                                             title="@variant.DefaultPictureModel.Title" id="main-product-img-@variant.Id" />
+                                     title="@variant.DefaultPictureModel.Title" id="main-product-img-@variant.Id" />
                                     </div>
                                 }
                                 <div class="variant-overview">
@@ -124,14 +128,15 @@
                                             @Html.Raw(variant.ShortDescription)
                                         </div>
                                     }
+
                                     <!--availability-->
-                                    @await Html.PartialAsync("_Availability", variant)
+                                @await Html.PartialAsync("_Availability", variant)
                                     <!--SKU, MAN, GTIN, vendor-->
-                                    @await Html.PartialAsync("_SKU_Man_GTIN_Ven", variant)
+                                @await Html.PartialAsync("_SKU_Man_GTIN_Ven", variant)
                                     <!--delivery-->
-                                    @await Html.PartialAsync("_DeliveryInfo", variant)
+                                @await Html.PartialAsync("_DeliveryInfo", variant)
                                     <!--sample download-->
-                                    @await Html.PartialAsync("_DownloadSample", variant)
+                                @await Html.PartialAsync("_DownloadSample", variant)
                                     <!--attributes-->
                                     @{
                                         var dataDictAttributes = new ViewDataDictionary(ViewData);
@@ -157,7 +162,7 @@
                                         @await Html.PartialAsync("_ProductPrice", variant.ProductPrice, dataDictPrice)
                                     }
                                     <!--price breaks-->
-                                    @await Html.PartialAsync("_ProductTierPrices", variant.TierPrices)
+                                @await Html.PartialAsync("_ProductTierPrices", variant.TierPrices)
                                     @{
                                         var dataDictAddToCart = new ViewDataDictionary(ViewData);
                                         dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{variant.Id}";
@@ -165,10 +170,10 @@
                                     }
                                     <!--estimate shipping-->
                                     @*@{
-                                        var dataDictEstimateShipping = new ViewDataDictionary(ViewData);
-                                        dataDictEstimateShipping.TemplateInfo.HtmlFieldPrefix = $"estimate_shipping_{variant.Id}";
-                                        @await Html.PartialAsync("_ProductEstimateShipping", variant.ProductEstimateShipping, dataDictEstimateShipping)
-                                    }*@
+                                var dataDictEstimateShipping = new ViewDataDictionary(ViewData);
+                                dataDictEstimateShipping.TemplateInfo.HtmlFieldPrefix = $"estimate_shipping_{variant.Id}";
+                                @await Html.PartialAsync("_ProductEstimateShipping", variant.ProductEstimateShipping, dataDictEstimateShipping)
+                                }*@
                                     <!--wishlist-->
                                     @{
                                         var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
@@ -189,10 +194,12 @@
                     @await Html.PartialAsync("_ProductTags", Model.ProductTags)
                 </div>
                 @*we do not display "also purchased" for grouped products
-                    @await Component.InvokeAsync("ProductsAlsoPurchased", new { productId = Model.Id })*@
+                @await Component.InvokeAsync("ProductsAlsoPurchased", new { productId = Model.Id })*@
                 @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
             </div>
         </form>
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsBottom, additionalData = Model })
     </div>
 </div>
+
+
