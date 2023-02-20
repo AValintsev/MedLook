@@ -630,41 +630,53 @@ label, label + * {
 
 
 /*********** NOTIFICATIONS & POPUPS  ***********/
-.size-table {
-    margin: 32px 0;
-    font-size: 16px;
+.size-select {
+    width: 25%;
 }
 
-    .size-table tbody tr:nth-child(1) {
-        background-color: #eee;
-    }
 
-    .size-table tbody tr:nth-child(2) {
-        background-color: #eef;
+@media (min-width: 320px) and (max-width: 450px) {
+    .size-select {
+        width: 60%;
     }
+}
 
-    .size-table tbody tr:nth-child(3) {
-        background-color: #eff;
+@media (min-width: 451px) and (max-width: 768px) {
+    .size-select {
+        width: 30%;
     }
+}
 
-    .size-table tbody tr:nth-child(4) {
-        background-color: #ffe;
-    }
+.size-table tbody tr:nth-child(1) {
+    background-color: #eee;
+}
 
-    .size-table tbody tr:nth-child(5) {
-        background-color: #fee;
-    }
+.size-table tbody tr:nth-child(2) {
+    background-color: #eef;
+}
 
-    .size-table tbody tr:nth-child(6) {
-        background-color: #efe;
-    }
+.size-table tbody tr:nth-child(3) {
+    background-color: #eff;
+}
 
-    .size-table td, .size-table th {
-        border-style: dashed;
-        border-width: 1px;
-        text-align: center;
-        padding: 6px;
-    }
+.size-table tbody tr:nth-child(4) {
+    background-color: #ffe;
+}
+
+.size-table tbody tr:nth-child(5) {
+    background-color: #fee;
+}
+
+.size-table tbody tr:nth-child(6) {
+    background-color: #efe;
+}
+
+.size-table td, .size-table th {
+    border-style: dashed;
+    border-width: 1px;
+    text-align: center;
+    padding: 6px;
+}
 
 .bar-notification-container {
     position: fixed;
