@@ -43,6 +43,10 @@
 
     <Content Include="Themes\MedLook\Views\Catalog\CategoryTemplate.ProductsInGridOrLines.cshtml" />
 
+    <Content Include="Themes\MedLook\Views\Checkout\Confirm.cshtml" />
+
+    <Content Include="Themes\MedLook\Views\Checkout\OpcConfirmOrder.cshtml" />
+
     <Content Include="Themes\MedLook\Views\Checkout\OpcPaymentMethods.cshtml" />
 
     <Content Include="Themes\MedLook\Views\Checkout\OpcShippingMethods.cshtml" />
@@ -55,7 +59,11 @@
 
     <Content Include="Themes\MedLook\Views\Shared\Components\Logo\Default.cshtml" />
 
+    <Content Include="Themes\MedLook\Views\Shared\Components\OrderSummary\Default.cshtml" />
+
     <Content Include="Themes\MedLook\Views\Shared\Components\OrderTotals\Default.cshtml" />
+
+    <Content Include="Themes\MedLook\Views\Shared\_Notifications.cshtml" />
     <None Include="Plugins\**" CopyToPublishDirectory="PreserveNewest" Exclude="Plugins\**\runtimes\**;Plugins\**\ref\**;Plugins\**\*.pdb" />
 
     <Content Include="Themes\**" CopyToPublishDirectory="PreserveNewest" Exclude="Themes\**\*.config;Themes\**\*.cshtml;Themes\**\*.json" />
@@ -66,13 +74,17 @@
     <Content Remove="Themes\MedLook\Views\Shared\Components\htmlpage.html" />
     <None Remove="Themes\MedLook\Content\css\menu.css" />
     <None Remove="Themes\MedLook\Views\Catalog\CategoryTemplate.ProductsInGridOrLines.cshtml" />
+    <None Remove="Themes\MedLook\Views\Checkout\Confirm.cshtml" />
+    <None Remove="Themes\MedLook\Views\Checkout\OpcConfirmOrder.cshtml" />
     <None Remove="Themes\MedLook\Views\Checkout\OpcPaymentMethods.cshtml" />
     <None Remove="Themes\MedLook\Views\Checkout\OpcShippingMethods.cshtml" />
     <None Remove="Themes\MedLook\Views\Product\ProductTemplate.Grouped.cshtml" />
     <None Remove="Themes\MedLook\Views\Product\ProductTemplate.Simple.cshtml" />
     <None Remove="Themes\MedLook\Views\Product\_ProductDetailsPictures.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\Logo\Default.cshtml" />
+    <None Remove="Themes\MedLook\Views\Shared\Components\OrderSummary\Default.cshtml" />
     <None Remove="Themes\MedLook\Views\Shared\Components\OrderTotals\Default.cshtml" />
+    <None Remove="Themes\MedLook\Views\Shared\_Notifications.cshtml" />
 
     <None Update="Areas\Admin\sitemap.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -94,6 +106,14 @@
 
   <ItemGroup>
     <Content Update="Themes\MedLook\Views\Catalog\CategoryTemplate.ProductsInGridOrLines.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Checkout\Confirm.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Checkout\OpcConfirmOrder.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
@@ -121,7 +141,15 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Update="Themes\MedLook\Views\Shared\Components\OrderSummary\Default.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Update="Themes\MedLook\Views\Shared\Components\OrderTotals\Default.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Shared\_Notifications.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

@@ -11,7 +11,7 @@
         var localized_data = {
             AjaxCartFailure: "@T("AjaxCart.Failure")"
         };
-        AjaxCart.init(false, '.header .cart-qty', '.header .wishlist-qty', '#flyout-cart', localized_data);
+        AjaxCart.init(true, '.header .cart-qty', '.header .wishlist-qty', '#flyout-cart', localized_data);
     </script>		
     <div class="master-wrapper-content">
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ContentBefore })

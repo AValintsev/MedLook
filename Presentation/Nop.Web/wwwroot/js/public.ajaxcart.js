@@ -85,19 +85,22 @@ var AjaxCart = {
             $(AjaxCart.topwishlistselector).html(response.updatetopwishlistsectionhtml);
         }
         if (response.updateflyoutcartsectionhtml) {
+            console.log('AjaxCart.flyoutcartselector', AjaxCart.flyoutcartselector, $(AjaxCart.flyoutcartselector));
             $(AjaxCart.flyoutcartselector).replaceWith(response.updateflyoutcartsectionhtml);
         }
         if (response.message) {
             //display notification
             if (response.success === true) {
                 //success
-                if (AjaxCart.usepopupnotifications === true) {
-                    displayPopupNotification(response.message, 'success', true);
-                }
-                else {
-                    //specify timeout for success messages
-                    displayBarNotification(response.message, 'success', 3500);
-                }
+                //$(AjaxCart.flyoutcartselector).show();
+                displayPopupNotificationHtml(response.updateflyoutcartsectionhtml, response.message);
+                //if (AjaxCart.usepopupnotifications === true) {
+                //    displayPopupNotification(response.message, 'success', true);
+                //}
+                //else {
+                //    //specify timeout for success messages
+                //    displayBarNotification(response.message, 'success', 3500);
+                //}
             }
             else {
                 //error
