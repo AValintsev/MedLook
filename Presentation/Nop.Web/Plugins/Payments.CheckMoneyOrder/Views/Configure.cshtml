@@ -17,7 +17,7 @@
                             <nop-label asp-for="@Model.Locales[item].DescriptionText" />
                         </div>
                         <div class="col-md-9">
-                            <nop-editor asp-for="@Model.Locales[item].DescriptionText" />
+                            <nop-textarea asp-for="@Model.Locales[item].DescriptionText" />
                             <span asp-validation-for="@Model.Locales[item].DescriptionText"></span>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
                             <nop-label asp-for="DescriptionText" />
                         </div>
                         <div class="col-md-9">
-                            <nop-editor asp-for="DescriptionText" />
+                            <nop-textarea asp-for="DescriptionText" />
                             <span asp-validation-for="DescriptionText"></span>
                         </div>
                     </div>

@@ -5190,6 +5190,7 @@ label, label + * {
     line-height: 20px;
     font-size: 16px;
     font-weight: normal;
+    margin-top: 0;
 }
 
 .opc .allow .step-title .number,

@@ -35,6 +35,10 @@
                     {
                         paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
                     }
+                    else
+                    {
+                        paymentMethodName = T(paymentMethodName).Text;
+                    }
                     <li>
                         <div class="method-name">
                             @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
