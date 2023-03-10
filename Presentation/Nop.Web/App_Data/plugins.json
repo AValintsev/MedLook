@@ -18,6 +18,10 @@
     {
       "SystemName": "Payments.CheckMoneyOrder",
       "Version": "1.46"
+    },
+    {
+      "SystemName": "PromotionFeed.GoogleShopping",
+      "Version": "1.89"
     }
   ],
   "PluginNamesToUninstall": [],
