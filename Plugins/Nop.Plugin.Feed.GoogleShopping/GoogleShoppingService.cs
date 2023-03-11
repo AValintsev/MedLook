@@ -317,9 +317,11 @@ namespace Nop.Plugin.Feed.GoogleShopping
                     if (string.IsNullOrEmpty(googleProductCategory))
                         throw new NopException("Default Google category is not set");
 
-                    writer.WriteStartElement("g", "google_product_category", googleBaseNamespace);
-                    writer.WriteCData("2292");
-                    writer.WriteFullEndElement(); // g:google_product_category
+                    //writer.WriteStartElement("g", "google_product_category", googleBaseNamespace);
+                    //writer.WriteCData("2292");
+                    //writer.WriteFullEndElement(); // g:google_product_category
+                    writer.WriteElementString("g", "google_product_category", googleBaseNamespace, "2292");
+
 
                     //product type [product_type] - Your category of the item
                     var defaultProductCategory = (await _categoryService
