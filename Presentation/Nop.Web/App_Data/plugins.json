@@ -22,6 +22,10 @@
     {
       "SystemName": "PromotionFeed.GoogleShopping",
       "Version": "1.89"
+    },
+    {
+      "SystemName": "Misc.Sendinblue",
+      "Version": "3.32"
     }
   ],
   "PluginNamesToUninstall": [],

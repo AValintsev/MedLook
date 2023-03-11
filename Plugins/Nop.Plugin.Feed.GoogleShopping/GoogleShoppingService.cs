@@ -306,7 +306,7 @@ namespace Nop.Plugin.Feed.GoogleShopping
                     writer.WriteEndElement(); // description
 
                     //google product category [google_product_category] - Google's category of the item
-                    //the category of the product according to Google’s product taxonomy. http://www.google.com/support/merchants/bin/answer.py?answer=160081
+                    //the category of the product according to Google’s product taxonomy.http://www.google.com/support/merchants/bin/answer.py?answer=160081
                     var googleProductCategory = "";
                     //var googleProduct = _googleService.GetByProductId(product.Id);
                     var googleProduct = allGoogleProducts.FirstOrDefault(x => x.ProductId == product.Id);
@@ -316,8 +316,9 @@ namespace Nop.Plugin.Feed.GoogleShopping
                         googleProductCategory = googleShoppingSettings.DefaultGoogleCategory;
                     if (string.IsNullOrEmpty(googleProductCategory))
                         throw new NopException("Default Google category is not set");
+
                     writer.WriteStartElement("g", "google_product_category", googleBaseNamespace);
-                    writer.WriteCData(googleProductCategory);
+                    writer.WriteCData("2292");
                     writer.WriteFullEndElement(); // g:google_product_category
 
                     //product type [product_type] - Your category of the item
@@ -376,8 +377,6 @@ namespace Nop.Plugin.Feed.GoogleShopping
 
                     //condition [condition] - Condition or state of the item
                     writer.WriteElementString("g", "condition", googleBaseNamespace, "new");
-
-                    writer.WriteElementString("g", "expiration_date", googleBaseNamespace, DateTime.Now.AddDays(googleShoppingSettings.ExpirationNumberOfDays).ToString("yyyy-MM-dd"));
 
                     #endregion
 

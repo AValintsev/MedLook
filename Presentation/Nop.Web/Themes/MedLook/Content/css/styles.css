@@ -5292,6 +5292,33 @@ label, label + * {
         padding: 0 0 10px;
     }
 
+    .order-details-page .page-title a,
+    .order-details-page .re-order-button {
+        display: inline-block;
+        min-width: 180px;
+        margin: 5px 0;
+        border: none;
+        background-color: #aaa;
+        background-image: none;
+        padding: 10px 20px;
+        font-size: 15px;
+        color: #feffff;
+    }
+
+        .order-details-page .page-title a:hover {
+            background-color: #999;
+        }
+
+        .order-details-page .page-title a.print-order-button,
+        .order-details-page .re-order-button {
+            background-color: #71C5EE;
+        }
+
+            .order-details-page .page-title a.print-order-button:hover,
+            .order-details-page .re-order-button:hover {
+                background-color: #248ece;
+            }
+
     .order-details-page .page-title a {
         display: inline-block;
         min-width: 180px;
