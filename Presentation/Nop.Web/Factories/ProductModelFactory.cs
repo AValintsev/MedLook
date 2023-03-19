@@ -22,9 +22,11 @@ using Nop.Services.Directory;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Media;
+using Nop.Services.Orders;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Shipping.Date;
+using Nop.Services.Stores;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
 using Nop.Web.Infrastructure.Cache;
@@ -63,13 +65,16 @@ namespace Nop.Web.Factories
         private readonly IProductTagService _productTagService;
         private readonly IProductTemplateService _productTemplateService;
         private readonly IReviewTypeService _reviewTypeService;
+        private readonly IShoppingCartService _shoppingCartService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IStaticCacheManager _staticCacheManager;
         private readonly IStoreContext _storeContext;
+        private readonly IStoreService _storeService;
         private readonly IShoppingCartModelFactory _shoppingCartModelFactory;
         private readonly ITaxService _taxService;
         private readonly IUrlRecordService _urlRecordService;
         private readonly IVendorService _vendorService;
+        private readonly IVideoService _videoService;
         private readonly IWebHelper _webHelper;
         private readonly IWorkContext _workContext;
         private readonly MediaSettings _mediaSettings;
@@ -104,13 +109,16 @@ namespace Nop.Web.Factories
             IProductTagService productTagService,
             IProductTemplateService productTemplateService,
             IReviewTypeService reviewTypeService,
+            IShoppingCartService shoppingCartService,
             ISpecificationAttributeService specificationAttributeService,
             IStaticCacheManager staticCacheManager,
             IStoreContext storeContext,
+            IStoreService storeService,
             IShoppingCartModelFactory shoppingCartModelFactory,
             ITaxService taxService,
             IUrlRecordService urlRecordService,
             IVendorService vendorService,
+            IVideoService videoService,
             IWebHelper webHelper,
             IWorkContext workContext,
             MediaSettings mediaSettings,
@@ -141,9 +149,11 @@ namespace Nop.Web.Factories
             _productTagService = productTagService;
             _productTemplateService = productTemplateService;
             _reviewTypeService = reviewTypeService;
+            _shoppingCartService = shoppingCartService;
             _specificationAttributeService = specificationAttributeService;
             _staticCacheManager = staticCacheManager;
             _storeContext = storeContext;
+            _storeService = storeService;
             _shoppingCartModelFactory = shoppingCartModelFactory;
             _taxService = taxService;
             _urlRecordService = urlRecordService;
@@ -155,7 +165,7 @@ namespace Nop.Web.Factories
             _seoSettings = seoSettings;
             _shippingSettings = shippingSettings;
             _vendorSettings = vendorSettings;
-            
+            _videoService = videoService;
         }
 
         #endregion
@@ -228,14 +238,15 @@ namespace Nop.Web.Factories
         protected virtual async Task<ProductReviewOverviewModel> PrepareProductReviewOverviewModelAsync(Product product)
         {
             ProductReviewOverviewModel productReview;
+            var currentStore = await _storeContext.GetCurrentStoreAsync();
 
             if (_catalogSettings.ShowProductReviewsPerStore)
             {
-                var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.ProductReviewsModelKey, product, await _storeContext.GetCurrentStoreAsync());
+                var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.ProductReviewsModelKey, product, currentStore);
 
                 productReview = await _staticCacheManager.GetAsync(cacheKey, async () =>
                 {
-                    var productReviews = await _productService.GetAllProductReviewsAsync(productId: product.Id, approved: true, storeId: (await _storeContext.GetCurrentStoreAsync()).Id);
+                    var productReviews = await _productService.GetAllProductReviewsAsync(productId: product.Id, approved: true, storeId: currentStore.Id);
                     
                     return new ProductReviewOverviewModel
                     {
@@ -257,7 +268,7 @@ namespace Nop.Web.Factories
             {
                 productReview.ProductId = product.Id;
                 productReview.AllowCustomerReviews = product.AllowCustomerReviews;
-                productReview.CanAddNewReview = await _productService.CanAddReviewAsync(product.Id, (await _storeContext.GetCurrentStoreAsync()).Id);
+                productReview.CanAddNewReview = await _productService.CanAddReviewAsync(product.Id, _catalogSettings.ShowProductReviewsPerStore ? currentStore.Id : 0);
             }
 
             return productReview;
@@ -340,16 +351,100 @@ namespace Nop.Web.Factories
                 {
                     //call for price
                     priceModel.OldPrice = null;
+                    priceModel.OldPriceValue = null;
                     priceModel.Price = await _localizationService.GetResourceAsync("Products.CallForPrice");
+                    priceModel.PriceValue = null;
                 }
                 else
                 {
+                    var store = await _storeContext.GetCurrentStoreAsync();
+                    var customer = await _workContext.GetCurrentCustomerAsync();
+
                     //prices
-                    var (minPossiblePriceWithoutDiscount, minPossiblePriceWithDiscount, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, await _workContext.GetCurrentCustomerAsync());
+                    var (minPossiblePriceWithoutDiscount, minPossiblePriceWithDiscount) = (decimal.Zero, decimal.Zero);
+                    var hasMultiplePrices = false;
+                    if (_catalogSettings.DisplayFromPrices)
+                    {
+                        var customerRoleIds = await _customerService.GetCustomerRoleIdsAsync(customer);
+                        var cacheKey = _staticCacheManager
+                            .PrepareKeyForDefaultCache(NopCatalogDefaults.ProductMultiplePriceCacheKey, product, customerRoleIds, store);
+                        if (!_catalogSettings.CacheProductPrices || product.IsRental)
+                            cacheKey.CacheTime = 0;
+
+                        var cachedPrice = await _staticCacheManager.GetAsync(cacheKey, async () =>
+                        {
+                            var prices = new List<(decimal PriceWithoutDiscount, decimal PriceWithDiscount)>();
+
+                            // price when there are no required attributes
+                            var attributesMappings = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(product.Id);
+                            if (!attributesMappings.Any(am => !am.IsNonCombinable() && am.IsRequired))
+                            {
+                                (var priceWithoutDiscount, var priceWithDiscount, _, _) = await _priceCalculationService
+                                    .GetFinalPriceAsync(product, customer, store);
+                                prices.Add((priceWithoutDiscount, priceWithDiscount));
+                            }
+
+                            var allAttributesXml = await _productAttributeParser.GenerateAllCombinationsAsync(product, true);
+                            foreach (var attributesXml in allAttributesXml)
+                            {
+                                var warnings = new List<string>();
+                                warnings.AddRange(await _shoppingCartService.GetShoppingCartItemAttributeWarningsAsync(customer,
+                                    ShoppingCartType.ShoppingCart, product, 1, attributesXml, true, true, true));
+                                if (warnings.Count != 0)
+                                    continue;
+
+                                //get price with additional charge
+                                var additionalCharge = decimal.Zero;
+                                var combination = await _productAttributeParser.FindProductAttributeCombinationAsync(product, attributesXml);
+                                if (combination?.OverriddenPrice.HasValue ?? false)
+                                    additionalCharge = combination.OverriddenPrice.Value;
+                                else
+                                {
+                                    var attributeValues = await _productAttributeParser.ParseProductAttributeValuesAsync(attributesXml);
+                                    foreach (var attributeValue in attributeValues)
+                                    {
+                                        additionalCharge += await _priceCalculationService.
+                                            GetProductAttributeValuePriceAdjustmentAsync(product, attributeValue, customer, store);
+                                    }
+                                }
+
+                                if (additionalCharge != decimal.Zero)
+                                {
+                                    (var priceWithoutDiscount, var priceWithDiscount, _, _) = await _priceCalculationService
+                                        .GetFinalPriceAsync(product, customer, store, additionalCharge);
+                                    prices.Add((priceWithoutDiscount, priceWithDiscount));
+                                }
+                            }
+
+                            if (prices.Distinct().Count() > 1)
+                            {
+                                (minPossiblePriceWithoutDiscount, minPossiblePriceWithDiscount) = prices.OrderBy(p => p.PriceWithDiscount).First();
+                                return new 
+                                {
+                                    PriceWithoutDiscount = minPossiblePriceWithoutDiscount, 
+                                    PriceWithDiscount = minPossiblePriceWithDiscount 
+                                };
+                            }
+
+                            // show default price when required attributes available but no values added
+                            (minPossiblePriceWithoutDiscount, minPossiblePriceWithDiscount, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, customer, store);
+                            
+                            //don't cache (return null) if there are no multiple prices
+                            return null;
+                        });
+
+                        if (cachedPrice is not null)
+                        {
+                            hasMultiplePrices = true;
+                            (minPossiblePriceWithoutDiscount, minPossiblePriceWithDiscount) = (cachedPrice.PriceWithoutDiscount, cachedPrice.PriceWithDiscount);
+                        }
+                    }
+                    else
+                        (minPossiblePriceWithoutDiscount, minPossiblePriceWithDiscount, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, customer, store);
 
                     if (product.HasTierPrices)
                     {
-                        var (tierPriceMinPossiblePriceWithoutDiscount, tierPriceMinPossiblePriceWithDiscount, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, await _workContext.GetCurrentCustomerAsync(), quantity: int.MaxValue);
+                        var (tierPriceMinPossiblePriceWithoutDiscount, tierPriceMinPossiblePriceWithDiscount, _, _) = await _priceCalculationService.GetFinalPriceAsync(product, customer, store, quantity: int.MaxValue);
 
                         //calculate price for the maximum quantity if we have tier prices, and choose minimal
                         minPossiblePriceWithoutDiscount = Math.Min(minPossiblePriceWithoutDiscount, tierPriceMinPossiblePriceWithoutDiscount);
@@ -359,47 +454,50 @@ namespace Nop.Web.Factories
                     var (oldPriceBase, _) = await _taxService.GetProductPriceAsync(product, product.OldPrice);
                     var (finalPriceWithoutDiscountBase, _) = await _taxService.GetProductPriceAsync(product, minPossiblePriceWithoutDiscount);
                     var (finalPriceWithDiscountBase, _) = await _taxService.GetProductPriceAsync(product, minPossiblePriceWithDiscount);
+                    var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
+                    var oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(oldPriceBase, currentCurrency);
+                    var finalPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithoutDiscountBase, currentCurrency);
+                    var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithDiscountBase, currentCurrency);
 
-                    var oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(oldPriceBase, await _workContext.GetWorkingCurrencyAsync());
-                    var finalPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithoutDiscountBase, await _workContext.GetWorkingCurrencyAsync());
-                    var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithDiscountBase, await _workContext.GetWorkingCurrencyAsync());
+                    var strikeThroughPrice = decimal.Zero;
 
-                    //do we have tier prices configured?
-                    var tierPrices = new List<TierPrice>();
-                    if (product.HasTierPrices)
+                    if (finalPriceWithoutDiscountBase != oldPriceBase && oldPriceBase > decimal.Zero)
+                        strikeThroughPrice = oldPrice;
+
+                    if (finalPriceWithoutDiscountBase != finalPriceWithDiscountBase)
+                        strikeThroughPrice = finalPriceWithoutDiscount;
+
+                    if (strikeThroughPrice > decimal.Zero)
                     {
-                        tierPrices.AddRange(await _productService.GetTierPricesAsync(product, await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id));
-                    }
-                    //When there is just one tier price (with  qty 1), there are no actual savings in the list.
-                    var displayFromMessage = tierPrices.Any() && !(tierPrices.Count == 1 && tierPrices[0].Quantity <= 1);
-                    if (displayFromMessage)
-                    {
-                        priceModel.OldPrice = null;
-                        priceModel.Price = string.Format(await _localizationService.GetResourceAsync("Products.PriceRangeFrom"), await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount));
-                        priceModel.PriceValue = finalPriceWithDiscount;
+                        priceModel.OldPrice = await _priceFormatter.FormatPriceAsync(strikeThroughPrice);
                     }
                     else
                     {
-                        var strikeThroughPrice = decimal.Zero;
-
-                        if (finalPriceWithoutDiscountBase != oldPriceBase && oldPriceBase > decimal.Zero)
-                            strikeThroughPrice = oldPrice;
-
-                        if (finalPriceWithoutDiscountBase != finalPriceWithDiscountBase)
-                            strikeThroughPrice = finalPriceWithoutDiscount;
-
-                        if (strikeThroughPrice > decimal.Zero)
-                            priceModel.OldPrice = await _priceFormatter.FormatPriceAsync(strikeThroughPrice);
-
-                        priceModel.Price = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
-                        priceModel.PriceValue = finalPriceWithDiscount;
+                        priceModel.OldPrice = null;
+                        priceModel.OldPriceValue = null;
                     }
+
+                    //do we have tier prices configured?
+                    var tierPrices = product.HasTierPrices
+                        ? await _productService.GetTierPricesAsync(product, customer, store)
+                        : new List<TierPrice>();
+
+                    //When there is just one tier price (with  qty 1), there are no actual savings in the list.
+                    var hasTierPrices = tierPrices.Any() && !(tierPrices.Count == 1 && tierPrices[0].Quantity <= 1);
+
+                    var price = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
+                    priceModel.Price = hasTierPrices || hasMultiplePrices
+                        ? string.Format(await _localizationService.GetResourceAsync("Products.PriceRangeFrom"), price)
+                        : price;
+                    priceModel.PriceValue = finalPriceWithDiscount;
 
                     if (product.IsRental)
                     {
                         //rental product
                         priceModel.OldPrice = await _priceFormatter.FormatRentalProductPeriodAsync(product, priceModel.OldPrice);
+                        priceModel.OldPriceValue = priceModel.OldPriceValue;
                         priceModel.Price = await _priceFormatter.FormatRentalProductPeriodAsync(product, priceModel.Price);
+                        priceModel.PriceValue = priceModel.PriceValue;
                     }
 
                     //property for German market
@@ -409,21 +507,25 @@ namespace Nop.Web.Factories
 
                     //PAngV default baseprice (used in Germany)
                     priceModel.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, finalPriceWithDiscount);
+                    priceModel.BasePricePAngVValue = finalPriceWithDiscount;
                 }
             }
             else
             {
                 //hide prices
                 priceModel.OldPrice = null;
+                priceModel.OldPriceValue = null;
                 priceModel.Price = null;
+                priceModel.PriceValue = null;
             }
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task PrepareGroupedProductOverviewPriceModelAsync(Product product, ProductOverviewModel.ProductPriceModel priceModel)
         {
+            var store = await _storeContext.GetCurrentStoreAsync();
             var associatedProducts = await _productService.GetAssociatedProductsAsync(product.Id,
-                (await _storeContext.GetCurrentStoreAsync()).Id);
+                store.Id);
 
             //add to cart button (ignore "DisableBuyButton" property for grouped products)
             priceModel.DisableBuyButton =
@@ -446,15 +548,16 @@ namespace Nop.Web.Factories
                 //find a minimum possible price
                 decimal? minPossiblePrice = null;
                 Product minPriceProduct = null;
+                var customer = await _workContext.GetCurrentCustomerAsync();
                 foreach (var associatedProduct in associatedProducts)
                 {
-                    var (_, tmpMinPossiblePrice, _, _) = await _priceCalculationService.GetFinalPriceAsync(associatedProduct, await _workContext.GetCurrentCustomerAsync());
+                    var (_, tmpMinPossiblePrice, _, _) = await _priceCalculationService.GetFinalPriceAsync(associatedProduct, customer, store);
 
                     if (associatedProduct.HasTierPrices)
                     {
                         //calculate price for the maximum quantity if we have tier prices, and choose minimal
                         tmpMinPossiblePrice = Math.Min(tmpMinPossiblePrice,
-                            (await _priceCalculationService.GetFinalPriceAsync(associatedProduct, await _workContext.GetCurrentCustomerAsync(), quantity: int.MaxValue)).Item1);
+                            (await _priceCalculationService.GetFinalPriceAsync(associatedProduct, customer, store, quantity: int.MaxValue)).finalPrice);
                     }
 
                     if (minPossiblePrice.HasValue && tmpMinPossiblePrice >= minPossiblePrice.Value)
@@ -472,7 +575,9 @@ namespace Nop.Web.Factories
                      _workContext.OriginalCustomerIfImpersonated == null))
                 {
                     priceModel.OldPrice = null;
+                    priceModel.OldPriceValue = null;
                     priceModel.Price = await _localizationService.GetResourceAsync("Products.CallForPrice");
+                    priceModel.PriceValue = null;
                 }
                 else
                 {
@@ -481,18 +586,22 @@ namespace Nop.Web.Factories
                     var finalPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceBase, await _workContext.GetWorkingCurrencyAsync());
 
                     priceModel.OldPrice = null;
+                    priceModel.OldPriceValue = null;
                     priceModel.Price = string.Format(await _localizationService.GetResourceAsync("Products.PriceRangeFrom"), await _priceFormatter.FormatPriceAsync(finalPrice));
                     priceModel.PriceValue = finalPrice;
 
                     //PAngV default baseprice (used in Germany)
                     priceModel.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, finalPriceBase);
+                    priceModel.BasePricePAngVValue = finalPriceBase;
                 }
             }
             else
             {
                 //hide prices
                 priceModel.OldPrice = null;
+                priceModel.OldPriceValue = null;
                 priceModel.Price = null;
+                priceModel.PriceValue = null;
             }
         }
 
@@ -503,9 +612,9 @@ namespace Nop.Web.Factories
         /// <param name="productThumbPictureSize">Product thumb picture size (longest side); pass null to use the default value of media settings</param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the picture model
+        /// The task result contains picture models
         /// </returns>
-        protected virtual async Task<PictureModel> PrepareProductOverviewPictureModelAsync(Product product, int? productThumbPictureSize = null)
+        protected virtual async Task<IList<PictureModel>> PrepareProductOverviewPicturesModelAsync(Product product, int? productThumbPictureSize = null)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
@@ -515,37 +624,50 @@ namespace Nop.Web.Factories
             var pictureSize = productThumbPictureSize ?? _mediaSettings.ProductThumbPictureSize;
 
             //prepare picture model
-            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.ProductDefaultPictureModelKey, 
-                product, pictureSize, true, await _workContext.GetWorkingLanguageAsync(), _webHelper.IsCurrentConnectionSecured(),
-                await _storeContext.GetCurrentStoreAsync());
+            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopModelCacheDefaults.ProductOverviewPicturesModelKey, 
+                product, pictureSize, true, _catalogSettings.DisplayAllPicturesOnCatalogPages, await _workContext.GetWorkingLanguageAsync(), 
+                _webHelper.IsCurrentConnectionSecured(), await _storeContext.GetCurrentStoreAsync());
 
-            var defaultPictureModel = await _staticCacheManager.GetAsync(cacheKey, async () =>
+            var cachedPictures = await _staticCacheManager.GetAsync(cacheKey, async () =>
             {
-                var picture = (await _pictureService.GetPicturesByProductIdAsync(product.Id, 1)).FirstOrDefault();
-                string fullSizeImageUrl, imageUrl;
-                (imageUrl, picture) = await _pictureService.GetPictureUrlAsync(picture, pictureSize);
-                (fullSizeImageUrl, picture) = await _pictureService.GetPictureUrlAsync(picture);
-
-                var pictureModel = new PictureModel
+                async Task<PictureModel> preparePictureModelAsync(Picture picture)
                 {
-                    ImageUrl = imageUrl,
-                    FullSizeImageUrl = fullSizeImageUrl,
-                    //"title" attribute
-                    Title = (picture != null && !string.IsNullOrEmpty(picture.TitleAttribute))
-                        ? picture.TitleAttribute
-                        : string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageLinkTitleFormat"),
-                            productName),
-                    //"alt" attribute
-                    AlternateText = (picture != null && !string.IsNullOrEmpty(picture.AltAttribute))
-                        ? picture.AltAttribute
-                        : string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageAlternateTextFormat"),
-                            productName)
-                };
+                    //we use the Task.WhenAll method to control that both image thumbs was created in same time.
+                    //without this method, sometimes there were situations when one of the pictures was not generated on time
+                    //this section of code requires detailed analysis in the future
+                    var picResultTasks = await Task.WhenAll(_pictureService.GetPictureUrlAsync(picture, pictureSize), _pictureService.GetPictureUrlAsync(picture));
 
-                return pictureModel;
+                    var (imageUrl, _) = picResultTasks[0];
+                    var (fullSizeImageUrl, _) = picResultTasks[1];
+
+                    return new PictureModel
+                    {
+                        ImageUrl = imageUrl,
+                        FullSizeImageUrl = fullSizeImageUrl,
+                        //"title" attribute
+                        Title = (picture != null && !string.IsNullOrEmpty(picture.TitleAttribute))
+                            ? picture.TitleAttribute
+                            : string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageLinkTitleFormat"),
+                                productName),
+                        //"alt" attribute
+                        AlternateText = (picture != null && !string.IsNullOrEmpty(picture.AltAttribute))
+                            ? picture.AltAttribute
+                            : string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageAlternateTextFormat"),
+                                productName)
+                    };
+                }
+
+                //all pictures
+                var pictures = (await _pictureService
+                    .GetPicturesByProductIdAsync(product.Id,  _catalogSettings.DisplayAllPicturesOnCatalogPages ? 0 : 1))
+                    .DefaultIfEmpty(null);
+                var pictureModels = await pictures
+                    .SelectAwait(async picture => await preparePictureModelAsync(picture))
+                    .ToListAsync();
+                return pictureModels;
             });
 
-            return defaultPictureModel;
+            return cachedPictures;
         }
 
         /// <summary>
@@ -655,21 +777,32 @@ namespace Nop.Web.Factories
                     }
                     else
                     {
-                        var (oldPriceBase, _) = await _taxService.GetProductPriceAsync(product, product.OldPrice);
-                        var (finalPriceWithoutDiscountBase, _) = await _taxService.GetProductPriceAsync(product, (await _priceCalculationService.GetFinalPriceAsync(product, await _workContext.GetCurrentCustomerAsync(), includeDiscounts: false)).finalPrice);
-                        var (finalPriceWithDiscountBase, _) = await _taxService.GetProductPriceAsync(product, (await _priceCalculationService.GetFinalPriceAsync(product, await _workContext.GetCurrentCustomerAsync())).finalPrice);
+                        var customer = await _workContext.GetCurrentCustomerAsync();
+                        var store = await _storeContext.GetCurrentStoreAsync();
+                        var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
 
-                        var oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(oldPriceBase, await _workContext.GetWorkingCurrencyAsync());
-                        var finalPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithoutDiscountBase, await _workContext.GetWorkingCurrencyAsync());
-                        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithDiscountBase, await _workContext.GetWorkingCurrencyAsync());
+                        var (oldPriceBase, _) = await _taxService.GetProductPriceAsync(product, product.OldPrice);
+
+                        var (finalPriceWithoutDiscountBase, _) = await _taxService.GetProductPriceAsync(product, (await _priceCalculationService.GetFinalPriceAsync(product, customer, store, includeDiscounts: false)).finalPrice);
+                        var (finalPriceWithDiscountBase, _) = await _taxService.GetProductPriceAsync(product, (await _priceCalculationService.GetFinalPriceAsync(product, customer, store)).finalPrice);
+                        
+                        var oldPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(oldPriceBase, currentCurrency);
+                        var finalPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithoutDiscountBase, currentCurrency);
+                        var finalPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(finalPriceWithDiscountBase, currentCurrency);
 
                         if (finalPriceWithoutDiscountBase != oldPriceBase && oldPriceBase > decimal.Zero)
+                        {
                             model.OldPrice = await _priceFormatter.FormatPriceAsync(oldPrice);
+                            model.OldPriceValue = oldPrice;
+                        }
 
                         model.Price = await _priceFormatter.FormatPriceAsync(finalPriceWithoutDiscount);
 
                         if (finalPriceWithoutDiscountBase != finalPriceWithDiscountBase)
+                        {
                             model.PriceWithDiscount = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
+                            model.PriceWithDiscountValue = finalPriceWithDiscount;
+                        }
 
                         model.PriceValue = finalPriceWithDiscount;
 
@@ -682,8 +815,9 @@ namespace Nop.Web.Factories
 
                         //PAngV baseprice (used in Germany)
                         model.BasePricePAngV = await _priceFormatter.FormatBasePriceAsync(product, finalPriceWithDiscountBase);
+                        model.BasePricePAngVValue = finalPriceWithDiscountBase;
                         //currency code
-                        model.CurrencyCode = (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode;
+                        model.CurrencyCode = currentCurrency.CurrencyCode;
 
                         //rental
                         if (product.IsRental)
@@ -691,6 +825,7 @@ namespace Nop.Web.Factories
                             model.IsRental = true;
                             var priceStr = await _priceFormatter.FormatPriceAsync(finalPriceWithDiscount);
                             model.RentalPrice = await _priceFormatter.FormatRentalProductPeriodAsync(product, priceStr);
+                            model.RentalPriceValue = finalPriceWithDiscount;
                         }
                     }
                 }
@@ -699,6 +834,7 @@ namespace Nop.Web.Factories
             {
                 model.HidePrices = true;
                 model.OldPrice = null;
+                model.OldPriceValue = null;
                 model.Price = null;
             }
 
@@ -764,7 +900,9 @@ namespace Nop.Web.Factories
                     product.PreOrderAvailabilityStartDateTimeUtc.Value >= DateTime.UtcNow;
                 model.PreOrderAvailabilityStartDateTimeUtc = product.PreOrderAvailabilityStartDateTimeUtc;
 
-                if (model.PreOrderAvailabilityStartDateTimeUtc.HasValue && _catalogSettings.DisplayDatePreOrderAvailability)
+                if (model.AvailableForPreOrder &&
+                    model.PreOrderAvailabilityStartDateTimeUtc.HasValue &&
+                    _catalogSettings.DisplayDatePreOrderAvailability)
                 {
                     model.PreOrderAvailabilityStartDateTimeUserTime =
                         (await _dateTimeHelper.ConvertToUserTimeAsync(model.PreOrderAvailabilityStartDateTimeUtc.Value)).ToString("D");
@@ -778,8 +916,9 @@ namespace Nop.Web.Factories
             if (!model.CustomerEntersPrice)
                 return model;
 
-            var minimumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(product.MinimumCustomerEnteredPrice, await _workContext.GetWorkingCurrencyAsync());
-            var maximumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(product.MaximumCustomerEnteredPrice, await _workContext.GetWorkingCurrencyAsync());
+            var currentCurrency = await _workContext.GetWorkingCurrencyAsync();
+            var minimumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(product.MinimumCustomerEnteredPrice, currentCurrency);
+            var maximumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(product.MaximumCustomerEnteredPrice, currentCurrency);
 
             model.CustomerEnteredPrice = updatecartitem != null ? updatecartitem.CustomerEnteredPrice : minimumCustomerEnteredPrice;
             model.CustomerEnteredPriceRange = string.Format(await _localizationService.GetResourceAsync("Products.EnterProductPrice.Range"),
@@ -804,7 +943,8 @@ namespace Nop.Web.Factories
                 throw new ArgumentNullException(nameof(product));
 
             var model = new List<ProductDetailsModel.ProductAttributeModel>();
-
+            var store = updatecartitem != null ? await _storeService.GetStoreByIdAsync(updatecartitem.StoreId) : await _storeContext.GetCurrentStoreAsync();
+            
             var productAttributeMapping = await _productAttributeService.GetProductAttributeMappingsByProductIdAsync(product.Id);
             foreach (var attribute in productAttributeMapping)
             {
@@ -850,9 +990,10 @@ namespace Nop.Web.Factories
                         //display price if allowed
                         if (await _permissionService.AuthorizeAsync(StandardPermissionProvider.DisplayPrices))
                         {
-                            var customer = updatecartitem?.CustomerId is null ? await _workContext.GetCurrentCustomerAsync() : await _customerService.GetCustomerByIdAsync(updatecartitem.CustomerId);
+                            var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+                            var customer = updatecartitem?.CustomerId is null ? currentCustomer : await _customerService.GetCustomerByIdAsync(updatecartitem.CustomerId);
 
-                            var attributeValuePriceAdjustment = await _priceCalculationService.GetProductAttributeValuePriceAdjustmentAsync(product, attributeValue, customer);
+                            var attributeValuePriceAdjustment = await _priceCalculationService.GetProductAttributeValuePriceAdjustmentAsync(product, attributeValue, customer, store, quantity: updatecartitem?.Quantity ?? 1);
                             var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment);
                             var priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(priceAdjustmentBase, await _workContext.GetWorkingCurrencyAsync());
 
@@ -991,7 +1132,7 @@ namespace Nop.Web.Factories
                                 if (!string.IsNullOrEmpty(updatecartitem.AttributesXml))
                                 {
                                     var downloadGuidStr = _productAttributeParser.ParseValues(updatecartitem.AttributesXml, attribute.Id).FirstOrDefault();
-                                    Guid.TryParse(downloadGuidStr, out var downloadGuid);
+                                    _ = Guid.TryParse(downloadGuidStr, out var downloadGuid);
                                     var download = await _downloadService.GetDownloadByGuidAsync(downloadGuid);
                                     if (download != null)
                                         attributeModel.DefaultValue = download.DownloadGuid.ToString();
@@ -1023,19 +1164,22 @@ namespace Nop.Web.Factories
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            var model = await (await _productService.GetTierPricesAsync(product, await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var model = await (await _productService.GetTierPricesAsync(product, customer, store))
                 .SelectAwait(async tierPrice =>
                 {
                     var priceBase = (await _taxService.GetProductPriceAsync(product, (await _priceCalculationService.GetFinalPriceAsync(product,
-                        await _workContext.GetCurrentCustomerAsync(), decimal.Zero, _catalogSettings.DisplayTierPricesWithDiscounts,
-                        tierPrice.Quantity)).Item1)).price;
+                        customer, store, decimal.Zero, _catalogSettings.DisplayTierPricesWithDiscounts,
+                        tierPrice.Quantity)).finalPrice)).price;
 
                        var price = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(priceBase, await _workContext.GetWorkingCurrencyAsync());
 
                        return new ProductDetailsModel.TierPriceModel
                        {
                            Quantity = tierPrice.Quantity,
-                           Price = await _priceFormatter.FormatPriceAsync(price, false, false)
+                           Price = await _priceFormatter.FormatPriceAsync(price, false, false),
+                           PriceValue = price
                        };
                    }).ToListAsync();
 
@@ -1081,7 +1225,7 @@ namespace Nop.Web.Factories
         /// A task that represents the asynchronous operation
         /// The task result contains the picture model for the default picture; All picture models
         /// </returns>
-        protected virtual async Task<(PictureModel pictureModel, IList<PictureModel> allPictureModels)> PrepareProductDetailsPictureModelAsync(Product product, bool isAssociatedProduct)
+        protected virtual async Task<(PictureModel pictureModel, IList<PictureModel> allPictureModels, IList<VideoModel> allVideoModels)> PrepareProductDetailsPictureModelAsync(Product product, bool isAssociatedProduct)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
@@ -1122,7 +1266,7 @@ namespace Nop.Web.Factories
 
                 //all pictures
                 var pictureModels = new List<PictureModel>();
-                for (var i = 0; i < pictures.Count(); i++ )
+                for (var i = 0; i < pictures.Count; i++ )
                 {
                     var picture = pictures[i];
 
@@ -1154,7 +1298,23 @@ namespace Nop.Web.Factories
             });
 
             var allPictureModels = cachedPictures.PictureModels;
-            return (cachedPictures.DefaultPictureModel, allPictureModels);
+            
+            //all videos
+            var allvideoModels = new List<VideoModel>();
+            var videos = await _videoService.GetVideosByProductIdAsync(product.Id);
+            foreach (var video in videos)
+            {
+                var videoModel = new VideoModel
+                {
+                    VideoUrl = video.VideoUrl,
+                    Allow = _mediaSettings.VideoIframeAllow,
+                    Width = _mediaSettings.VideoIframeWidth,
+                    Height = _mediaSettings.VideoIframeHeight
+                };
+
+                allvideoModels.Add(videoModel);
+            }
+            return (cachedPictures.DefaultPictureModel, allPictureModels, allvideoModels);
         }
 
         #endregion
@@ -1230,7 +1390,7 @@ namespace Nop.Web.Factories
                 //picture
                 if (preparePictureModel)
                 {
-                    model.DefaultPictureModel = await PrepareProductOverviewPictureModelAsync(product, productThumbPictureSize);
+                    model.PictureModels = await PrepareProductOverviewPicturesModelAsync(product, productThumbPictureSize);
                 }
 
                 //specs
@@ -1368,12 +1528,13 @@ namespace Nop.Web.Factories
                 }
             }
 
+            var store = await _storeContext.GetCurrentStoreAsync();
             //email a friend
             model.EmailAFriendEnabled = _catalogSettings.EmailAFriendEnabled;
             //compare products
             model.CompareProductsEnabled = _catalogSettings.CompareProductsEnabled;
             //store name
-            model.CurrentStoreName = await _localizationService.GetLocalizedAsync(await _storeContext.GetCurrentStoreAsync(), x => x.Name);
+            model.CurrentStoreName = await _localizationService.GetLocalizedAsync(store, x => x.Name);
 
             //vendor details
             if (_vendorSettings.ShowVendorOnProductDetailsPage)
@@ -1407,6 +1568,10 @@ namespace Nop.Web.Factories
 
             switch (product.ManageInventoryMethod)
             {
+                case ManageInventoryMethod.DontManageStock:
+                    model.InStock = true;
+                    break;
+
                 case ManageInventoryMethod.ManageStock:
                     model.InStock = product.BackorderMode != BackorderMode.NoBackorders
                         || await _productService.GetTotalStockQuantityAsync(product) > 0;
@@ -1435,18 +1600,20 @@ namespace Nop.Web.Factories
                 model.ProductTags = await PrepareProductTagModelsAsync(product);
             }
 
-            //pictures
+            //pictures and videos
             model.DefaultPictureZoomEnabled = _mediaSettings.DefaultPictureZoomEnabled;
             IList<PictureModel> allPictureModels;
-            (model.DefaultPictureModel, allPictureModels) = await PrepareProductDetailsPictureModelAsync(product, isAssociatedProduct);
+            IList<VideoModel> allVideoModels;
+            (model.DefaultPictureModel, allPictureModels, allVideoModels) = await PrepareProductDetailsPictureModelAsync(product, isAssociatedProduct);
             model.PictureModels = allPictureModels;
+            model.VideoModels = allVideoModels;
 
             //price
             model.ProductPrice = await PrepareProductPriceModelAsync(product);
 
             //'Add to cart' model
             model.AddToCart = await PrepareProductAddToCartModelAsync(product, updatecartitem);
-
+            var customer = await _workContext.GetCurrentCustomerAsync();
             //gift card
             if (product.IsGiftCard)
             {
@@ -1455,8 +1622,8 @@ namespace Nop.Web.Factories
 
                 if (updatecartitem == null)
                 {
-                    model.GiftCard.SenderName = await _customerService.GetCustomerFullNameAsync(await _workContext.GetCurrentCustomerAsync());
-                    model.GiftCard.SenderEmail = (await _workContext.GetCurrentCustomerAsync()).Email;
+                    model.GiftCard.SenderName = await _customerService.GetCustomerFullNameAsync(customer);
+                    model.GiftCard.SenderEmail = customer.Email;
                 }
                 else
                 {
@@ -1511,9 +1678,9 @@ namespace Nop.Web.Factories
             {
                 var wrappedProduct = new ShoppingCartItem
                 {
-                    StoreId = (await _storeContext.GetCurrentStoreAsync()).Id,
+                    StoreId = store.Id,
                     ShoppingCartTypeId = (int)ShoppingCartType.ShoppingCart,
-                    CustomerId = (await _workContext.GetCurrentCustomerAsync()).Id,
+                    CustomerId = customer.Id,
                     ProductId = product.Id,
                     CreatedOnUtc = DateTime.UtcNow
                 };
@@ -1538,10 +1705,11 @@ namespace Nop.Web.Factories
                 //ensure no circular references
                 if (!isAssociatedProduct)
                 {
-                    var associatedProducts = await _productService.GetAssociatedProductsAsync(product.Id, (await _storeContext.GetCurrentStoreAsync()).Id);
+                    var associatedProducts = await _productService.GetAssociatedProductsAsync(product.Id, store.Id);
                     foreach (var associatedProduct in associatedProducts)
                         model.AssociatedProducts.Add(await PrepareProductDetailsModelAsync(associatedProduct, null, true));
                 }
+                model.InStock = model.AssociatedProducts.Any(associatedProduct => associatedProduct.InStock);
             }
 
             return model;
@@ -1568,14 +1736,12 @@ namespace Nop.Web.Factories
             model.ProductName = await _localizationService.GetLocalizedAsync(product, x => x.Name);
             model.ProductSeName = await _urlRecordService.GetSeNameAsync(product);
 
-            var productReviews = (await _productService.GetAllProductReviewsAsync(
+            var currentStore = await _storeContext.GetCurrentStoreAsync();
+
+            var productReviews = await _productService.GetAllProductReviewsAsync(
                 approved: true, 
                 productId: product.Id,
-                storeId: _catalogSettings.ShowProductReviewsPerStore ? (await _storeContext.GetCurrentStoreAsync()).Id : 0)).AsEnumerable();
-
-            productReviews = _catalogSettings.ProductReviewsSortByCreatedDateAscending
-                ? productReviews.OrderBy(pr => pr.CreatedOnUtc)
-                : productReviews.OrderByDescending(pr => pr.CreatedOnUtc);
+                storeId: _catalogSettings.ShowProductReviewsPerStore ? currentStore.Id : 0);
 
             //get all review types
             foreach (var reviewType in await _reviewTypeService.GetAllReviewTypesAsync())
@@ -1590,6 +1756,8 @@ namespace Nop.Web.Factories
                     IsRequired = reviewType.IsRequired,
                 });
             }
+
+            var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
             //filling data from db
             foreach (var pr in productReviews)
@@ -1632,7 +1800,7 @@ namespace Nop.Web.Factories
                         ProductReviewId = pr.Id,
                         Rating = q.Rating,
                         Name = await _localizationService.GetLocalizedAsync(reviewType, x => x.Name),
-                        VisibleToAllCustomers = reviewType.VisibleToAllCustomers || (await _workContext.GetCurrentCustomerAsync()).Id == pr.CustomerId,
+                        VisibleToAllCustomers = reviewType.VisibleToAllCustomers || currentCustomer.Id == pr.CustomerId,
                     });
                 }
 
@@ -1673,9 +1841,9 @@ namespace Nop.Web.Factories
                 rtm.AverageRating = (double)totalRating / (totalCount > 0 ? totalCount : 1);
             }
 
-            model.AddProductReview.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !await _customerService.IsGuestAsync(await _workContext.GetCurrentCustomerAsync());
+            model.AddProductReview.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !await _customerService.IsGuestAsync(currentCustomer);
             model.AddProductReview.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnProductReviewPage;
-            model.AddProductReview.CanAddNewReview = await _productService.CanAddReviewAsync(product.Id, (await _storeContext.GetCurrentStoreAsync()).Id);
+            model.AddProductReview.CanAddNewReview = await _productService.CanAddReviewAsync(product.Id, _catalogSettings.ShowProductReviewsPerStore ? currentStore.Id : 0);
 
             return model;
         }
@@ -1698,9 +1866,13 @@ namespace Nop.Web.Factories
                 pageIndex = page.Value - 1;
             }
 
-            var list = await _productService.GetAllProductReviewsAsync(customerId: (await _workContext.GetCurrentCustomerAsync()).Id,
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var customer = await _workContext.GetCurrentCustomerAsync();
+
+            var list = await _productService.GetAllProductReviewsAsync(
+                customerId: customer.Id,
                 approved: null,
-                storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
+                storeId: _catalogSettings.ShowProductReviewsPerStore ? store.Id : 0,
                 pageIndex: pageIndex,
                 pageSize: pageSize);
 
@@ -1745,7 +1917,7 @@ namespace Nop.Web.Factories
                 productReviews.Add(productReviewModel);
             }
 
-            var pagerModel = new PagerModel
+            var pagerModel = new PagerModel(_localizationService)
             {
                 PageSize = list.PageSize,
                 TotalRecords = list.TotalCount,
@@ -1753,7 +1925,7 @@ namespace Nop.Web.Factories
                 ShowTotalSummary = false,
                 RouteActionName = "CustomerProductReviewsPaged",
                 UseRouteLinks = true,
-                RouteValues = new CustomerProductReviewsModel.CustomerProductReviewsRouteValues { pageNumber = pageIndex }
+                RouteValues = new CustomerProductReviewsModel.CustomerProductReviewsRouteValues { PageNumber = pageIndex }
             };
 
             var model = new CustomerProductReviewsModel
@@ -1789,7 +1961,8 @@ namespace Nop.Web.Factories
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
             if (!excludeProperties)
             {
-                model.YourEmailAddress = (await _workContext.GetCurrentCustomerAsync()).Email;
+                var customer = await _workContext.GetCurrentCustomerAsync();
+                model.YourEmailAddress = customer.Email;
             }
 
             return model;

@@ -3,9 +3,10 @@ using System.Linq;
 using System.Net;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -24,15 +25,17 @@ using Nop.Data;
 using Nop.Services.Authentication;
 using Nop.Services.Authentication.External;
 using Nop.Services.Common;
-using Nop.Services.Configuration;
 using Nop.Services.Security;
 using Nop.Web.Framework.Mvc.ModelBinding;
+using Nop.Web.Framework.Mvc.ModelBinding.Binders;
 using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Framework.Security.Captcha;
 using Nop.Web.Framework.Themes;
 using Nop.Web.Framework.Validators;
+using Nop.Web.Framework.WebOptimizer;
 using StackExchange.Profiling.Storage;
-using WebMarkupMin.AspNetCore5;
+using WebMarkupMin.AspNetCore7;
+using WebMarkupMin.Core;
 using WebMarkupMin.NUglify;
 
 namespace Nop.Web.Framework.Infrastructure.Extensions
@@ -43,64 +46,59 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Add services to the application and configure service provider
+        /// Configure base application settings
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
-        /// <param name="configuration">Configuration of the application</param>
-        /// <param name="webHostEnvironment">Hosting environment</param>
-        /// <returns>Configured engine and app settings</returns>
-        public static (IEngine, AppSettings) ConfigureApplicationServices(this IServiceCollection services,
-            IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+        /// <param name="builder">A builder for web applications and services</param>
+        public static void ConfigureApplicationSettings(this IServiceCollection services,
+            WebApplicationBuilder builder)
         {
             //let the operating system decide what TLS protocol version to use
             //see https://docs.microsoft.com/dotnet/framework/network-programming/tls
             ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
 
             //create default file provider
-            CommonHelper.DefaultFileProvider = new NopFileProvider(webHostEnvironment);
+            CommonHelper.DefaultFileProvider = new NopFileProvider(builder.Environment);
 
-            //add accessor to HttpContext
-            services.AddHttpContextAccessor();
+            //register type finder
+            var typeFinder = new WebAppTypeFinder();
+            Singleton<ITypeFinder>.Instance = typeFinder;
+            services.AddSingleton<ITypeFinder>(typeFinder);
 
             //add configuration parameters
-            var appSettings = new AppSettings();
-            configuration.Bind(appSettings);
+            var configurations = typeFinder
+                .FindClassesOfType<IConfig>()
+                .Select(configType => (IConfig)Activator.CreateInstance(configType))
+                .ToList();
+
+            foreach (var config in configurations) 
+                builder.Configuration.GetSection(config.Name).Bind(config, options => options.BindNonPublicProperties = true);
+
+            var appSettings = AppSettingsHelper.SaveAppSettings(configurations, CommonHelper.DefaultFileProvider, false);
             services.AddSingleton(appSettings);
-            AppSettingsHelper.SaveAppSettings(appSettings);
-
-            //initialize plugins
-            var mvcCoreBuilder = services.AddMvcCore();
-            mvcCoreBuilder.PartManager.InitializePlugins(appSettings);
-
-            //create engine and configure service provider
-            var engine = EngineContext.Create();
-
-            engine.ConfigureServices(services, configuration);
-            engine.RegisterDependencies(services, appSettings);
-
-            return (engine, appSettings);
         }
 
         /// <summary>
-        /// Create, bind and register as service the specified configuration parameters 
+        /// Add services to the application and configure service provider
         /// </summary>
-        /// <typeparam name="TConfig">Configuration parameters</typeparam>
         /// <param name="services">Collection of service descriptors</param>
-        /// <param name="configuration">Set of key/value application configuration properties</param>
-        /// <returns>Instance of configuration parameters</returns>
-        public static TConfig AddConfig<TConfig>(this IServiceCollection services, IConfiguration configuration)
-            where TConfig : class, IConfig, new()
+        /// <param name="builder">A builder for web applications and services</param>
+        public static void ConfigureApplicationServices(this IServiceCollection services,
+            WebApplicationBuilder builder)
         {
-            //create instance of config
-            var config = new TConfig();
+            //add accessor to HttpContext
+            services.AddHttpContextAccessor();
 
-            //bind it to the appropriate section of configuration
-            configuration.Bind(config.Name, config);
+            //initialize plugins
+            var mvcCoreBuilder = services.AddMvcCore();
+            var pluginConfig = new PluginConfig();
+            builder.Configuration.GetSection(nameof(PluginConfig)).Bind(pluginConfig, options => options.BindNonPublicProperties = true);
+            mvcCoreBuilder.PartManager.InitializePlugins(pluginConfig);
+            
+            //create engine and configure service provider
+            var engine = EngineContext.Create();
 
-            //and register it as a service
-            services.AddSingleton(config);
-
-            return config;
+            engine.ConfigureServices(services, builder.Configuration);
         }
 
         /// <summary>
@@ -163,7 +161,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
         public static void AddDistributedCache(this IServiceCollection services)
         {
             var appSettings = Singleton<AppSettings>.Instance;
-            var distributedCacheConfig = appSettings.DistributedCacheConfig;
+            var distributedCacheConfig = appSettings.Get<DistributedCacheConfig>();
 
             if (!distributedCacheConfig.Enabled)
                 return;
@@ -199,18 +197,18 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
         public static void AddNopDataProtection(this IServiceCollection services)
         {
             var appSettings = Singleton<AppSettings>.Instance;
-            if (appSettings.AzureBlobConfig.Enabled && appSettings.AzureBlobConfig.StoreDataProtectionKeys)
+            if (appSettings.Get<AzureBlobConfig>().Enabled && appSettings.Get<AzureBlobConfig>().StoreDataProtectionKeys)
             {
-                var blobServiceClient = new BlobServiceClient(appSettings.AzureBlobConfig.ConnectionString);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(appSettings.AzureBlobConfig.DataProtectionKeysContainerName);
+                var blobServiceClient = new BlobServiceClient(appSettings.Get<AzureBlobConfig>().ConnectionString);
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(appSettings.Get<AzureBlobConfig>().DataProtectionKeysContainerName);
                 var blobClient = blobContainerClient.GetBlobClient(NopDataProtectionDefaults.AzureDataProtectionKeyFile);
 
                 var dataProtectionBuilder = services.AddDataProtection().PersistKeysToAzureBlobStorage(blobClient);
 
-                if (!appSettings.AzureBlobConfig.DataProtectionKeysEncryptWithVault)
+                if (!appSettings.Get<AzureBlobConfig>().DataProtectionKeysEncryptWithVault)
                     return;
 
-                var keyIdentifier = appSettings.AzureBlobConfig.DataProtectionKeysVaultId;
+                var keyIdentifier = appSettings.Get<AzureBlobConfig>().DataProtectionKeysVaultId;
                 var credentialOptions = new DefaultAzureCredentialOptions();
                 var tokenCredential = new DefaultAzureCredential(credentialOptions);
 
@@ -261,7 +259,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             });
 
             //register and configure external authentication plugins now
-            var typeFinder = new WebAppTypeFinder();
+            var typeFinder = Singleton<ITypeFinder>.Instance;
             var externalAuthConfigurations = typeFinder.FindClassesOfType<IExternalAuthenticationRegistrar>();
             var externalAuthInstances = externalAuthConfigurations
                 .Select(x => (IExternalAuthenticationRegistrar)Activator.CreateInstance(x));
@@ -283,7 +281,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             mvcBuilder.AddRazorRuntimeCompilation();
 
             var appSettings = Singleton<AppSettings>.Instance;
-            if (appSettings.CommonConfig.UseSessionStateTempDataProvider)
+            if (appSettings.Get<CommonConfig>().UseSessionStateTempDataProvider)
             {
                 //use session-based temp data provider
                 mvcBuilder.AddSessionStateTempDataProvider();
@@ -306,7 +304,10 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             //set some options
             mvcBuilder.AddMvcOptions(options =>
             {
-                //add custom display metadata provider
+                //we'll use this until https://github.com/dotnet/aspnetcore/issues/6566 is solved 
+                options.ModelBinderProviders.Insert(0, new InvariantNumberModelBinderProvider());
+                options.ModelBinderProviders.Insert(1, new CustomPropertiesModelBinderProvider());
+                //add custom display metadata provider 
                 options.ModelMetadataDetailsProviders.Add(new NopMetadataProvider());
 
                 //in .NET model binding for a non-nullable property may fail with an error message "The value '' is invalid"
@@ -315,18 +316,14 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             });
 
             //add fluent validation
-            mvcBuilder.AddFluentValidation(configuration =>
-            {
-                //register all available validators from Nop assemblies
-                var assemblies = mvcBuilder.PartManager.ApplicationParts
-                    .OfType<AssemblyPart>()
-                    .Where(part => part.Name.StartsWith("Nop", StringComparison.InvariantCultureIgnoreCase))
-                    .Select(part => part.Assembly);
-                configuration.RegisterValidatorsFromAssemblies(assemblies);
+            services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 
-                //implicit/automatic validation of child properties
-                configuration.ImplicitlyValidateChildProperties = true;
-            });
+            //register all available validators from Nop assemblies
+            var assemblies = mvcBuilder.PartManager.ApplicationParts
+                .OfType<AssemblyPart>()
+                .Where(part => part.Name.StartsWith("Nop", StringComparison.InvariantCultureIgnoreCase))
+                .Select(part => part.Assembly);
+            services.AddValidatorsFromAssemblies(assemblies);
 
             //register controllers as services, it'll allow to override them
             mvcBuilder.AddControllersAsServices();
@@ -355,12 +352,12 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                 return;
 
             var appSettings = Singleton<AppSettings>.Instance;
-            if (appSettings.CommonConfig.MiniProfilerEnabled)
+            if (appSettings.Get<CommonConfig>().MiniProfilerEnabled)
             {
                 services.AddMiniProfiler(miniProfilerOptions =>
                 {
                     //use memory cache provider for storing each result
-                    ((MemoryCacheStorage)miniProfilerOptions.Storage).CacheDuration = TimeSpan.FromMinutes(appSettings.CacheConfig.DefaultCacheTime);
+                    ((MemoryCacheStorage)miniProfilerOptions.Storage).CacheDuration = TimeSpan.FromMinutes(appSettings.Get<CacheConfig>().DefaultCacheTime);
 
                     //determine who can access the MiniProfiler results
                     miniProfilerOptions.ResultsAuthorize = request => EngineContext.Current.Resolve<IPermissionService>().AuthorizeAsync(StandardPermissionProvider.AccessProfiling).Result;
@@ -389,6 +386,8 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                 })
                 .AddHtmlMinification(options =>
                 {
+                    options.MinificationSettings.AttributeQuotesRemovalMode = HtmlAttributeQuotesRemovalMode.KeepQuotes;
+
                     options.CssMinifierFactory = new NUglifyCssMinifierFactory();
                     options.JsMinifierFactory = new NUglifyJsMinifierFactory();
                 })
@@ -398,6 +397,32 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                     settings.RenderEmptyTagsWithSpace = true;
                     settings.CollapseTagsWithoutContent = true;
                 });
+        }
+
+        /// <summary>
+        /// Adds WebOptimizer to the specified <see cref="IServiceCollection"/> and enables CSS and JavaScript minification.
+        /// </summary>
+        /// <param name="services">Collection of service descriptors</param>
+        public static void AddNopWebOptimizer(this IServiceCollection services)
+        {
+            var appSettings = Singleton<AppSettings>.Instance;
+            var cssBundling = appSettings.Get<WebOptimizerConfig>().EnableCssBundling;
+            var jsBundling = appSettings.Get<WebOptimizerConfig>().EnableJavaScriptBundling;
+
+            //add minification & bundling
+            var cssSettings = new CssBundlingSettings
+            {
+                FingerprintUrls = false,
+                Minify = cssBundling
+            };
+
+            var codeSettings = new CodeBundlingSettings
+            {
+                Minify = jsBundling,
+                AdjustRelativePaths = false //disable this feature because it breaks function names that have "Url(" at the end
+            };
+
+            services.AddWebOptimizer(null, cssSettings, codeSettings);
         }
 
         /// <summary>

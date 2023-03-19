@@ -109,6 +109,7 @@
                             </li>
                         }
                     }
+                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryBillingAddress, additionalData = Model })
                 </ul>
             </div>
             @if (!string.IsNullOrEmpty(Model.PaymentMethod))
@@ -126,6 +127,7 @@
                                 @Model.PaymentMethod
                             </span>
                         </li>
+                        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryPaymentMethodInfo, additionalData = Model })
                     </ul>
                 </div>
             }
@@ -228,6 +230,7 @@
                                     @Html.Raw(Model.ShippingAddress.FormattedCustomAddressAttributes)
                                 </li>
                             }
+                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryShippingAddress, additionalData = Model })
                         }
                         else
                         {
@@ -298,6 +301,7 @@
                                 @Model.ShippingMethod
                             </span>
                         </li>
+                        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryShippingMethodInfo, additionalData = Model })
                     </ul>
                 </div>
             </div>

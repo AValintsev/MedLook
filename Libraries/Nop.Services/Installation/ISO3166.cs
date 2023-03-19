@@ -7,7 +7,7 @@ namespace Nop.Services.Installation
     /// Represents the implementation of ISO3166-1
     /// </summary>
     /// <remarks>https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes</remarks>
-    public static class ISO3166
+    public static partial class ISO3166
     {
         /// <summary>
         /// Obtain ISO3166-1 Country based on its ISO code.
@@ -103,7 +103,7 @@ namespace Nop.Services.Installation
                 new ISO3166Country("Cook Islands", "CK", "COK", 184, new[] { "682" }),
                 new ISO3166Country("Costa Rica", "CR", "CRI", 188, new[] { "506" }, localizationInfo: new[] { new LocalizationInfo("es-CR", "Spanish") }),
                 new ISO3166Country("Côte d'Ivoire", "CI", "CIV", 384, new[] { "225" }),
-                new ISO3166Country("Croatia", "HR", "HRV", 191, new[] { "385" }, localizationInfo: new[] { new LocalizationInfo("hr-HR", "Croatian") }),
+                new ISO3166Country("Croatia", "HR", "HRV", 191, new[] { "385" }, true, localizationInfo: new[] { new LocalizationInfo("hr-HR", "Croatian") }),
                 new ISO3166Country("Cuba", "CU", "CUB", 192, new[] { "53" }, localizationInfo: new[] { new LocalizationInfo("es-CU", "Spanish") }),
                 new ISO3166Country("Curaçao", "CW", "CUW", 531, new[] { "599" }),
                 new ISO3166Country("Cyprus", "CY", "CYP", 196, new[] { "357" }, true, localizationInfo: new[] { new LocalizationInfo("el-CY", "Greek"), new LocalizationInfo("tr-CY", "Turkish") }),
@@ -214,7 +214,7 @@ namespace Nop.Services.Installation
                 new ISO3166Country("Niue", "NU", "NIU", 570, new[] { "683" }),
                 new ISO3166Country("Norfolk Island", "NF", "NFK", 574, new[] { "672" }),
                 new ISO3166Country("Northern Mariana Islands", "MP", "MNP", 580, new[] { "1 670" }),
-                new ISO3166Country("Norway", "NO", "NOR", 578, new[] { "47" }, localizationInfo: new[] { new LocalizationInfo("nn-NO", "Norwegian") }),
+                new ISO3166Country("Norway", "NO", "NOR", 578, new[] { "47" }, localizationInfo: new[] { new LocalizationInfo("nb-NO", "Norwegian") }),
                 new ISO3166Country("Oman", "OM", "OMN", 512, new[] { "968" }, localizationInfo: new[] { new LocalizationInfo("ar-OM", "Arabic") }),
                 new ISO3166Country("Pakistan", "PK", "PAK", 586, new[] { "92" }),
                 new ISO3166Country("Palau", "PW", "PLW", 585, new[] { "680" }),
@@ -282,14 +282,14 @@ namespace Nop.Services.Installation
                 new ISO3166Country("Uganda", "UG", "UGA", 800, new[] { "256" }),
                 new ISO3166Country("Ukraine", "UA", "UKR", 804, new[] { "380" }, localizationInfo: new[] { new LocalizationInfo("uk-UA", "Ukrainian"), new LocalizationInfo("ru-RU", "Russian") }),
                 new ISO3166Country("United Arab Emirates", "AE", "ARE", 784, new[] { "971" }, localizationInfo: new[] { new LocalizationInfo("ar-AE", "Arabic") }),
-                new ISO3166Country("United Kingdom of Great Britain and Northern Ireland", "GB", "GBR", 826, new[] { "44" }, true),
+                new ISO3166Country("United Kingdom of Great Britain and Northern Ireland", "GB", "GBR", 826, new[] { "44" }),
                 new ISO3166Country("United States Minor Outlying Islands", "UM", "UMI", 581),
                 new ISO3166Country("United States of America", "US", "USA", 840, new[] { "1" }),
                 new ISO3166Country("Uruguay", "UY", "URY", 858, new[] { "598" }, localizationInfo: new[] { new LocalizationInfo("es-UY", "Spanish") }),
                 new ISO3166Country("Uzbekistan", "UZ", "UZB", 860, new[] { "998" }),
                 new ISO3166Country("Vanuatu", "VU", "VUT", 548, new[] { "678" }),
                 new ISO3166Country("Venezuela (Bolivarian Republic of)", "VE", "VEN", 862, new[] { "58" }, localizationInfo: new[] { new LocalizationInfo("es-VE", "Spanish") }),
-                new ISO3166Country("Viet Nam", "VN", "VNM", 704, new[] { "84" }, localizationInfo: new[] { new LocalizationInfo("vi-VN", "Vietnamese") }),
+                new ISO3166Country("Vietnam", "VN", "VNM", 704, new[] { "84" }, localizationInfo: new[] { new LocalizationInfo("vi-VN", "Vietnamese") }),
                 new ISO3166Country("Virgin Islands (British)", "VG", "VGB", 92, new[] { "1 284" }),
                 new ISO3166Country("Virgin Islands (U.S.)", "VI", "VIR", 850, new[] { "1 340" }),
                 new ISO3166Country("Wallis and Futuna", "WF", "WLF", 876, new[] { "681" }),
@@ -305,7 +305,7 @@ namespace Nop.Services.Installation
     /// <summary>
     /// Representation of an ISO3166-1 Country
     /// </summary>
-    public class ISO3166Country
+    public partial class ISO3166Country
     {
         public ISO3166Country(string name, string alpha2, string alpha3, int numericCode, string[] dialCodes = null, bool subjectToVat = false, IEnumerable<LocalizationInfo> localizationInfo = null)
         {
@@ -351,7 +351,7 @@ namespace Nop.Services.Installation
         public IEnumerable<LocalizationInfo> LocalizationInfo { get; private set; }
     }
 
-    public class LocalizationInfo
+    public partial class LocalizationInfo
     {
         public LocalizationInfo(string culture, string language)
         {

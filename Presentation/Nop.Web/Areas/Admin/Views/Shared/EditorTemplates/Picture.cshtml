@@ -1,15 +1,11 @@
 ﻿@model int
 @inject IPictureService pictureService
+@inject MediaSettings mediaSettings
 
-@using Nop.Core;
+@using Nop.Core.Domain.Media
 @using Nop.Services.Media
-@using Nop.Web.Framework.UI;
 
 @{
-    //register CSS and JS
-    Html.AddCssFileParts("~/lib_npm/fine-uploader/fine-uploader/fine-uploader.min.css");
-    Html.AddScriptParts("~/lib_npm/fine-uploader/jquery.fine-uploader/jquery.fine-uploader.min.js");
-
     //other variables
     var random = CommonHelper.GenerateRandomInteger();
     var clientId = "picture" + random;
@@ -18,13 +14,17 @@
     const int pictureSize = 100;
 }
 
+@* register CSS and JS *@
+<link rel="stylesheet" href="~/lib_npm/fine-uploader/fine-uploader/fine-uploader.min.css" />
+<script asp-exclude-from-bundle="true" src="~/lib_npm/fine-uploader/jquery.fine-uploader/jquery.fine-uploader.min.js" asp-location="Footer"></script>
+
 <div id="@(clientId + "value")">
     <input type="hidden" asp-for="@Model" />
 </div>
 <div class="upload-picture-block">
     <div class="picture-container">
         <div id="@(clientId + "image")" class="uploaded-image">
-            <img src="@(await pictureService.GetPictureUrlAsync(Model, pictureSize, true))" />
+            <img src="@(await pictureService.GetPictureUrlAsync(Model, pictureSize, true))" width="@(pictureSize)" />
         </div>
     </div>
     <div class="upload-button-container">
@@ -80,6 +80,18 @@
 </script>
 <script>
     $(document).ready(function() {
+        
+        var allowedExtensions = ["bmp", "gif", "jpeg", "jpg", "jpe", "jfif", "pjpeg", "pjp", "png", "tiff", "tif", "webp"];
+
+        @{
+            if (mediaSettings.AllowSVGUploads)
+            {
+                <text>
+                        allowedExtensions.push("svg");
+                </text>
+            }
+        }
+
         $("#@(clientId)").fineUploader({
             request: {
                 endpoint: '@(Url.Content("~/Admin/Picture/AsyncUpload"))'
@@ -87,17 +99,17 @@
             template: "@(clientId)-qq-template",
             multiple: false,
             validation: {
-                allowedExtensions: [ "bmp", "gif", "jpeg", "jpg", "jpe", "jfif", "pjpeg", "pjp", "png", "tiff", "tif", "webp"]
+                    allowedExtensions: allowedExtensions
             }
         }).on("complete", function(event, id, name, responseJSON, xhr) {
             if (responseJSON.success) {
-                $("#@(clientId + "image")").html("<img src='" + responseJSON.imageUrl + "'/>");
+                    $("#@(clientId + "image")").html("<img src='" + responseJSON.imageUrl + "' width='@(pictureSize)'/> ");
                 $("#@(clientId + "value") input").val(responseJSON.pictureId);
                 $("#@(clientId + "remove")").show();
             }
         });
         $("#@(clientId + "remove")").click(function(e) {
-            $("#@(clientId + "image")").html("<img src='@await pictureService.GetDefaultPictureUrlAsync(pictureSize)'/>");
+            $("#@(clientId + "image")").html("<img src='@await pictureService.GetDefaultPictureUrlAsync(pictureSize)' width='@(pictureSize)' />");
             $("#@(clientId + "value") input").val(0);
             $("#@(clientId) .qq-upload-list-selector").empty();
             $(this).hide();

@@ -212,6 +212,7 @@ namespace Nop.Web.Areas.Admin.Factories
                 product = await _productService.GetProductByIdAsync(searchModel.ProductId) ?? throw new Exception("Product is not found");
             }
 
+            var store = await _storeService.GetStoreByIdAsync(searchModel.StoreId);
             //prepare list model
             var model = await new ShoppingCartItemListModel().PrepareToGridAsync(searchModel, items, () =>
             {
@@ -230,11 +231,13 @@ namespace Nop.Web.Areas.Admin.Factories
 
                     //fill in additional values (not existing in the entity)
                     itemModel.Store = (await _storeService.GetStoreByIdAsync(item.StoreId))?.Name ?? "Deleted";
-                    itemModel.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(product, item.AttributesXml, customer);
+                    itemModel.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(product, item.AttributesXml, customer, store);
                     var (unitPrice, _, _) = await _shoppingCartService.GetUnitPriceAsync(item, true);
                     itemModel.UnitPrice = await _priceFormatter.FormatPriceAsync((await _taxService.GetProductPriceAsync(product, unitPrice)).price);
+                    itemModel.UnitPriceValue = (await _taxService.GetProductPriceAsync(product, unitPrice)).price;
                     var (subTotal, _, _, _) = await _shoppingCartService.GetSubTotalAsync(item, true);
                     itemModel.Total = await _priceFormatter.FormatPriceAsync((await _taxService.GetProductPriceAsync(product, subTotal)).price);
+                    itemModel.TotalValue = (await _taxService.GetProductPriceAsync(product, subTotal)).price;
 
                     //set product name since it does not survive mapping
                     itemModel.ProductName = product.Name;

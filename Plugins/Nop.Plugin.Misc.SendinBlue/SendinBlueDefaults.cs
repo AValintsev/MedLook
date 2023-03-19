@@ -9,11 +9,6 @@ namespace Nop.Plugin.Misc.Sendinblue
     public static class SendinblueDefaults
     {
         /// <summary>
-        /// Gets a name of the view component to embed tracking script on pages
-        /// </summary>
-        public const string TRACKING_VIEW_COMPONENT_NAME = "WidgetsSendinblue";
-
-        /// <summary>
         /// Gets a plugin system name
         /// </summary>
         public static string SystemName => "Misc.Sendinblue";
@@ -31,7 +26,7 @@ namespace Nop.Plugin.Misc.Sendinblue
         /// <summary>
         /// Gets a URL to edit message template on Sendinblue account
         /// </summary>
-        public static string EditMessageTemplateUrl = "https://my.sendinblue.com/camp/template/{0}/message-setup?utm_source=nopcommerce_plugin&utm_medium=plugin&utm_campaign=module_link";
+        public static string EditMessageTemplateUrl = "https://my.sendinblue.com/camp/template/{0}/message-setup?tap_a=30591-fb13f0&tap_s=840216-5153c7";
 
         /// <summary>
         /// Gets a name of the route to the import contacts callback
@@ -209,6 +204,11 @@ namespace Nop.Plugin.Misc.Sendinblue
         public static string FaxServiceAttribute => "FAX";
 
         /// <summary>
+        /// Gets a name of attribute to store a language
+        /// </summary>
+        public static string LanguageAttribute => "LANGUAGE";
+
+        /// <summary>
         /// Gets a name of attribute to store a store identifier
         /// </summary>
         public static string StoreIdServiceAttribute => "STORE_ID";
@@ -274,6 +274,11 @@ namespace Nop.Plugin.Misc.Sendinblue
         public static string MarketingAutomationKeyHeader => "ma-key";
 
         /// <summary>
+        /// Gets the marketing automation services URL
+        /// </summary>
+        public static string MarketingAutomationUrl => "https://in-automate.sendinblue.com/api/v2/";
+
+        /// <summary>
         /// Gets a key of the attribute to store template identifier
         /// </summary>
         public static string TemplateIdAttribute => "TemplateId";
@@ -316,7 +321,7 @@ namespace Nop.Plugin.Misc.Sendinblue
         /// <summary>
         /// Gets a key of cache synchronization
         /// </summary>
-        public static CacheKey SyncKeyCache => new CacheKey("PLUGINS_MISC_SENDINBLUE_SYNCINFO");
+        public static CacheKey SyncKeyCache => new("PLUGINS_MISC_SENDINBLUE_SYNCINFO");
 
         /// <summary>
         /// Gets a key of notification message

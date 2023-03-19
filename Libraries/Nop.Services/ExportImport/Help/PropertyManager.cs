@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core.Domain.Catalog;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
+using Nop.Core.Domain.Localization;
 
 namespace Nop.Services.ExportImport.Help
 {
@@ -14,12 +15,18 @@ namespace Nop.Services.ExportImport.Help
     /// Class for working with PropertyByName object list
     /// </summary>
     /// <typeparam name="T">Object type</typeparam>
-    public class PropertyManager<T>
+    /// <typeparam name="L">Language</typeparam>
+    public partial class PropertyManager<T, L> where L : Language
     {
         /// <summary>
-        /// All properties
+        /// Default properties
         /// </summary>
-        private readonly Dictionary<string, PropertyByName<T>> _properties;
+        private readonly Dictionary<string, PropertyByName<T, L>> _defaultProperties;
+
+        /// <summary>
+        /// Localized properties
+        /// </summary>
+        private readonly Dictionary<string, PropertyByName<T, L>> _localizedProperties;
 
         /// <summary>
         /// Catalog settings
@@ -27,21 +34,44 @@ namespace Nop.Services.ExportImport.Help
         private readonly CatalogSettings _catalogSettings;
 
         /// <summary>
+        /// Languages
+        /// </summary>
+        private readonly IList<L> _languages;
+
+        /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="properties">All access properties</param>
+        /// <param name="defaultProperties">Default access properties</param>
         /// <param name="catalogSettings">Catalog settings</param>
-        public PropertyManager(IEnumerable<PropertyByName<T>> properties, CatalogSettings catalogSettings)
+        /// <param name="localizedProperties">Localized access properties</param>
+        /// <param name="languages">Languages</param>
+        public PropertyManager(IEnumerable<PropertyByName<T, L>> defaultProperties, CatalogSettings catalogSettings, IEnumerable<PropertyByName<T, L>> localizedProperties = null, IList<L> languages = null)
         {
-            _properties = new Dictionary<string, PropertyByName<T>>();
+            _defaultProperties = new Dictionary<string, PropertyByName<T, L>>();
             _catalogSettings = catalogSettings;
+            _localizedProperties = new Dictionary<string, PropertyByName<T, L>>();
+            _languages = new List<L>();
+
+            if (languages != null)
+                _languages = languages;
 
             var poz = 1;
-            foreach (var propertyByName in properties.Where(p => !p.Ignore))
+            foreach (var propertyByName in defaultProperties.Where(p => !p.Ignore))
             {
                 propertyByName.PropertyOrderPosition = poz;
                 poz++;
-                _properties.Add(propertyByName.PropertyName, propertyByName);
+                _defaultProperties.Add(propertyByName.PropertyName, propertyByName);
+            }
+
+            if (_languages.Count >= 2 && localizedProperties != null)
+            {
+                var lpoz = 1;
+                foreach (var propertyByName in localizedProperties.Where(p => !p.Ignore))
+                {
+                    propertyByName.PropertyOrderPosition = lpoz;
+                    lpoz++;
+                    _localizedProperties.Add(propertyByName.PropertyName, propertyByName);
+                }
             }
         }
 
@@ -58,27 +88,47 @@ namespace Nop.Services.ExportImport.Help
         {
             await using var stream = new MemoryStream();
             // ok, we can run the real code of the sample now
-            using (var xlPackage = new ExcelPackage(stream))
+            using (var workbook = new XLWorkbook())
             {
                 // uncomment this line if you want the XML written out to the outputDir
                 //xlPackage.DebugMode = true; 
 
                 // get handles to the worksheets
-                var worksheet = xlPackage.Workbook.Worksheets.Add(typeof(T).Name);
-                var fWorksheet = xlPackage.Workbook.Worksheets.Add("DataForFilters");
-                fWorksheet.Hidden = eWorkSheetHidden.VeryHidden;
+                var worksheet = workbook.Worksheets.Add(typeof(T).Name);
+                var fWorksheet = workbook.Worksheets.Add("DataForFilters");
+                fWorksheet.Visibility = XLWorksheetVisibility.VeryHidden;
 
                 //create Headers and format them 
-                WriteCaption(worksheet);
+                WriteDefaultCaption(worksheet);
+
+                var lwss = new Dictionary<L, IXLWorksheet>();
+
+                if (_languages.Count >= 2)
+                {
+                    foreach (var language in _languages)
+                    {
+                        var lws = workbook.Worksheets.Add(language.UniqueSeoCode);
+                        lwss.Add(language, lws);
+                        WriteLocalizedCaption(lws);
+                    }
+                }
 
                 var row = 2;
                 foreach (var items in itemsToExport)
                 {
                     CurrentObject = items;
-                    await WriteToXlsxAsync(worksheet, row++, fWorksheet: fWorksheet);
+                    await WriteDefaultToXlsxAsync(worksheet, row, fWorksheet: fWorksheet);
+
+                    foreach (var lws in lwss)
+                    {
+                        CurrentLanguage = lws.Key;
+                        await WriteLocalizedToXlsxAsync(lws.Value, row, fWorksheet: fWorksheet);
+                    }
+
+                    row++;
                 }
 
-                xlPackage.Save();
+                workbook.SaveAs(stream);
             }
 
             CurrentObject = default;
@@ -91,16 +141,21 @@ namespace Nop.Services.ExportImport.Help
         public T CurrentObject { get; set; }
 
         /// <summary>
+        /// Current language to access
+        /// </summary>
+        public L CurrentLanguage { get; set; }
+
+        /// <summary>
         /// Return property index
         /// </summary>
         /// <param name="propertyName">Property name</param>
         /// <returns></returns>
         public int GetIndex(string propertyName)
         {
-            if (!_properties.ContainsKey(propertyName))
+            if (!_defaultProperties.ContainsKey(propertyName))
                 return -1;
 
-            return _properties[propertyName].PropertyOrderPosition;
+            return _defaultProperties[propertyName].PropertyOrderPosition;
         }
 
         /// <summary>
@@ -109,25 +164,27 @@ namespace Nop.Services.ExportImport.Help
         /// <param name="propertyName">Property name</param>
         public void Remove(string propertyName)
         {
-            _properties.Remove(propertyName);
+            _defaultProperties.Remove(propertyName);
         }
 
         /// <summary>
-        /// Write object data to XLSX worksheet
+        /// Write default object data to XLSX worksheet
         /// </summary>
         /// <param name="worksheet">Data worksheet</param>
         /// <param name="row">Row index</param>
         /// <param name="cellOffset">Cell offset</param>
         /// <param name="fWorksheet">Filters worksheet</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        public virtual async Task WriteToXlsxAsync(ExcelWorksheet worksheet, int row, int cellOffset = 0, ExcelWorksheet fWorksheet = null)
+        public virtual async Task WriteDefaultToXlsxAsync(IXLWorksheet worksheet, int row, int cellOffset = 0, IXLWorksheet fWorksheet = null)
         {
             if (CurrentObject == null)
                 return;
-            
-            foreach (var prop in _properties.Values)
+
+            var xlRrow = worksheet.Row(row);
+            xlRrow.Style.Alignment.WrapText = false;
+            foreach (var prop in _defaultProperties.Values)
             {
-                var cell = worksheet.Cells[row, prop.PropertyOrderPosition + cellOffset];
+                var cell = xlRrow.Cell(prop.PropertyOrderPosition + cellOffset);
                 if (prop.IsDropDownCell && _catalogSettings.ExportImportRelatedEntitiesByName)
                 {
                     var dropDownElements = prop.GetDropDownElements();
@@ -137,14 +194,15 @@ namespace Nop.Services.ExportImport.Help
                         continue;
                     }
 
-                    cell.Value = prop.GetItemText(await prop.GetProperty(CurrentObject));
+                    cell.Value = prop.GetItemText(await prop.GetProperty(CurrentObject, CurrentLanguage));
 
                     if (!UseDropdownLists)
                         continue;
 
-                    var validator = cell.DataValidation.AddListDataValidation();
-                    
-                    validator.AllowBlank = prop.AllowBlank;
+                    var validator = cell.GetDataValidation();
+                    validator.InCellDropdown = true;
+
+                    validator.IgnoreBlanks = prop.AllowBlank;
 
                     if (fWorksheet == null)
                         continue;
@@ -152,55 +210,190 @@ namespace Nop.Services.ExportImport.Help
                     var fRow = 1;
                     foreach (var dropDownElement in dropDownElements)
                     {
-                        var fCell = fWorksheet.Cells[fRow++, prop.PropertyOrderPosition];
+                        var fCell = fWorksheet.Row(fRow++).Cell(prop.PropertyOrderPosition);
 
                         if (fCell.Value != null && fCell.Value.ToString() == dropDownElement)
                             break;
-                        
+
                         fCell.Value = dropDownElement;
                     }
 
-                    validator.Formula.ExcelFormula = $"{fWorksheet.Name}!{fWorksheet.Cells[1, prop.PropertyOrderPosition].Address}:{fWorksheet.Cells[dropDownElements.Length, prop.PropertyOrderPosition].Address}";
+                    validator.List(fWorksheet.Range(1, prop.PropertyOrderPosition, dropDownElements.Length, prop.PropertyOrderPosition), true);
                 }
                 else
                 {
-                    cell.Value = await prop.GetProperty(CurrentObject);
+                    var value = await prop.GetProperty(CurrentObject, CurrentLanguage);
+                    if (value is string stringValue)
+                    {
+                        cell.SetValue(stringValue);
+                    }
+                    else if (value is char charValue)
+                    {
+                        cell.SetValue(charValue);
+                    }
+                    else if (value is Guid guidValue)
+                    {
+                        cell.SetValue(guidValue);
+                    }
+                    else if (value is Enum enumValue)
+                    {
+                        cell.SetValue(enumValue);
+                    }
+                    else
+                    {
+                        cell.Value = value;
+                    }
                 }
+                cell.Style.Alignment.WrapText = false;
             }
         }
-        
+
         /// <summary>
-        /// Read object data from XLSX worksheet
+        /// Write localized data to XLSX worksheet
+        /// </summary>
+        /// <param name="worksheet">Data worksheet</param>
+        /// <param name="row">Row index</param>
+        /// <param name="cellOffset">Cell offset</param>
+        /// <param name="fWorksheet">Filters worksheet</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task WriteLocalizedToXlsxAsync(IXLWorksheet worksheet, int row, int cellOffset = 0, IXLWorksheet fWorksheet = null)
+        {
+            if (CurrentObject == null)
+                return;
+
+            var xlRrow = worksheet.Row(row);
+            xlRrow.Style.Alignment.WrapText = false;
+            foreach (var prop in _localizedProperties.Values)
+            {
+                var cell = xlRrow.Cell(prop.PropertyOrderPosition + cellOffset);
+                if (prop.IsDropDownCell && _catalogSettings.ExportImportRelatedEntitiesByName)
+                {
+                    var dropDownElements = prop.GetDropDownElements();
+                    if (!dropDownElements.Any())
+                    {
+                        cell.Value = string.Empty;
+                        continue;
+                    }
+
+                    cell.Value = prop.GetItemText(await prop.GetProperty(CurrentObject, CurrentLanguage));
+
+                    if (!UseDropdownLists)
+                        continue;
+
+                    var validator = cell.GetDataValidation();
+                    validator.InCellDropdown = true;
+
+                    validator.IgnoreBlanks = prop.AllowBlank;
+
+                    if (fWorksheet == null)
+                        continue;
+
+                    var fRow = 1;
+                    foreach (var dropDownElement in dropDownElements)
+                    {
+                        var fCell = fWorksheet.Row(fRow++).Cell(prop.PropertyOrderPosition);
+
+                        if (fCell.Value != null && fCell.Value.ToString() == dropDownElement)
+                            break;
+
+                        fCell.Value = dropDownElement;
+                    }
+
+                    validator.List(fWorksheet.Range(1, prop.PropertyOrderPosition, dropDownElements.Length, prop.PropertyOrderPosition), true);
+                }
+                else
+                {
+                    var value = await prop.GetProperty(CurrentObject, CurrentLanguage);
+                    if (value is string stringValue)
+                    {
+                        cell.SetValue(stringValue);
+                    }
+                    else if (value is char charValue)
+                    {
+                        cell.SetValue(charValue);
+                    }
+                    else if (value is Guid guidValue)
+                    {
+                        cell.SetValue(guidValue);
+                    }
+                    else if (value is Enum enumValue)
+                    {
+                        cell.SetValue(enumValue);
+                    }
+                    else
+                    {
+                        cell.Value = value;
+                    }
+                }
+                cell.Style.Alignment.WrapText = false;
+            }
+        }
+
+        /// <summary>
+        /// Read object data from default XLSX worksheet
         /// </summary>
         /// <param name="worksheet">worksheet</param>
         /// <param name="row">Row index</param>
         /// /// <param name="cellOffset">Cell offset</param>
-        public virtual void ReadFromXlsx(ExcelWorksheet worksheet, int row, int cellOffset = 0)
+        public virtual void ReadDefaultFromXlsx(IXLWorksheet worksheet, int row, int cellOffset = 0)
         {
-            if (worksheet?.Cells == null)
+            if (worksheet?.Cells() == null)
                 return;
 
-            foreach (var prop in _properties.Values)
+            foreach (var prop in _defaultProperties.Values)
             {
-                prop.PropertyValue = worksheet.Cells[row, prop.PropertyOrderPosition + cellOffset].Value;
+                prop.PropertyValue = worksheet.Row(row).Cell(prop.PropertyOrderPosition + cellOffset).Value;
             }
         }
 
         /// <summary>
-        /// Write caption (first row) to XLSX worksheet
+        /// Read object data from localized XLSX worksheet
+        /// </summary>
+        /// <param name="worksheet">worksheet</param>
+        /// <param name="row">Row index</param>
+        /// /// <param name="cellOffset">Cell offset</param>
+        public virtual void ReadLocalizedFromXlsx(IXLWorksheet worksheet, int row, int cellOffset = 0)
+        {
+            if (worksheet?.Cells() == null)
+                return;
+
+            foreach (var prop in _localizedProperties.Values)
+            {
+                prop.PropertyValue = worksheet.Row(row).Cell(prop.PropertyOrderPosition + cellOffset).Value;
+            }
+        }
+
+        /// <summary>
+        /// Write caption (first row) to default XLSX worksheet
         /// </summary>
         /// <param name="worksheet">worksheet</param>
         /// <param name="row">Row number</param>
         /// <param name="cellOffset">Cell offset</param>
-        public virtual void WriteCaption(ExcelWorksheet worksheet, int row = 1, int cellOffset = 0)
+        public virtual void WriteDefaultCaption(IXLWorksheet worksheet, int row = 1, int cellOffset = 0)
         {
-            foreach (var caption in _properties.Values)
+            foreach (var caption in _defaultProperties.Values)
             {
-                var cell = worksheet.Cells[row, caption.PropertyOrderPosition + cellOffset];
+                var cell = worksheet.Row(row).Cell(caption.PropertyOrderPosition + cellOffset);
                 cell.Value = caption;
 
                 SetCaptionStyle(cell);
-                cell.Style.Hidden = false;
+            }
+        }
+
+        /// <summary>
+        /// Write caption (first row) to localized XLSX worksheet
+        /// </summary>
+        /// <param name="worksheet">worksheet</param>
+        /// <param name="row">Row number</param>
+        /// <param name="cellOffset">Cell offset</param>
+        public virtual void WriteLocalizedCaption(IXLWorksheet worksheet, int row = 1, int cellOffset = 0)
+        {
+            foreach (var caption in _localizedProperties.Values)
+            {
+                var cell = worksheet.Row(row).Cell(caption.PropertyOrderPosition + cellOffset);
+                cell.Value = caption;
+
+                SetCaptionStyle(cell);
             }
         }
 
@@ -208,32 +401,47 @@ namespace Nop.Services.ExportImport.Help
         /// Set caption style to excel cell
         /// </summary>
         /// <param name="cell">Excel cell</param>
-        public void SetCaptionStyle(ExcelRange cell)
+        public void SetCaptionStyle(IXLCell cell)
         {
-            cell.Style.Fill.PatternType = ExcelFillStyle.Solid;
-            cell.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(184, 204, 228));
+            cell.Style.Fill.PatternType = XLFillPatternValues.Solid;
+            cell.Style.Fill.BackgroundColor = XLColor.FromColor(Color.FromArgb(184, 204, 228));
             cell.Style.Font.Bold = true;
         }
 
         /// <summary>
-        /// Count of properties
+        /// Count of default properties
         /// </summary>
-        public int Count => _properties.Count;
+        public int Count => _defaultProperties.Count;
 
         /// <summary>
-        /// Get property by name
+        /// Get default property by name
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        public PropertyByName<T> GetProperty(string propertyName)
+        public PropertyByName<T, L> GetDefaultProperty(string propertyName)
         {
-            return _properties.ContainsKey(propertyName) ? _properties[propertyName] : null;
+            return _defaultProperties.ContainsKey(propertyName) ? _defaultProperties[propertyName] : null;
         }
 
         /// <summary>
-        /// Get property array
+        /// Get localized property by name
         /// </summary>
-        public PropertyByName<T>[] GetProperties => _properties.Values.ToArray();
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        public PropertyByName<T, L> GetLocalizedProperty(string propertyName)
+        {
+            return _localizedProperties.ContainsKey(propertyName) ? _localizedProperties[propertyName] : null;
+        }
+
+        /// <summary>
+        /// Get default property array
+        /// </summary>
+        public PropertyByName<T, L>[] GetDefaultProperties => _defaultProperties.Values.ToArray();
+
+        /// <summary>
+        /// Get localized property array
+        /// </summary>
+        public PropertyByName<T, L>[] GetLocalizedProperties => _localizedProperties.Values.ToArray();
 
         /// <summary>
         /// Set SelectList
@@ -242,7 +450,7 @@ namespace Nop.Services.ExportImport.Help
         /// <param name="list">SelectList</param>
         public void SetSelectList(string propertyName, SelectList list)
         {
-            var tempProperty = GetProperty(propertyName);
+            var tempProperty = GetDefaultProperty(propertyName);
             if (tempProperty != null)
                 tempProperty.DropDownElements = list;
         }
@@ -250,7 +458,7 @@ namespace Nop.Services.ExportImport.Help
         /// <summary>
         /// Is caption
         /// </summary>
-        public bool IsCaption => _properties.Values.All(p => p.IsCaption);
+        public bool IsCaption => _defaultProperties.Values.All(p => p.IsCaption);
 
         /// <summary>
         /// Gets a value indicating whether need create dropdown list for export

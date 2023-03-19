@@ -11,14 +11,14 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Services
     /// <summary>
     /// Represents service shipping by weight service implementation
     /// </summary>
-    public partial class ShippingByWeightByTotalService : IShippingByWeightByTotalService
+    public class ShippingByWeightByTotalService : IShippingByWeightByTotalService
     {
         #region Constants
 
         /// <summary>
         /// Key for caching all records
         /// </summary>
-        private readonly CacheKey _shippingByWeightByTotalAllKey = new CacheKey("Nop.shippingbyweightbytotal.all", SHIPPINGBYWEIGHTBYTOTAL_PATTERN_KEY);
+        private readonly CacheKey _shippingByWeightByTotalAllKey = new("Nop.shippingbyweightbytotal.all", SHIPPINGBYWEIGHTBYTOTAL_PATTERN_KEY);
         private const string SHIPPINGBYWEIGHTBYTOTAL_PATTERN_KEY = "Nop.shippingbyweightbytotal.";
 
         #endregion

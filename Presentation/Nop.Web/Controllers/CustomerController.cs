@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,7 @@ using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Services.Orders;
+using Nop.Services.Security;
 using Nop.Services.Tax;
 using Nop.Web.Extensions;
 using Nop.Web.Factories;
@@ -55,9 +57,9 @@ namespace Nop.Web.Controllers
         private readonly CaptchaSettings _captchaSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly DateTimeSettings _dateTimeSettings;
-        private readonly IDownloadService _downloadService;
         private readonly ForumSettings _forumSettings;
         private readonly GdprSettings _gdprSettings;
+        private readonly HtmlEncoder _htmlEncoder;
         private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IAddressModelFactory _addressModelFactory;
         private readonly IAddressService _addressService;
@@ -70,6 +72,7 @@ namespace Nop.Web.Controllers
         private readonly ICustomerModelFactory _customerModelFactory;
         private readonly ICustomerRegistrationService _customerRegistrationService;
         private readonly ICustomerService _customerService;
+        private readonly IDownloadService _downloadService;
         private readonly IEventPublisher _eventPublisher;
         private readonly IExportManager _exportManager;
         private readonly IExternalAuthenticationService _externalAuthenticationService;
@@ -82,6 +85,7 @@ namespace Nop.Web.Controllers
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
         private readonly INotificationService _notificationService;
         private readonly IOrderService _orderService;
+        private readonly IPermissionService _permissionService;
         private readonly IPictureService _pictureService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IProductService _productService;
@@ -104,9 +108,9 @@ namespace Nop.Web.Controllers
             CaptchaSettings captchaSettings,
             CustomerSettings customerSettings,
             DateTimeSettings dateTimeSettings,
-            IDownloadService downloadService,
             ForumSettings forumSettings,
             GdprSettings gdprSettings,
+            HtmlEncoder htmlEncoder,
             IAddressAttributeParser addressAttributeParser,
             IAddressModelFactory addressModelFactory,
             IAddressService addressService,
@@ -119,6 +123,7 @@ namespace Nop.Web.Controllers
             ICustomerModelFactory customerModelFactory,
             ICustomerRegistrationService customerRegistrationService,
             ICustomerService customerService,
+            IDownloadService downloadService,
             IEventPublisher eventPublisher,
             IExportManager exportManager,
             IExternalAuthenticationService externalAuthenticationService,
@@ -131,6 +136,7 @@ namespace Nop.Web.Controllers
             INewsLetterSubscriptionService newsLetterSubscriptionService,
             INotificationService notificationService,
             IOrderService orderService,
+            IPermissionService permissionService,
             IPictureService pictureService,
             IPriceFormatter priceFormatter,
             IProductService productService,
@@ -149,9 +155,9 @@ namespace Nop.Web.Controllers
             _captchaSettings = captchaSettings;
             _customerSettings = customerSettings;
             _dateTimeSettings = dateTimeSettings;
-            _downloadService = downloadService;
             _forumSettings = forumSettings;
             _gdprSettings = gdprSettings;
+            _htmlEncoder = htmlEncoder;
             _addressAttributeParser = addressAttributeParser;
             _addressModelFactory = addressModelFactory;
             _addressService = addressService;
@@ -164,6 +170,7 @@ namespace Nop.Web.Controllers
             _customerModelFactory = customerModelFactory;
             _customerRegistrationService = customerRegistrationService;
             _customerService = customerService;
+            _downloadService = downloadService;
             _eventPublisher = eventPublisher;
             _exportManager = exportManager;
             _externalAuthenticationService = externalAuthenticationService;
@@ -176,6 +183,7 @@ namespace Nop.Web.Controllers
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
             _notificationService = notificationService;
             _orderService = orderService;
+            _permissionService = permissionService;
             _pictureService = pictureService;
             _priceFormatter = priceFormatter;
             _productService = productService;
@@ -208,13 +216,14 @@ namespace Nop.Web.Controllers
             }
         }
 
-        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task<string> ParseSelectedProviderAsync(IFormCollection form)
         {
             if (form == null)
                 throw new ArgumentNullException(nameof(form));
 
-            var multiFactorAuthenticationProviders = await _multiFactorAuthenticationPluginManager.LoadActivePluginsAsync(await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id);
+            var store = await _storeContext.GetCurrentStoreAsync();
+
+            var multiFactorAuthenticationProviders = await _multiFactorAuthenticationPluginManager.LoadActivePluginsAsync(await _workContext.GetCurrentCustomerAsync(), store.Id);
             foreach (var provider in multiFactorAuthenticationProviders)
             {
                 var controlId = $"provider_{provider.PluginDescriptor.SystemName}";
@@ -232,7 +241,6 @@ namespace Nop.Web.Controllers
             return string.Empty;
         }
 
-        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task<string> ParseCustomCustomerAttributesAsync(IFormCollection form)
         {
             if (form == null)
@@ -312,7 +320,6 @@ namespace Nop.Web.Controllers
             return attributesXml;
         }
 
-        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task LogGdprAsync(Customer customer, CustomerInfoModel oldCustomerInfoModel,
             CustomerInfoModel newCustomerInfoModel, IFormCollection form)
         {
@@ -322,7 +329,7 @@ namespace Nop.Web.Controllers
                 var consents = (await _gdprService.GetAllConsentsAsync()).Where(consent => consent.DisplayOnCustomerInfoPage).ToList();
                 foreach (var consent in consents)
                 {
-                    var previousConsentValue = await _gdprService.IsConsentAcceptedAsync(consent.Id, (await _workContext.GetCurrentCustomerAsync()).Id);
+                    var previousConsentValue = await _gdprService.IsConsentAcceptedAsync(consent.Id, customer.Id);
                     var controlId = $"consent{consent.Id}";
                     var cbConsent = form[controlId];
                     if (!StringValues.IsNullOrEmpty(cbConsent) && cbConsent.ToString().Equals("on"))
@@ -414,12 +421,20 @@ namespace Nop.Web.Controllers
         #region Login / logout
 
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> Login(bool? checkoutAsGuest)
         {
             var model = await _customerModelFactory.PrepareLoginModelAsync(checkoutAsGuest);
+            var customer = await _workContext.GetCurrentCustomerAsync();
+
+            if (await _customerService.IsRegisteredAsync(customer))
+            {
+                var fullName = await _customerService.GetCustomerFullNameAsync(customer);
+                var message = await _localizationService.GetResourceAsync("Account.Login.AlreadyLogin");
+                _notificationService.SuccessNotification(string.Format(message, _htmlEncoder.Encode(fullName)));
+            }
 
             return View(model);
         }
@@ -427,9 +442,9 @@ namespace Nop.Web.Controllers
         [HttpPost]
         [ValidateCaptcha]
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> Login(LoginModel model, string returnUrl, bool captchaValid)
         {
             //validate CAPTCHA
@@ -506,17 +521,20 @@ namespace Nop.Web.Controllers
                 return RedirectToRoute("Login");
 
             var customerMultiFactorAuthenticationInfo = HttpContext.Session.Get<CustomerMultiFactorAuthenticationInfo>(NopCustomerDefaults.CustomerMultiFactorAuthenticationInfo);
-            var userName = customerMultiFactorAuthenticationInfo.UserName;
+            var userName = customerMultiFactorAuthenticationInfo?.UserName;
             if (string.IsNullOrEmpty(userName))
-                return RedirectToRoute("HomePage");
+                return RedirectToRoute("Homepage");
 
             var customer = _customerSettings.UsernamesEnabled ? await _customerService.GetCustomerByUsernameAsync(userName) : await _customerService.GetCustomerByEmailAsync(userName);
             if (customer == null)
-                return RedirectToRoute("HomePage");
+                return RedirectToRoute("Homepage");
+
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.EnableMultiFactorAuthentication, customer))
+                return RedirectToRoute("Homepage");
 
             var selectedProvider = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.SelectedMultiFactorAuthenticationProviderAttribute);
             if (string.IsNullOrEmpty(selectedProvider))
-                return RedirectToRoute("HomePage");
+                return RedirectToRoute("Homepage");
 
             var model = new MultiFactorAuthenticationProviderModel();
             model = await _customerModelFactory.PrepareMultiFactorAuthenticationProviderModelAsync(model, selectedProvider, true);
@@ -525,18 +543,19 @@ namespace Nop.Web.Controllers
         }
 
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> Logout()
         {
+            var customer = await _workContext.GetCurrentCustomerAsync();
             if (_workContext.OriginalCustomerIfImpersonated != null)
             {
                 //activity log
                 await _customerActivityService.InsertActivityAsync(_workContext.OriginalCustomerIfImpersonated, "Impersonation.Finished",
                     string.Format(await _localizationService.GetResourceAsync("ActivityLog.Impersonation.Finished.StoreOwner"),
-                        (await _workContext.GetCurrentCustomerAsync()).Email, (await _workContext.GetCurrentCustomerAsync()).Id),
-                    await _workContext.GetCurrentCustomerAsync());
+                        customer.Email, customer.Id),
+                    customer);
 
                 await _customerActivityService.InsertActivityAsync("Impersonation.Finished",
                     string.Format(await _localizationService.GetResourceAsync("ActivityLog.Impersonation.Finished.Customer"),
@@ -548,18 +567,18 @@ namespace Nop.Web.Controllers
                     .SaveAttributeAsync<int?>(_workContext.OriginalCustomerIfImpersonated, NopCustomerDefaults.ImpersonatedCustomerIdAttribute, null);
 
                 //redirect back to customer details page (admin area)
-                return RedirectToAction("Edit", "Customer", new { id = (await _workContext.GetCurrentCustomerAsync()).Id, area = AreaNames.Admin });
+                return RedirectToAction("Edit", "Customer", new { id = customer.Id, area = AreaNames.Admin });
             }
 
             //activity log
-            await _customerActivityService.InsertActivityAsync(await _workContext.GetCurrentCustomerAsync(), "PublicStore.Logout",
-                await _localizationService.GetResourceAsync("ActivityLog.PublicStore.Logout"), await _workContext.GetCurrentCustomerAsync());
+            await _customerActivityService.InsertActivityAsync(customer, "PublicStore.Logout",
+                await _localizationService.GetResourceAsync("ActivityLog.PublicStore.Logout"), customer);
 
             //standard logout 
             await _authenticationService.SignOutAsync();
 
             //raise logged out event       
-            await _eventPublisher.PublishAsync(new CustomerLoggedOutEvent(await _workContext.GetCurrentCustomerAsync()));
+            await _eventPublisher.PublishAsync(new CustomerLoggedOutEvent(customer));
 
             //EU Cookie
             if (_storeInformationSettings.DisplayEuCookieLawWarning)
@@ -581,9 +600,9 @@ namespace Nop.Web.Controllers
         #region Password recovery
 
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         public virtual async Task<IActionResult> PasswordRecovery()
         {
             var model = new PasswordRecoveryModel();
@@ -596,9 +615,9 @@ namespace Nop.Web.Controllers
         [HttpPost, ActionName("PasswordRecovery")]
         [FormValueRequired("send-email")]
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         public virtual async Task<IActionResult> PasswordRecoverySend(PasswordRecoveryModel model, bool captchaValid)
         {
             // validate CAPTCHA
@@ -624,11 +643,11 @@ namespace Nop.Web.Controllers
                     await _workflowMessageService.SendCustomerPasswordRecoveryMessageAsync(customer,
                         (await _workContext.GetWorkingLanguageAsync()).Id);
 
-                    model.Result = await _localizationService.GetResourceAsync("Account.PasswordRecovery.EmailHasBeenSent");
+                    _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Account.PasswordRecovery.EmailHasBeenSent"));
                 }
                 else
                 {
-                    model.Result = await _localizationService.GetResourceAsync("Account.PasswordRecovery.EmailNotFound");
+                    _notificationService.ErrorNotification(await _localizationService.GetResourceAsync("Account.PasswordRecovery.EmailNotFound"));
                 }
             }
 
@@ -638,9 +657,9 @@ namespace Nop.Web.Controllers
         }
 
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email, Guid guid)
         {
             //For backward compatibility with previous versions where email was used as a parameter in the URL
@@ -680,9 +699,9 @@ namespace Nop.Web.Controllers
         [HttpPost, ActionName("PasswordRecoveryConfirm")]
         [FormValueRequired("set-password")]
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         public virtual async Task<IActionResult> PasswordRecoveryConfirmPOST(string token, string email, Guid guid, PasswordRecoveryConfirmModel model)
         {
             //For backward compatibility with previous versions where email was used as a parameter in the URL
@@ -736,7 +755,7 @@ namespace Nop.Web.Controllers
         #region Register
 
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> Register(string returnUrl)
         {
             //check whether registration is allowed
@@ -753,26 +772,28 @@ namespace Nop.Web.Controllers
         [ValidateCaptcha]
         [ValidateHoneypot]
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl, bool captchaValid, IFormCollection form)
         {
             //check whether registration is allowed
             if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
                 return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.Disabled, returnUrl });
 
-            if (await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (await _customerService.IsRegisteredAsync(customer))
             {
                 //Already registered customer. 
                 await _authenticationService.SignOutAsync();
 
                 //raise logged out event       
-                await _eventPublisher.PublishAsync(new CustomerLoggedOutEvent(await _workContext.GetCurrentCustomerAsync()));
+                await _eventPublisher.PublishAsync(new CustomerLoggedOutEvent(customer));
 
                 //Save a new record
                 await _workContext.SetCurrentCustomerAsync(await _customerService.InsertGuestCustomerAsync());
             }
-            var customer = await _workContext.GetCurrentCustomerAsync();
-            customer.RegisteredInStoreId = (await _storeContext.GetCurrentStoreAsync()).Id;
+
+            var store = await _storeContext.GetCurrentStoreAsync();
+            customer.RegisteredInStoreId = store.Id;
 
             //custom customer attributes
             var customerAttributesXml = await ParseCustomCustomerAttributesAsync(form);
@@ -808,23 +829,22 @@ namespace Nop.Web.Controllers
                     _customerSettings.UsernamesEnabled ? customerUserName : customerEmail,
                     model.Password,
                     _customerSettings.DefaultPasswordFormat,
-                    (await _storeContext.GetCurrentStoreAsync()).Id,
+                    store.Id,
                     isApproved);
                 var registrationResult = await _customerRegistrationService.RegisterCustomerAsync(registrationRequest);
                 if (registrationResult.Success)
                 {
                     //properties
                     if (_dateTimeSettings.AllowCustomersToSetTimeZone)
-                    {
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.TimeZoneIdAttribute, model.TimeZoneId);
-                    }
+                        customer.TimeZoneId = model.TimeZoneId;
+
                     //VAT number
                     if (_taxSettings.EuVatEnabled)
                     {
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.VatNumberAttribute, model.VatNumber);
+                        customer.VatNumber = model.VatNumber;
 
                         var (vatNumberStatus, _, vatAddress) = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.VatNumberStatusIdAttribute, (int)vatNumberStatus);
+                        customer.VatNumberStatusId = (int)vatNumberStatus;
                         //send VAT number admin notification
                         if (!string.IsNullOrEmpty(model.VatNumber) && _taxSettings.EuVatEmailAdminWhenNewVatSubmitted)
                             await _workflowMessageService.SendNewVatSubmittedStoreOwnerNotificationAsync(customer, model.VatNumber, vatAddress, _localizationSettings.DefaultAdminLanguageId);
@@ -832,37 +852,37 @@ namespace Nop.Web.Controllers
 
                     //form fields
                     if (_customerSettings.GenderEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.GenderAttribute, model.Gender);
+                        customer.Gender = model.Gender;
                     if (_customerSettings.FirstNameEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.FirstNameAttribute, model.FirstName);
+                        customer.FirstName = model.FirstName;
                     if (_customerSettings.LastNameEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.LastNameAttribute, model.LastName);
+                        customer.LastName = model.LastName;
                     if (_customerSettings.DateOfBirthEnabled)
-                    {
-                        var dateOfBirth = model.ParseDateOfBirth();
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.DateOfBirthAttribute, dateOfBirth);
-                    }
+                        customer.DateOfBirth = model.ParseDateOfBirth();
                     if (_customerSettings.CompanyEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CompanyAttribute, model.Company);
+                        customer.Company = model.Company;
                     if (_customerSettings.StreetAddressEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.StreetAddressAttribute, model.StreetAddress);
+                        customer.StreetAddress = model.StreetAddress;
                     if (_customerSettings.StreetAddress2Enabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.StreetAddress2Attribute, model.StreetAddress2);
+                        customer.StreetAddress2 = model.StreetAddress2;
                     if (_customerSettings.ZipPostalCodeEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.ZipPostalCodeAttribute, model.ZipPostalCode);
+                        customer.ZipPostalCode = model.ZipPostalCode;
                     if (_customerSettings.CityEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CityAttribute, model.City);
+                        customer.City = model.City;
                     if (_customerSettings.CountyEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CountyAttribute, model.County);
+                        customer.County = model.County;
                     if (_customerSettings.CountryEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CountryIdAttribute, model.CountryId);
+                        customer.CountryId = model.CountryId;
                     if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.StateProvinceIdAttribute,
-                            model.StateProvinceId);
+                        customer.StateProvinceId = model.StateProvinceId;
                     if (_customerSettings.PhoneEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.PhoneAttribute, model.Phone);
+                        customer.Phone = model.Phone;
                     if (_customerSettings.FaxEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.FaxAttribute, model.Fax);
+                        customer.Fax = model.Fax;
+
+                    //save customer attributes
+                    customer.CustomCustomerAttributesXML = customerAttributesXml;
+                    await _customerService.UpdateCustomerAsync(customer);
 
                     //newsletter
                     if (_customerSettings.NewsletterEnabled)
@@ -870,7 +890,7 @@ namespace Nop.Web.Controllers
                         var isNewsletterActive = _customerSettings.UserRegistrationType != UserRegistrationType.EmailValidation;
 
                         //save newsletter value
-                        var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreIdAsync(customerEmail, (await _storeContext.GetCurrentStoreAsync()).Id);
+                        var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreIdAsync(customerEmail, store.Id);
                         if (newsletter != null)
                         {
                             if (model.Newsletter)
@@ -899,7 +919,7 @@ namespace Nop.Web.Controllers
                                     NewsLetterSubscriptionGuid = Guid.NewGuid(),
                                     Email = customerEmail,
                                     Active = isNewsletterActive,
-                                    StoreId = (await _storeContext.GetCurrentStoreAsync()).Id,
+                                    StoreId = store.Id,
                                     CreatedOnUtc = DateTime.UtcNow
                                 });
 
@@ -943,29 +963,26 @@ namespace Nop.Web.Controllers
                         }
                     }
 
-                    //save customer attributes
-                    await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CustomCustomerAttributes, customerAttributesXml);
-
                     //insert default address (if possible)
                     var defaultAddress = new Address
                     {
-                        FirstName = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.FirstNameAttribute),
-                        LastName = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.LastNameAttribute),
+                        FirstName = customer.FirstName,
+                        LastName = customer.LastName,
                         Email = customer.Email,
-                        Company = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.CompanyAttribute),
-                        CountryId = await _genericAttributeService.GetAttributeAsync<int>(customer, NopCustomerDefaults.CountryIdAttribute) > 0
-                            ? (int?)await _genericAttributeService.GetAttributeAsync<int>(customer, NopCustomerDefaults.CountryIdAttribute)
+                        Company = customer.Company,
+                        CountryId = customer.CountryId > 0
+                            ? (int?)customer.CountryId
                             : null,
-                        StateProvinceId = await _genericAttributeService.GetAttributeAsync<int>(customer, NopCustomerDefaults.StateProvinceIdAttribute) > 0
-                            ? (int?)await _genericAttributeService.GetAttributeAsync<int>(customer, NopCustomerDefaults.StateProvinceIdAttribute)
+                        StateProvinceId = customer.StateProvinceId > 0
+                            ? (int?)customer.StateProvinceId
                             : null,
-                        County = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.CountyAttribute),
-                        City = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.CityAttribute),
-                        Address1 = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.StreetAddressAttribute),
-                        Address2 = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.StreetAddress2Attribute),
-                        ZipPostalCode = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.ZipPostalCodeAttribute),
-                        PhoneNumber = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.PhoneAttribute),
-                        FaxNumber = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.FaxAttribute),
+                        County = customer.County,
+                        City = customer.City,
+                        Address1 = customer.StreetAddress,
+                        Address2 = customer.StreetAddress2,
+                        ZipPostalCode = customer.ZipPostalCode,
+                        PhoneNumber = customer.Phone,
+                        FaxNumber = customer.Fax,
                         CreatedOnUtc = customer.CreatedOnUtc
                     };
                     if (await _addressService.IsAddressValidAsync(defaultAddress))
@@ -990,18 +1007,19 @@ namespace Nop.Web.Controllers
 
                     //notifications
                     if (_customerSettings.NotifyNewCustomerRegistration)
-                        await _workflowMessageService.SendCustomerRegisteredNotificationMessageAsync(customer,
+                        await _workflowMessageService.SendCustomerRegisteredStoreOwnerNotificationMessageAsync(customer,
                             _localizationSettings.DefaultAdminLanguageId);
 
                     //raise event       
                     await _eventPublisher.PublishAsync(new CustomerRegisteredEvent(customer));
+                    var currentLanguage = await _workContext.GetWorkingLanguageAsync();
 
                     switch (_customerSettings.UserRegistrationType)
                     {
                         case UserRegistrationType.EmailValidation:
                             //email validation message
                             await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.AccountActivationTokenAttribute, Guid.NewGuid().ToString());
-                            await _workflowMessageService.SendCustomerEmailValidationMessageAsync(customer, (await _workContext.GetWorkingLanguageAsync()).Id);
+                            await _workflowMessageService.SendCustomerEmailValidationMessageAsync(customer, currentLanguage.Id);
 
                             //result
                             return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.EmailValidation, returnUrl });
@@ -1011,7 +1029,7 @@ namespace Nop.Web.Controllers
 
                         case UserRegistrationType.Standard:
                             //send customer welcome message
-                            await _workflowMessageService.SendCustomerWelcomeMessageAsync(customer, (await _workContext.GetWorkingLanguageAsync()).Id);
+                            await _workflowMessageService.SendCustomerWelcomeMessageAsync(customer, currentLanguage.Id);
 
                             //raise event       
                             await _eventPublisher.PublishAsync(new CustomerActivatedEvent(customer));
@@ -1036,7 +1054,7 @@ namespace Nop.Web.Controllers
         }
 
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> RegisterResult(int resultId, string returnUrl)
         {
             if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
@@ -1048,21 +1066,22 @@ namespace Nop.Web.Controllers
 
         [HttpPost]
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> CheckUsernameAvailability(string username)
         {
             var usernameAvailable = false;
             var statusText = await _localizationService.GetResourceAsync("Account.CheckUsernameAvailability.NotAvailable");
 
-            if (!UsernamePropertyValidator.IsValid(username, _customerSettings))
+            if (!UsernamePropertyValidator<string, string>.IsValid(username, _customerSettings))
             {
                 statusText = await _localizationService.GetResourceAsync("Account.Fields.Username.NotValid");
             }
             else if (_customerSettings.UsernamesEnabled && !string.IsNullOrWhiteSpace(username))
             {
-                if (await _workContext.GetCurrentCustomerAsync() != null &&
-                    (await _workContext.GetCurrentCustomerAsync()).Username != null &&
-                    (await _workContext.GetCurrentCustomerAsync()).Username.Equals(username, StringComparison.InvariantCultureIgnoreCase))
+                var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+                if (currentCustomer != null &&
+                    currentCustomer.Username != null &&
+                    currentCustomer.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase))
                 {
                     statusText = await _localizationService.GetResourceAsync("Account.CheckUsernameAvailability.CurrentUsername");
                 }
@@ -1081,7 +1100,7 @@ namespace Nop.Web.Controllers
         }
 
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> AccountActivation(string token, string email, Guid guid)
         {
             //For backward compatibility with previous versions where email was used as a parameter in the URL
@@ -1117,7 +1136,8 @@ namespace Nop.Web.Controllers
             await _customerRegistrationService.SignInCustomerAsync(customer, null, true);
 
             //activating newsletter if need
-            var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreIdAsync(customer.Email, (await _storeContext.GetCurrentStoreAsync()).Id);
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreIdAsync(customer.Email, store.Id);
             if (newsletter != null && !newsletter.Active)
             {
                 newsletter.Active = true;
@@ -1134,11 +1154,12 @@ namespace Nop.Web.Controllers
 
         public virtual async Task<IActionResult> Info()
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             var model = new CustomerInfoModel();
-            model = await _customerModelFactory.PrepareCustomerInfoModelAsync(model, await _workContext.GetCurrentCustomerAsync(), false);
+            model = await _customerModelFactory.PrepareCustomerInfoModelAsync(model, customer, false);
 
             return View(model);
         }
@@ -1146,12 +1167,11 @@ namespace Nop.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> Info(CustomerInfoModel model, IFormCollection form)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             var oldCustomerModel = new CustomerInfoModel();
-
-            var customer = await _workContext.GetCurrentCustomerAsync();
 
             //get customer info model before changes for gdpr log
             if (_gdprSettings.GdprEnabled & _gdprSettings.LogUserProfileChanges)
@@ -1212,21 +1232,18 @@ namespace Nop.Web.Controllers
 
                     //properties
                     if (_dateTimeSettings.AllowCustomersToSetTimeZone)
-                    {
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.TimeZoneIdAttribute,
-                            model.TimeZoneId);
-                    }
+                        customer.TimeZoneId = model.TimeZoneId;
                     //VAT number
                     if (_taxSettings.EuVatEnabled)
                     {
-                        var prevVatNumber = await _genericAttributeService.GetAttributeAsync<string>(customer, NopCustomerDefaults.VatNumberAttribute);
+                        var prevVatNumber = customer.VatNumber;
+                        customer.VatNumber = model.VatNumber;
 
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.VatNumberAttribute,
-                            model.VatNumber);
                         if (prevVatNumber != model.VatNumber)
                         {
                             var (vatNumberStatus, _, vatAddress) = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
-                            await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.VatNumberStatusIdAttribute, (int)vatNumberStatus);
+                            customer.VatNumberStatusId = (int)vatNumberStatus;
+
                             //send VAT number admin notification
                             if (!string.IsNullOrEmpty(model.VatNumber) && _taxSettings.EuVatEmailAdminWhenNewVatSubmitted)
                                 await _workflowMessageService.SendNewVatSubmittedStoreOwnerNotificationAsync(customer,
@@ -1236,42 +1253,43 @@ namespace Nop.Web.Controllers
 
                     //form fields
                     if (_customerSettings.GenderEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.GenderAttribute, model.Gender);
+                        customer.Gender = model.Gender;
                     if (_customerSettings.FirstNameEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.FirstNameAttribute, model.FirstName);
+                        customer.FirstName = model.FirstName;
                     if (_customerSettings.LastNameEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.LastNameAttribute, model.LastName);
+                        customer.LastName = model.LastName;
                     if (_customerSettings.DateOfBirthEnabled)
-                    {
-                        var dateOfBirth = model.ParseDateOfBirth();
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.DateOfBirthAttribute, dateOfBirth);
-                    }
+                        customer.DateOfBirth = model.ParseDateOfBirth();
                     if (_customerSettings.CompanyEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CompanyAttribute, model.Company);
+                        customer.Company = model.Company;
                     if (_customerSettings.StreetAddressEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.StreetAddressAttribute, model.StreetAddress);
+                        customer.StreetAddress = model.StreetAddress;
                     if (_customerSettings.StreetAddress2Enabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.StreetAddress2Attribute, model.StreetAddress2);
+                        customer.StreetAddress2 = model.StreetAddress2;
                     if (_customerSettings.ZipPostalCodeEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.ZipPostalCodeAttribute, model.ZipPostalCode);
+                        customer.ZipPostalCode = model.ZipPostalCode;
                     if (_customerSettings.CityEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CityAttribute, model.City);
+                        customer.City = model.City;
                     if (_customerSettings.CountyEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CountyAttribute, model.County);
+                        customer.County = model.County;
                     if (_customerSettings.CountryEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.CountryIdAttribute, model.CountryId);
+                        customer.CountryId = model.CountryId;
                     if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.StateProvinceIdAttribute, model.StateProvinceId);
+                        customer.StateProvinceId = model.StateProvinceId;
                     if (_customerSettings.PhoneEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.PhoneAttribute, model.Phone);
+                        customer.Phone = model.Phone;
                     if (_customerSettings.FaxEnabled)
-                        await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.FaxAttribute, model.Fax);
+                        customer.Fax = model.Fax;
+
+                    customer.CustomCustomerAttributesXML = customerAttributesXml;
+                    await _customerService.UpdateCustomerAsync(customer);
 
                     //newsletter
                     if (_customerSettings.NewsletterEnabled)
                     {
                         //save newsletter value
-                        var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreIdAsync(customer.Email, (await _storeContext.GetCurrentStoreAsync()).Id);
+                        var store = await _storeContext.GetCurrentStoreAsync();
+                        var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreIdAsync(customer.Email, store.Id);
                         if (newsletter != null)
                         {
                             if (model.Newsletter)
@@ -1293,7 +1311,7 @@ namespace Nop.Web.Controllers
                                     NewsLetterSubscriptionGuid = Guid.NewGuid(),
                                     Email = customer.Email,
                                     Active = true,
-                                    StoreId = (await _storeContext.GetCurrentStoreAsync()).Id,
+                                    StoreId = store.Id,
                                     CreatedOnUtc = DateTime.UtcNow
                                 });
                             }
@@ -1303,13 +1321,11 @@ namespace Nop.Web.Controllers
                     if (_forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled)
                         await _genericAttributeService.SaveAttributeAsync(customer, NopCustomerDefaults.SignatureAttribute, model.Signature);
 
-                    //save customer attributes
-                    await _genericAttributeService.SaveAttributeAsync(await _workContext.GetCurrentCustomerAsync(),
-                        NopCustomerDefaults.CustomCustomerAttributes, customerAttributesXml);
-
                     //GDPR
                     if (_gdprSettings.GdprEnabled)
                         await LogGdprAsync(customer, oldCustomerModel, model, form);
+
+                    _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Account.CustomerInfo.Updated"));
 
                     return RedirectToRoute("CustomerInfo");
                 }
@@ -1351,7 +1367,7 @@ namespace Nop.Web.Controllers
         }
 
         //available even when navigation is not allowed
-        [CheckAccessPublicStore(true)]
+        [CheckAccessPublicStore(ignore: true)]
         public virtual async Task<IActionResult> EmailRevalidation(string token, string email, Guid guid)
         {
             //For backward compatibility with previous versions where email was used as a parameter in the URL
@@ -1417,10 +1433,9 @@ namespace Nop.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> AddressDelete(int addressId)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
-                return Challenge();
-
             var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
+                return Challenge();
 
             //find address (ensure that it belongs to the current customer)
             var address = await _customerService.GetCustomerAddressAsync(customer.Id, addressId);
@@ -1457,7 +1472,8 @@ namespace Nop.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> AddressAdd(CustomerAddressEditModel model, IFormCollection form)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             //custom address attributes
@@ -1482,7 +1498,9 @@ namespace Nop.Web.Controllers
 
                 await _addressService.InsertAddressAsync(address);
 
-                await _customerService.InsertCustomerAddressAsync(await _workContext.GetCurrentCustomerAsync(), address);
+                await _customerService.InsertCustomerAddressAsync(customer, address);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Account.CustomerAddresses.Added"));
 
                 return RedirectToRoute("CustomerAddresses");
             }
@@ -1500,10 +1518,10 @@ namespace Nop.Web.Controllers
 
         public virtual async Task<IActionResult> AddressEdit(int addressId)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
-            var customer = await _workContext.GetCurrentCustomerAsync();
             //find address (ensure that it belongs to the current customer)
             var address = await _customerService.GetCustomerAddressAsync(customer.Id, addressId);
             if (address == null)
@@ -1521,14 +1539,14 @@ namespace Nop.Web.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model, int addressId, IFormCollection form)
+        public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model, IFormCollection form)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
-            var customer = await _workContext.GetCurrentCustomerAsync();
             //find address (ensure that it belongs to the current customer)
-            var address = await _customerService.GetCustomerAddressAsync(customer.Id, addressId);
+            var address = await _customerService.GetCustomerAddressAsync(customer.Id, model.Address.Id);
             if (address == null)
                 //address is not found
                 return RedirectToRoute("CustomerAddresses");
@@ -1546,6 +1564,8 @@ namespace Nop.Web.Controllers
                 address = model.Address.ToEntity(address);
                 address.CustomAttributes = customAttributes;
                 await _addressService.UpdateAddressAsync(address);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Account.CustomerAddresses.Updated"));
 
                 return RedirectToRoute("CustomerAddresses");
             }
@@ -1579,7 +1599,7 @@ namespace Nop.Web.Controllers
         }
 
         //ignore SEO friendly URLs checks
-        [CheckLanguageSeoCode(true)]
+        [CheckLanguageSeoCode(ignore: true)]
         public virtual async Task<IActionResult> UserAgreement(Guid orderItemId)
         {
             var orderItem = await _orderService.GetOrderItemByGuidAsync(orderItemId);
@@ -1602,25 +1622,25 @@ namespace Nop.Web.Controllers
 
         public virtual async Task<IActionResult> ChangePassword()
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             var model = await _customerModelFactory.PrepareChangePasswordModelAsync();
 
             //display the cause of the change password 
-            if (await _customerService.PasswordIsExpiredAsync(await _workContext.GetCurrentCustomerAsync()))
+            if (await _customerService.IsPasswordExpiredAsync(customer))
                 ModelState.AddModelError(string.Empty, await _localizationService.GetResourceAsync("Account.ChangePassword.PasswordIsExpired"));
 
             return View(model);
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+        public virtual async Task<IActionResult> ChangePassword(ChangePasswordModel model, string returnUrl)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
-                return Challenge();
-
             var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
+                return Challenge();
 
             if (ModelState.IsValid)
             {
@@ -1630,7 +1650,18 @@ namespace Nop.Web.Controllers
                 if (changePasswordResult.Success)
                 {
                     _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Account.ChangePassword.Success"));
-                    return View(model);
+
+                    //authenticate customer after changing password
+                    await _customerRegistrationService.SignInCustomerAsync(customer, null, true);
+
+                    if (string.IsNullOrEmpty(returnUrl))
+                        return View(model);
+
+                    //prevent open redirection attack
+                    if (!Url.IsLocalUrl(returnUrl))
+                        returnUrl = Url.RouteUrl("Homepage");
+
+                    return new RedirectResult(returnUrl);
                 }
 
                 //errors
@@ -1664,13 +1695,17 @@ namespace Nop.Web.Controllers
         [FormValueRequired("upload-avatar")]
         public virtual async Task<IActionResult> UploadAvatar(CustomerAvatarModel model, IFormFile uploadedFile)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             if (!_customerSettings.AllowCustomersToUploadAvatars)
                 return RedirectToRoute("CustomerInfo");
 
-            var customer = await _workContext.GetCurrentCustomerAsync();
+            var contentType = uploadedFile?.ContentType.ToLowerInvariant();
+
+            if (contentType != null && !contentType.Equals("image/jpeg") && !contentType.Equals("image/gif"))
+                ModelState.AddModelError("", await _localizationService.GetResourceAsync("Account.Avatar.UploadRules"));
 
             if (ModelState.IsValid)
             {
@@ -1685,9 +1720,9 @@ namespace Nop.Web.Controllers
 
                         var customerPictureBinary = await _downloadService.GetDownloadBitsAsync(uploadedFile);
                         if (customerAvatar != null)
-                            customerAvatar = await _pictureService.UpdatePictureAsync(customerAvatar.Id, customerPictureBinary, uploadedFile.ContentType, null);
+                            customerAvatar = await _pictureService.UpdatePictureAsync(customerAvatar.Id, customerPictureBinary, contentType, null);
                         else
-                            customerAvatar = await _pictureService.InsertPictureAsync(customerPictureBinary, uploadedFile.ContentType, null);
+                            customerAvatar = await _pictureService.InsertPictureAsync(customerPictureBinary, contentType, null);
                     }
 
                     var customerAvatarId = 0;
@@ -1718,13 +1753,12 @@ namespace Nop.Web.Controllers
         [FormValueRequired("remove-avatar")]
         public virtual async Task<IActionResult> RemoveAvatar(CustomerAvatarModel model)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             if (!_customerSettings.AllowCustomersToUploadAvatars)
                 return RedirectToRoute("CustomerInfo");
-
-            var customer = await _workContext.GetCurrentCustomerAsync();
 
             var customerAvatar = await _pictureService.GetPictureByIdAsync(await _genericAttributeService.GetAttributeAsync<int>(customer, NopCustomerDefaults.AvatarPictureIdAttribute));
             if (customerAvatar != null)
@@ -1755,17 +1789,20 @@ namespace Nop.Web.Controllers
         [FormValueRequired("export-data")]
         public virtual async Task<IActionResult> GdprToolsExport()
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             if (!_gdprSettings.GdprEnabled)
                 return RedirectToRoute("CustomerInfo");
 
             //log
-            await _gdprService.InsertLogAsync(await _workContext.GetCurrentCustomerAsync(), 0, GdprRequestType.ExportData, await _localizationService.GetResourceAsync("Gdpr.Exported"));
+            await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.ExportData, await _localizationService.GetResourceAsync("Gdpr.Exported"));
+
+            var store = await _storeContext.GetCurrentStoreAsync();
 
             //export
-            var bytes = await _exportManager.ExportCustomerGdprInfoToXlsxAsync(await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id);
+            var bytes = await _exportManager.ExportCustomerGdprInfoToXlsxAsync(customer, store.Id);
 
             return File(bytes, MimeTypes.TextXlsx, "customerdata.xlsx");
         }
@@ -1774,14 +1811,15 @@ namespace Nop.Web.Controllers
         [FormValueRequired("delete-account")]
         public virtual async Task<IActionResult> GdprToolsDelete()
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
             if (!_gdprSettings.GdprEnabled)
                 return RedirectToRoute("CustomerInfo");
 
             //log
-            await _gdprService.InsertLogAsync(await _workContext.GetCurrentCustomerAsync(), 0, GdprRequestType.DeleteCustomer, await _localizationService.GetResourceAsync("Gdpr.DeleteRequested"));
+            await _gdprService.InsertLogAsync(customer, 0, GdprRequestType.DeleteCustomer, await _localizationService.GetResourceAsync("Gdpr.DeleteRequested"));
 
             var model = await _customerModelFactory.PrepareGdprToolsModelAsync();
             model.Result = await _localizationService.GetResourceAsync("Gdpr.DeleteRequested.Success");
@@ -1795,7 +1833,7 @@ namespace Nop.Web.Controllers
 
         //check gift card balance page
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         public virtual async Task<IActionResult> CheckGiftCardBalance()
         {
             if (!(_captchaSettings.Enabled && _customerSettings.AllowCustomersToCheckGiftCardBalance))
@@ -1841,13 +1879,16 @@ namespace Nop.Web.Controllers
         #region Multi-factor Authentication
 
         //available even when a store is closed
-        [CheckAccessClosedStore(true)]
+        [CheckAccessClosedStore(ignore: true)]
         public virtual async Task<IActionResult> MultiFactorAuthentication()
         {
             if (!await _multiFactorAuthenticationPluginManager.HasActivePluginsAsync())
             {
                 return RedirectToRoute("CustomerInfo");
             }
+
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.EnableMultiFactorAuthentication))
+                return RedirectToRoute("CustomerInfo");
 
             var model = new MultiFactorAuthenticationModel();
             model = await _customerModelFactory.PrepareMultiFactorAuthenticationModelAsync(model);
@@ -1857,10 +1898,12 @@ namespace Nop.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> MultiFactorAuthentication(MultiFactorAuthenticationModel model, IFormCollection form)
         {
-            if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _customerService.IsRegisteredAsync(customer))
                 return Challenge();
 
-            var customer = await _workContext.GetCurrentCustomerAsync();
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.EnableMultiFactorAuthentication))
+                return RedirectToRoute("CustomerInfo");
 
             try
             {
@@ -1920,6 +1963,9 @@ namespace Nop.Web.Controllers
         {
             if (!await _customerService.IsRegisteredAsync(await _workContext.GetCurrentCustomerAsync()))
                 return Challenge();
+
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.EnableMultiFactorAuthentication))
+                return RedirectToRoute("CustomerInfo");
 
             var model = new MultiFactorAuthenticationProviderModel();
             model = await _customerModelFactory.PrepareMultiFactorAuthenticationProviderModelAsync(model, providerSysName);

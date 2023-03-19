@@ -1,7 +1,5 @@
-﻿using System;
-using System.Reflection;
-using FluentMigrator.Builders.Create;
-using FluentMigrator.Expressions;
+﻿using System.Reflection;
+using FluentMigrator;
 
 namespace Nop.Data.Migrations
 {
@@ -11,30 +9,29 @@ namespace Nop.Data.Migrations
     public interface IMigrationManager
     {
         /// <summary>
-        /// Executes all found (and unapplied) migrations
+        /// Executes an Up for all found unapplied migrations
         /// </summary>
-        /// <param name="assembly">Assembly to find the migration</param>
-        /// <param name="isUpdateProcess">Indicates whether the upgrade or installation process is ongoing. True - if an upgrade process</param>
-        void ApplyUpMigrations(Assembly assembly, bool isUpdateProcess = false);
+        /// <param name="assembly">Assembly to find migrations</param>
+        /// <param name="migrationProcessType">Type of migration process</param>
+        /// <param name="commitVersionOnly">Commit only version information</param>
+        void ApplyUpMigrations(Assembly assembly, MigrationProcessType migrationProcessType = MigrationProcessType.Installation, bool commitVersionOnly = false);
 
         /// <summary>
-        /// Executes an Down migration
+        /// Executes a Down for all found (and applied) migrations
         /// </summary>
         /// <param name="assembly">Assembly to find the migration</param>
         void ApplyDownMigrations(Assembly assembly);
 
         /// <summary>
-        /// Retrieves expressions into ICreateExpressionRoot
+        /// Executes down expressions for the passed migration
         /// </summary>
-        /// <param name="expressionRoot">The root expression for a CREATE operation</param>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        void BuildTable<TEntity>(ICreateExpressionRoot expressionRoot);
+        /// <param name="migration">Migration to rollback</param>
+        void DownMigration(IMigration migration);
 
         /// <summary>
-        /// Gets create table expression for entity type
+        /// Executes up expressions for the passed migration
         /// </summary>
-        /// <param name="type">Entity type</param>
-        /// <returns>Expression to create a table</returns>
-        CreateTableExpression GetCreateTableExpression(Type type);
+        /// <param name="migration">Migration to apply</param>
+        void UpMigration(IMigration migration);
     }
 }

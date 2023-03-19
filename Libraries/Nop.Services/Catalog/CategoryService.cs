@@ -246,12 +246,12 @@ namespace Nop.Services.Catalog
                 else if (overridePublished.HasValue)
                     query = query.Where(c => c.Published == overridePublished.Value);
 
-                //apply store mapping constraints
-                query = await _storeMappingService.ApplyStoreMapping(query, storeId);
-
-                //apply ACL constraints
                 if (!showHidden)
                 {
+                    //apply store mapping constraints
+                    query = await _storeMappingService.ApplyStoreMapping(query, storeId);
+
+                    //apply ACL constraints
                     var customer = await _workContext.GetCurrentCustomerAsync();
                     query = await _aclService.ApplyAcl(query, customer);
                 }
@@ -357,10 +357,11 @@ namespace Nop.Services.Catalog
             if (discount == null)
                 throw new ArgumentNullException(nameof(discount));
 
+            var store = await _storeContext.GetCurrentStoreAsync();
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(NopDiscountDefaults.CategoryIdsByDiscountCacheKey,
                 discount,
                 await _customerService.GetCustomerRoleIdsAsync(customer),
-                await _storeContext.GetCurrentStoreAsync());
+                store);
 
             var result = await _staticCacheManager.GetAsync(cacheKey, async () =>
             {
@@ -373,7 +374,7 @@ namespace Nop.Services.Catalog
                     return ids;
 
                 ids.AddRange(await ids.SelectManyAwait(async categoryId =>
-                        await GetChildCategoryIdsAsync(categoryId, (await _storeContext.GetCurrentStoreAsync()).Id))
+                        await GetChildCategoryIdsAsync(categoryId, store.Id))
                     .ToListAsync());
 
                 return ids.Distinct().ToList();
@@ -593,7 +594,9 @@ namespace Nop.Services.Catalog
         /// </returns>
         public virtual async Task<IList<ProductCategory>> GetProductCategoriesByProductIdAsync(int productId, bool showHidden = false)
         {
-            return await GetProductCategoriesByProductIdAsync(productId, (await _storeContext.GetCurrentStoreAsync()).Id, showHidden);
+            var store = await _storeContext.GetCurrentStoreAsync();
+
+            return await GetProductCategoriesByProductIdAsync(productId, store.Id, showHidden);
         }
 
         /// <summary>
@@ -649,7 +652,7 @@ namespace Nop.Services.Catalog
                 .Where(c => queryFilter.Contains(c))
                 .ToListAsync();
 
-             queryFilter = queryFilter.Except(filter).ToArray();
+            queryFilter = queryFilter.Except(filter).ToArray();
 
             //if some names not found
             if (!queryFilter.Any())

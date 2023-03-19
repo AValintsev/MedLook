@@ -1,53 +1,55 @@
-﻿@model CatalogPagingFilteringModel.PriceRangeFilterModel
-@{
-	var selectedItem = Model.Items.FirstOrDefault(x => x.Selected);
+﻿@model PriceRangeFilterModel
 
-	var fromStr = Model.Items.Min(i => i.From).Replace(",", ".");
-	var toStr = Model.Items.Max(i => i.To).Replace(",", ".");
+<script asp-exclude-from-bundle="true" src="~/lib_npm/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js" asp-location="Footer"></script>
 
-	var minPrice = double.Parse(fromStr.Split(".")[0]);
-	var maxPrice = double.Parse(toStr.Split(".")[0]);
+<div class="product-filter price-range-filter">
+    <div class="filter-title">
+        <strong>@T("Filtering.PriceRangeFilter")</strong>
+    </div>
+    <div class="filter-content">
+        <div class="selected-price-range">
+            <span class="from"></span>
+            <span class="to"></span>
+        </div>
+        <div id="price-range-slider"></div>
+        <script asp-location="Footer">
+            $(document).ready(function () {
+                var $priceRangeEl = $("#price-range-slider");
+                $priceRangeEl.slider({
+                    range: true,
+                    min: @Model.AvailablePriceRange.From,
+                    max: @Model.AvailablePriceRange.To,
+                    values: [
+                        @Model.SelectedPriceRange.From,
+                        @Model.SelectedPriceRange.To
+                    ],
+                    slide: function (event, ui) {
+                        setSelectedPriceRange(ui.values[0], ui.values[1]);
+                    },
+                    stop: function () {
+                        CatalogProducts.getProducts();
+                    }
+                });
 
-	var baseUri = Model.Items.First().FilterUrl.Split("?")[0];
-}
+                setSelectedPriceRange(
+                    $priceRangeEl.slider("values", 0),
+                    $priceRangeEl.slider("values", 1)
+                );
 
-@if (Model.Enabled)
-{
-	<div class="product-filter price-range-filter">
-		<div class="filter-title">
-			<strong>@T("Filtering.PriceRangeFilter")</strong>
-		</div>
-		<div class="filter-content">
-			<div class="filter-items">
-				<input id="minPrice" class="" type="text" maxlength="20" value="@minPrice">
-				<span> — </span>
-				<input id="maxPrice" class="" type="text" maxlength="20" value="@maxPrice">
-				<button class="button-1 button" type="submit" onclick="doFilter()">OK</button>
-			</div>
-			<div id="slider-range"></div>
-		</div>
-	</div>
-}
+                $(CatalogProducts).on('before', function (e) {
+                    var priceRange = $priceRangeEl.slider('values');
+                    if (priceRange && priceRange.length > 0) {
+                        e.payload.urlBuilder
+                            .addParameter('price', priceRange.join('-'));
+                    }
+                });
+            });
 
-@{
-	Html.AddInlineScriptParts(ResourceLocation.Footer,
-	string.Format(@"<script type='text/javascript'>
-function doFilter() {{
-window.location.href = '{2}' + '?price=' + $('#minPrice').val() + '-' + $('#maxPrice').val();
-}}
-
-$(function () {{
-$('#slider-range').slider({{
-range: true,
-min: {0},
-max: {1},
-values: [{0}, {1}],
-slide: function (event, ui) {{
-$('#minPrice').val(ui.values[0]);
-$('#maxPrice').val(ui.values[1]);
-}}
-}});
-}});
-</script>", minPrice, maxPrice, baseUri)
-	);
-}
+            function setSelectedPriceRange(from, to) {
+                var $selectedPriceRangeEl = $('.selected-price-range');
+                $('.from', $selectedPriceRangeEl).html(from);
+                $('.to', $selectedPriceRangeEl).html(to);
+            }
+        </script>
+    </div>
+</div>

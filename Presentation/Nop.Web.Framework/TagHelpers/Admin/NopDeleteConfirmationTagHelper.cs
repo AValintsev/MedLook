@@ -13,7 +13,7 @@ namespace Nop.Web.Framework.TagHelpers.Admin
     /// "nop-delete-confirmation" tag helper
     /// </summary>
     [HtmlTargetElement("nop-delete-confirmation", Attributes = MODEL_ID_ATTRIBUTE_NAME + "," + BUTTON_ID_ATTRIBUTE_NAME, TagStructure = TagStructure.WithoutEndTag)]
-    public class NopDeleteConfirmationTagHelper : TagHelper
+    public partial class NopDeleteConfirmationTagHelper : TagHelper
     {
         #region Constants
 
@@ -93,7 +93,7 @@ namespace Nop.Web.Framework.TagHelpers.Admin
             if (string.IsNullOrEmpty(Action))
                 Action = "Delete";
 
-            var modelName = _htmlHelper.ViewData.ModelMetadata.ModelType.Name.ToLower();
+            var modelName = _htmlHelper.ViewData.ModelMetadata.ModelType.Name.ToLowerInvariant();
             if (!string.IsNullOrEmpty(Action))
                 modelName += "-" + Action;
             var modalId = await new HtmlString(modelName + "-delete-confirmation").RenderHtmlContentAsync();

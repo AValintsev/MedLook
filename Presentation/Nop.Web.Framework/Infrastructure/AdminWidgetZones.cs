@@ -146,6 +146,7 @@
         public static string OrderAddressDetailsBottom => "admin_order_address_details_bottom";
         public static string OrderAddressDetailsButtons => "admin_order_address_details_buttons";
         public static string OrderAddressDetailsTop => "admin_order_address_details_top";
+        public static string OrderBillingAddressDetailsBottom => "order_billing_address_details_bottom";
         public static string OrderDetailsBlock => "admin_order_details_block";
         public static string OrderDetailsButtons => "admin_order_details_buttons";
         public static string OrderListButtons => "admin_order_list_buttons";
@@ -154,6 +155,7 @@
         public static string OrderSettingsDetailsBlock => "admin_order_settings_details_block";
         public static string OrderSettingsReturnRequestSettingsBottom => "admin_order_settings_return_request_settings_bottom";
         public static string OrderShipmentAddButtons => "admin_order_shipment_add_buttons";
+        public static string OrderShippingAddressDetailsBottom => "order_shipping_address_details_bottom";
         public static string OrderShipmentDetailsButtons => "admin_order_shipment_details_buttons";
         public static string OrderShipmentListButtons => "admin_order_shipment_list_buttons";
         public static string OrderUploadLicenseButtons => "admin_order_upload_license_buttons";
@@ -234,6 +236,7 @@
         public static string ReturnRequestReasonSettingsTop => "admin_return_request_reason_settings_top";
         public static string RewardPointsSettingsDetailsBlock => "admin_reward_points_settings_details_block";
         public static string RewardPointsSettingsButtons => "admin_reward_points_settings_buttons";
+        public static string RobotsTxtSettingsButtons => "admin_robots_txt_settings_buttons";
         public static string ScheduleTaskListButtons => "admin_schedule_task_list_buttons";
         public static string SearchBoxBefore => "admin_searchbox_before";
         public static string SenamesBottom => "admin_senames_bottom";
