@@ -1,16 +1,17 @@
 ﻿@model TopMenuModel.CategoryLineModel
 
 <li class="nav--link js-nav-link hidden-xs hidden-sm hidden-md parent menu__item-categor-container">
-    <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
-        @Model.Category.Name
-        @if (Model.Category.NumberOfProducts.HasValue)
-        {
-            <text> </text>
+    <div class="nav--link-wrapper">
+        <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+            @Model.Category.Name
+            @if (Model.Category.NumberOfProducts.HasValue)
+            {
+                <text> </text>
 
-            @T("Categories.TotalProducts", Model.Category.NumberOfProducts.Value)
-        }
-    </a>
-
+                @T("Categories.TotalProducts", Model.Category.NumberOfProducts.Value)
+            }
+        </a>
+    </div>
     @{
         //subcategories
         var subCategories = Model.ResponsiveMobileMenu ?

@@ -6,14 +6,7 @@
 }
 <div class="page home-page">
 	<div class="page-body">
-		<h1 style="display: none">Medlook</h1>
-
-		<div class="home-page-logo">
-			@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageTop })
-			<div class="header-prompt">
-				@await Component.InvokeAsync("TopicBlock", new { systemName = "HomepageText" })
-			</div>
-		</div>
+		<h1>@T("medlook.shop.name")</h1>
 
 		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeCategories })
 		@await Component.InvokeAsync("HomepageCategories")
