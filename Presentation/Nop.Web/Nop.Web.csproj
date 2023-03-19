@@ -31,17 +31,12 @@
     <!-- We copy the entire \App_Data directory. But we ignore JSON files and data protection keys  -->
     <Content Include="App_Data\**" CopyToPublishDirectory="PreserveNewest" Exclude="App_Data\*.json" />
     <Content Remove="App_Data\*.json" />
-    <Content Remove="Themes\MedLook\Views\Checkout\**" />
     <Content Update="App_Data\DataProtectionKeys\*.xml" CopyToPublishDirectory="Never" />
 
     <Compile Remove="Plugins\**;Themes\**" />
-
-    <Compile Remove="Themes\MedLook\Views\Checkout\**" />
     <Content Remove="Plugins\**;Themes\**" />
     <EmbeddedResource Remove="Plugins\**;Themes\**" />
-    <EmbeddedResource Remove="Themes\MedLook\Views\Checkout\**" />
     <None Remove="Plugins\**;Themes\**" />
-    <None Remove="Themes\MedLook\Views\Checkout\**" />
     <None Include="Plugins\**" CopyToPublishDirectory="PreserveNewest" Exclude="Plugins\**\runtimes\**;Plugins\**\ref\**;Plugins\**\*.pdb" />
 
     <Content Include="Themes\**" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="Never" />
@@ -49,10 +44,6 @@
     <!-- We copy the \Logs directory -->
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
     <Content Remove="Themes\MedLook\Views\Catalog\_FilterPriceBox_FROM_4_40_3.cshtml" />
-    <Content Remove="Themes\MedLook\Views\Checkout\Confirm.cshtml" />
-    <Content Remove="Themes\MedLook\Views\Checkout\OpcConfirmOrder.cshtml" />
-    <Content Remove="Themes\MedLook\Views\Checkout\OpcPaymentMethods.cshtml" />
-    <Content Remove="Themes\MedLook\Views\Checkout\OpcShippingMethods.cshtml" />
     <Content Remove="Themes\MedLook\Views\Shared\_EstimateShippingPopUp.cshtml" />
     <Content Remove="Themes\MedLook\Views\Shared\_Root.Head_FROM_4_40_3.cshtml" />
     <None Remove="Plugins\Uploaded\placeholder.txt" />
@@ -84,6 +75,9 @@
     <Content Update="App_Data\appsettings.development.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Checkout\Confirm.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Update="Themes\MedLook\Views\Product\_ProductDetailsPictures.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
