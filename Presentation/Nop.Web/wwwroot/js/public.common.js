@@ -26,17 +26,6 @@ function displayAjaxLoading(display) {
     }
 }
 
-function displayPopupNotificationHtml(html, title) {
-    container = $('#dialog-mini-cart');
-    container.html(html);
-    container.dialog({
-        modal: true,
-        title: title,
-        height: 'auto',
-        width: 'auto'
-    });
-}
-
 function displayPopupNotification(message, messagetype, modal) {
     //types: success, error, warning
     var container;
@@ -113,7 +102,7 @@ function displayPopupContentFromUrl(url, title, modal, width) {
             width: targetWidth,
             maxHeight: maxHeight,
             title: title,
-            close: function (event, ui) {
+            close: function(event, ui) {
                 $(this).dialog('destroy').remove();
             }
         });
@@ -131,9 +120,9 @@ function displayBarNotification(message, messagetype, timeout) {
 
     //remove previous CSS classes and notifications
     $('#bar-notification')
-        .removeClass('success')
-        .removeClass('error')
-        .removeClass('warning');
+      .removeClass('success')
+      .removeClass('error')
+      .removeClass('warning');
     $('.bar-notification').remove();
 
     //add new notifications
@@ -153,17 +142,17 @@ function displayBarNotification(message, messagetype, timeout) {
         content.classList.add('content');
         content.innerHTML = messages[i];
 
-        htmlcode.appendChild(content);
+      htmlcode.appendChild(content);
     }
-
+    
     htmlcode.appendChild(close);
 
     $('#bar-notification')
-        .append(htmlcode);
+      .append(htmlcode);
 
     $(htmlcode)
         .fadeIn('slow')
-        .on('mouseenter', function () {
+        .on('mouseenter', function() {
             clearTimeout(notificationTimeout);
         });
 

@@ -82,6 +82,9 @@
     <Content Update="Themes\MedLook\Views\Product\_ProductDetailsPictures.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Themes\MedLook\Views\Shared\Components\OrderSummary\Default.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Themes\MedLook\Views\Shared\_ProductBox.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>

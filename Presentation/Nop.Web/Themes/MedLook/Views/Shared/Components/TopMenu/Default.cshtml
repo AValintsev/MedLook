@@ -2,6 +2,8 @@
 
 @using Nop.Core
 @using Nop.Services.Customers
+@using Nop.Core.Domain.Topics
+
 
 @inject IWorkContext workContext
 @inject ICustomerService customerService
@@ -34,17 +36,17 @@
                     @foreach (var category in rootCategoriesResponsive)
                     {
                         var categoryLineModel = new TopMenuModel.CategoryLineModel
-                        {
-                            Category = category,
-                            ResponsiveMobileMenu = true
-                        };
+                {
+                    Category = category,
+                    ResponsiveMobileMenu = true
+                };
                         @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
                     }
 
                     @foreach (var topic in Model.Topics)
                     {
                         <li class="mobile-nav--item js-mobile-nav-item ">
-                            <a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a>
+                            <a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a>
                         </li>
                     }
 
