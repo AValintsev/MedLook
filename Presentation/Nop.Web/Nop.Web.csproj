@@ -56,6 +56,7 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     <None Include="Properties\PublishProfiles\medlook.com.ua - Web Deploy.pubxml.user" />
+    <None Include="Themes\MedLook\Views\Shared\Components\TopMenu\Default.cshtml" />
 
     <None Update="Areas\Admin\sitemap.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

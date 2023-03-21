@@ -1110,53 +1110,6 @@ label, label + * {
                 background-color: #666;
             }
 
-.search-box {
-    margin: 20px;
-}
-
-    .search-box form {
-        display: flex;
-    }
-
-        .search-box form:after {
-            content: "";
-            display: block;
-            clear: both;
-        }
-
-    .search-box input.search-box-text {
-        /*float: left;
-	width: 200px;
-	height: 36px;
-	margin: 0 -1px 0 0;*/
-    }
-
-    .search-box input.search-box-text {
-        width: 280px;
-    }
-
-    .search-box .search-box-button {
-        /*float: left;
-	min-width: 86px;
-	height: 36px;*/
-        border: none;
-        background-color: #71C5EE;
-        padding: 0 15px;
-        text-align: center;
-        color: #feffff;
-        text-transform: uppercase;
-    }
-
-
-        .search-box .search-box-button:hover {
-            background-color: #248ece;
-        }
-
-    .search-box .ui-autocomplete-loading {
-        background: #feffff url('../images/ajax-loader-small.gif') right center no-repeat;
-    }
-
-
 . /*header {
     z-index: 10;
     display: flex;
@@ -6941,34 +6894,6 @@ pre {
                     font-size: 15px;
                 }
 
-    .sublist-toggle {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 55px;
-        height: 55px;
-        border-left: 1px solid #feffff;
-        background: url('../images/toggle-black.png') center no-repeat;
-        padding: 15px;
-        font-size: 15px;
-        font-weight: bold;
-        color: #feffff;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-
-    .sublist .sublist-toggle {
-        height: 49px;
-    }
-
-    .sublist .sublist li {
-        background-color: #f6f6f6;
-    }
-
-    .sublist .sublist .sublist li {
-        background-color: #feffff;
-    }
-
     .block-category-navigation {
         display: none;
     }
@@ -7339,6 +7264,7 @@ pre {
         width: 32.33333%;
         margin: 0 0.5% 50px;
     }
+
         .item-box .picture a {
             min-height: 350px;
         }
@@ -7990,19 +7916,7 @@ pre {
 
 
     /*** HEADER ***/
-
-    .search-box {
-        display: table-cell;
-        text-align: right;
-        vertical-align: middle;
-    }
-
-        .search-box input.search-box-text,
-        .search-box .search-box-button {
-            height: 40px;
-        }
-
-
+  
     /*** NAVIGATION ***/
 
 

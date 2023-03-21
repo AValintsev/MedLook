@@ -1,25 +1,19 @@
 ﻿@model TopMenuModel.CategoryLineModel
+@{
+    var subCategories = Model.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
+    var sublistClass = subCategories.Count > 0 ? "sublist-toggle" : "";
+}
+<li class="mobile-nav--item js-mobile-nav-item @sublistClass">
+    <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+        @Model.Category.Name
+        @if (Model.Category.NumberOfProducts.HasValue)
+        {
+            <text> </text>
 
-<li class="nav--link js-nav-link hidden-xs hidden-sm hidden-md parent menu__item-categor-container">
-    <div class="nav--link-wrapper">
-        <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
-            @Model.Category.Name
-            @if (Model.Category.NumberOfProducts.HasValue)
-            {
-                <text> </text>
-
-                @T("Categories.TotalProducts", Model.Category.NumberOfProducts.Value)
-            }
-        </a>
-    </div>
+            @T("Categories.TotalProducts", Model.Category.NumberOfProducts.Value)
+        }
+    </a>
     @{
-        //subcategories
-        var subCategories = Model.ResponsiveMobileMenu ?
-        //responsive (all categories)
-        Model.Category.SubCategories :
-        //standard design (only categories with "IncludeInTopMenu")
-        Model.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
-
         var levelClass = "";
         if (Model.Level == 0)
         {
@@ -27,8 +21,8 @@
         }
         if (subCategories.Count > 0)
         {
-            <div class="nav--dropdown">
-                <div class="nav--dropdown-inner padding-1">
+            <div class="nav--dropdown sublist">
+                <div class="nav--dropdown-inner">
                     <nav>
                         <div class="nav--child-item @levelClass">
 
