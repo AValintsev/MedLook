@@ -209,6 +209,11 @@ label, label + * {
     letter-spacing: .5px;
     text-transform: uppercase;
     color: #00659c;
+    margin-top: 0;
+}
+
+.block-recently-viewed-products {
+    margin: 20px auto !important;
 }
 
 .home-page-categories {
@@ -266,7 +271,7 @@ label, label + * {
 }
 
 .category-page .page-title {
-    display: none;
+    /*display: none;*/
 }
 
 .page-title {
@@ -279,6 +284,7 @@ label, label + * {
     .page-title h1 {
         font-size: 30px;
         font-weight: normal;
+        margin-top: 0;
     }
 
     .page:after,
@@ -1527,6 +1533,7 @@ label, label + * {
 
         .block .title strong {
             font-weight: normal;
+            text-transform: uppercase;
         }
 
     .block .listbox {
@@ -1545,38 +1552,20 @@ label, label + * {
             margin: 8px;
         }
 
-        .block .list .active {
-            -webkit-box-shadow: 2px 5px 5px -7px #71C5EE;
-            -moz-box-shadow: 2px 5px 5px -7px #71C5EE;
-            box-shadow: 2px 5px 5px -7px #71C5EE;
+        .block .list .active > a {
+            opacity: 0.7;
         }
 
-        .block .list li:hover {
-            -webkit-box-shadow: 2px 5px 5px -7px #71C5EE;
-            -moz-box-shadow: 2px 5px 5px -7px #71C5EE;
-            box-shadow: 2px 5px 5px -7px #71C5EE;
+        .block .list li:hover > a {
+            opacity: 0.7;
         }
-        /*.block .list a {
-			display: inline-block;
-			position: relative;
-			padding: 5px 0;
-			font-size: 16px;
-			color: #00659C;
-			-webkit-transition: all 0.1s ease;
-			transition: all 0.1s ease;
-		}*/
-        /*.block .list a:before {
-				content: "";
-				position: absolute;
-				top: 12px;
-				left: -15px;
-				width: 5px;
-				height: 5px;
-				background-color: #ddd;
-			}*/
 
+    .block .active .sublist {
+        display: block;
+    }
 
-        .block .list a:hover {
+        .block .active .sublist a {
+            font-size: 16px;
         }
 
     .block a.product-picture {
@@ -1746,7 +1735,8 @@ label, label + * {
 /********** CATEGORY PAGE **********/
 @media all and (max-width: 481px) {
     .breadcrumb {
-        display: none;
+        /*display: none;*/
+        border: solid 1px #71c5ee;
     }
 }
 
@@ -2051,8 +2041,11 @@ label, label + * {
                 -webkit-transform: translateZ(0) scale(1.0, 1.0);
             }
 
-    .item-box:hover .picture a img {
+    /*.item-box:hover .picture a img {
         opacity: 0.85;
+    }*/
+    .item-box:hover {
+        opacity: 0.7;
     }
 
     .item-box .details {
@@ -2213,7 +2206,7 @@ label, label + * {
         .sub-category-grid .title a {
             line-height: 60px;
             text-align: center;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 300;
             letter-spacing: .5px;
             text-transform: uppercase;
@@ -7916,7 +7909,7 @@ pre {
 
 
     /*** HEADER ***/
-  
+
     /*** NAVIGATION ***/
 
 
@@ -8114,7 +8107,8 @@ pre {
         }
 
             .block .title strong {
-                font-weight: bold;
+                font-weight: 300;
+                text-transform: uppercase;
             }
 
         .block .listbox {
