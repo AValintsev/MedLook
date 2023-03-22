@@ -26,6 +26,7 @@ using Nop.Services.Media;
 using Nop.Services.Plugins;
 using Nop.Services.Seo;
 using Nop.Services.Tax;
+using Nop.Web.Framework.Mvc.Routing;
 
 namespace Nop.Plugin.Feed.GoogleShopping
 {
@@ -115,7 +116,7 @@ namespace Nop.Plugin.Feed.GoogleShopping
         #endregion
 
         #region Utilities
-        
+
         /// <summary>
         /// Removes invalid characters
         /// </summary>
@@ -148,7 +149,7 @@ namespace Nop.Plugin.Feed.GoogleShopping
             //input = input.Replace("™", "");
             //input = input.Replace("®", "");
             //input = input.Replace("°", "");
-            
+
             if (isHtmlEncoded)
                 input = WebUtility.HtmlEncode(input);
 
@@ -301,7 +302,7 @@ namespace Nop.Plugin.Feed.GoogleShopping
                         description = await _localizationService.GetLocalizedAsync(product, x => x.ShortDescription, languageId);
                     if (string.IsNullOrEmpty(description))
                         description = await _localizationService.GetLocalizedAsync(product, x => x.Name, languageId); //description is required
-                                                                                                           //resolving character encoding issues in your data feed
+                                                                                                                      //resolving character encoding issues in your data feed
                     description = StripInvalidChars(description, true);
                     writer.WriteCData(description);
                     writer.WriteEndElement(); // description
@@ -342,9 +343,8 @@ namespace Nop.Plugin.Feed.GoogleShopping
                             writer.WriteFullEndElement(); // g:product_type
                         }
                     }
-
                     //link [link] - URL directly linking to your item's page on your website
-                    var productUrl = GetUrlHelper().RouteUrl("Product", new { SeName = await _urlRecordService.GetSeNameAsync(product) }, await GetHttpProtocolAsync());
+                    var productUrl = GetUrlHelper().RouteUrl<Product>(new { SeName = await _urlRecordService.GetSeNameAsync(product) }, await GetHttpProtocolAsync());
                     writer.WriteElementString("link", productUrl);
 
                     //image link [image_link] - URL of an image of the item
@@ -633,7 +633,7 @@ namespace Nop.Plugin.Feed.GoogleShopping
                 ["Plugins.Feed.GoogleShopping.StaticFilePath"] = "Generated file path (static)",
                 ["Plugins.Feed.GoogleShopping.StaticFilePath.Hint"] = "A file path of the generated file. It's static for your store and can be shared with the Google Shopping service."
             });
-            
+
             await base.InstallAsync();
         }
 
@@ -661,7 +661,7 @@ namespace Nop.Plugin.Feed.GoogleShopping
         {
             if (store == null)
                 throw new ArgumentNullException(nameof(store));
-            
+
             var filePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-" + _googleShoppingSettings.StaticFileName);
             using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             await GenerateFeedAsync(fs, store);

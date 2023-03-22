@@ -80,6 +80,12 @@
     <Content Update="Themes\MedLook\Views\Checkout\Confirm.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Themes\MedLook\Views\Checkout\OpcBillingAddress.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Checkout\OpcShippingAddress.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Themes\MedLook\Views\Product\_ProductDetailsPictures.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
