@@ -74,12 +74,12 @@
 }
 
 .header-inner--logo {
-    flex-shrink: 0;
 }
 
     .header-inner--logo .medlook {
         background: url('../images/medlook-logo-text.svg') left center no-repeat;
-        width: 60%;
+        height: 50px;
+        width: 100%;
     }
 
 .header-inner--actions, .header-inner--logo, .header-inner--nav {
@@ -402,9 +402,9 @@
 
 @media (max-width: 581px) {
     .header-inner--logo .medlook {
-        background: url('../images/medlook-logo.svg') left center no-repeat;
+        /*background: url('../images/medlook-logo.svg') left center no-repeat;*/
         height: 42px;
-        width: 42px;
+        /*width: 42px;*/
     }
 }
 

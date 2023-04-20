@@ -528,6 +528,20 @@
           "lib/netstandard2.0/Azure.Storage.Common.dll": {}
         }
       },
+      "Baroque.NovaPoshta.Client/1.4.1": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1"
+        },
+        "runtime": {
+          "lib/net7.0/Baroque.NovaPoshta.Client.dll": {
+            "assemblyVersion": "1.4.1.0",
+            "fileVersion": "1.4.1.0"
+          }
+        },
+        "compile": {
+          "lib/net7.0/Baroque.NovaPoshta.Client.dll": {}
+        }
+      },
       "ClosedXML/0.97.0": {
         "dependencies": {
           "DocumentFormat.OpenXml": "2.16.0",
@@ -4013,6 +4027,7 @@
       },
       "Nop.Web/4.5.0": {
         "dependencies": {
+          "Baroque.NovaPoshta.Client": "1.4.1",
           "Nop.Core": "4.5.0",
           "Nop.Data": "4.5.0",
           "Nop.Services": "4.5.0",
@@ -5909,6 +5924,13 @@
       "sha512": "sha512-jDv8xJWeZY2Er9zA6QO25BiGolxg87rItt9CwAp7L/V9EPJeaz8oJydaNL9Wj0+3ncceoMgdiyEv66OF8YUwWQ==",
       "path": "azure.storage.common/12.13.0",
       "hashPath": "azure.storage.common.12.13.0.nupkg.sha512"
+    },
+    "Baroque.NovaPoshta.Client/1.4.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TveEoTiCjEIgvHq/dOnARbeKjHh/4XCkeH2r0TTOp75roXWLIRm6Hjk3V4r7HR5bqwANlGWOnV6vhuXecPCFhQ==",
+      "path": "baroque.novaposhta.client/1.4.1",
+      "hashPath": "baroque.novaposhta.client.1.4.1.nupkg.sha512"
     },
     "ClosedXML/0.97.0": {
       "type": "package",

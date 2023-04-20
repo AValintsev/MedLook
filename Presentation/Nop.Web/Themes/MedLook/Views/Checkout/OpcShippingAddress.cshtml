@@ -65,6 +65,9 @@
                                 //how should we render "FormattedCustomAddressAttributes" here?
                                 <option value="@(address.Id)">@(addressLine)</option>
                             }
+
+                            @*i wanna add js to create fields as autosearch*@
+
                             <option value="" selected="@Model.NewAddressPreselected">@T("Checkout.NewAddress")</option>
                         </select>
                     </div>

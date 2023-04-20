@@ -1,0 +1,124 @@
+﻿@using Nop.Ithoot.Plugin.Shipping.NovaPoshta.Models;
+@model NovaPoshtaModel
+
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+    .inputs.custom-attributes {
+        display: none;
+    }
+
+    .select2-container--default .select2-selection--single {
+        border-radius: 0 !important;
+        border: 1px solid #ddd;
+        height: 36px;
+        text-align: left;
+    }
+
+    .select2-selection__rendered {
+        font-size: 14px;
+        color: #777 !important;
+        height: 36px;
+        line-height: 36px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+</style>
+
+<!-- Select2 JS -->
+<script asp-location="Footer" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+<script asp-location="Footer">
+    $(document).ready(function () {
+
+
+        var $warehouse = $('#@Model.WarehouseControlName');
+        console.log('$warehouse value', $warehouse.attr('value'));
+
+        var warehouse = { id: null, value: null };
+        if ($warehouse.attr('value')) {
+            var warehouse = JSON.parse($warehouse.attr('value'));
+        }
+
+        console.log('$warehouse parsed', { attr: $warehouse.attr('value'), warehouse });
+
+        $warehouse.attr('id', 'nova-poshta-wirehouse');
+        $warehouse.attr('name', 'nova-poshta-wirehouse');
+        $warehouse.after('<input type="hidden" name="@Model.WarehouseControlName" id="@Model.WarehouseControlName" />');
+
+        var $warehouseHidden = $('#@Model.WarehouseControlName');
+        $warehouseHidden.val($warehouse.attr('value'));
+
+        var $city = $('#@Model.CityControlName');
+        var city = { id: null, value: null };
+        if ($city.val()) {
+            var city = JSON.parse($city.val());
+        }
+
+        $city.attr('id', 'nova-poshta-city');
+        $city.attr('name', 'nova-poshta-city');
+        $city.attr('autocomplete', 'autocomplete_off_randString');
+        $city.after('<input type="hidden" name="@Model.CityControlName" id="@Model.CityControlName" />');
+
+        var $cityHidden = $('#@Model.CityControlName');
+        $cityHidden.val($city.val());
+        $city.val(city.value);
+
+        $city.autocomplete({
+            source: '@Url.ActionLink("GetCities", "NovaPoshta")',
+            minLength: 2,
+            select: function (evt, ui) {
+                var valString = JSON.stringify({
+                    id: ui.item.id,
+                    value: ui.item.value
+                });
+
+                $cityHidden.val(valString);
+                $warehouse.val(null).trigger('change');
+            }
+        });
+
+        $warehouse.select2({
+            ajax: {
+                cache: true,
+                url: '@Url.ActionLink("GetWirehouses", "NovaPoshta")',
+                dataType: 'json',
+                data: function (params) {
+                    if (!$cityHidden.val()) return null;
+
+                    var parsedValue = JSON.parse($cityHidden.val());
+
+                    var qParams = {
+                        cityId: parsedValue.id,
+                        term: params.term
+                    };
+                    return qParams;
+                },
+                processResults: function (data, params) {
+                    var results = $.map(data, function (obj) {
+                        return { id: obj.id, text: obj.label }
+                    });
+                    return {
+                        results
+                    }
+                }
+            }
+        });
+
+        $warehouse.on('select2:select', function (e) {
+
+            var valString = JSON.stringify({
+                id: e.params.data.id,
+                value: e.params.data.text
+            });
+            console.log('$warehouseHidden on select2:select', e.params.data);
+
+            $warehouseHidden.val(valString);
+        });
+
+        $('.inputs.custom-attributes').show();
+    })
+</script>

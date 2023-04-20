@@ -57,6 +57,7 @@
     </Content>
     <None Include="Properties\PublishProfiles\medlook.com.ua - Web Deploy.pubxml.user" />
     <None Include="Themes\MedLook\Views\Shared\Components\TopMenu\Default.cshtml" />
+    <PackageReference Include="Baroque.NovaPoshta.Client" Version="1.4.1" />
 
     <None Update="Areas\Admin\sitemap.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -86,7 +87,7 @@
     <Content Update="Themes\MedLook\Views\Checkout\OpcShippingAddress.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
-    <Content Update="Themes\MedLook\Views\Product\_ProductDetailsPictures.cshtml">
+    <Content Update="Themes\MedLook\Views\Product\ProductTemplate.Grouped.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Update="Themes\MedLook\Views\Shared\Components\OrderSummary\Default.cshtml">
@@ -94,6 +95,9 @@
     </Content>
     <Content Update="Themes\MedLook\Views\Shared\_ProductBox.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="web.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

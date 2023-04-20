@@ -11,7 +11,7 @@
     </div>
     @if (Model.PictureModels.Count > 1)
     {
-        <div class="swiper">
+        <div class="swiper picture-thumbs">
             <div class="swiper-wrapper swiper-wrapper-picture-thumbs">
                 @foreach (var picture in Model.PictureModels)
                 {
@@ -51,7 +51,7 @@
 
         <script asp-location="Footer">
             $(document).ready(function () {
-                $('.picture').magnificPopup(
+                $('.picture-gallery .picture-thumbs').magnificPopup(
                     {
                         type: 'image',
                         delegate: 'a',
@@ -68,26 +68,25 @@
                         tLoading: '@T("Media.MagnificPopup.Loading")'
                     });
 
-                @*$('.picture > a').on('click', function () { $('.swiper-wrapper-picture-thumbs > a').first().click(); return false; });*@
+                $('.picture-gallery .picture > a').on('click', function () { $('.picture-gallery .thumb-item').first().click(); return false; });
 
             });
         </script>
 
-    }
+        <script asp-location="Footer">
+            $(document).ready(function () {
+                $('.thumb-item > img').on('click',
+                    function () {
+                        $('#main-product-img-@Model.Id').attr('src', $(this).attr('data-defaultsize'));
+                        $('#main-product-img-@Model.Id').attr('title', $(this).attr('title'));
+                        $('#main-product-img-@Model.Id').attr('alt', $(this).attr('alt'));
+                        $('#main-product-img-lightbox-anchor-@Model.Id').attr('href', $(this).attr('data-fullsize'));
+                        $('#main-product-img-lightbox-anchor-@Model.Id').attr('title', $(this).attr('title'));
+                    });
+            });
+        </script>
 
-    <script asp-location="Footer">
-        $(document).ready(function () {
-            $('.thumb-item > img').on('click',
-                function () {
-                    $('#main-product-img-@Model.Id').attr('src', $(this).attr('data-defaultsize'));
-                    $('#main-product-img-@Model.Id').attr('title', $(this).attr('title'));
-                    $('#main-product-img-@Model.Id').attr('alt', $(this).attr('alt'));
-                    $('#main-product-img-lightbox-anchor-@Model.Id').attr('href', $(this).attr('data-fullsize'));
-                    $('#main-product-img-lightbox-anchor-@Model.Id').attr('title', $(this).attr('title'));
-                    return false;
-                });
-        });
-    </script>
+    }
 
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsAfterPictures, additionalData = Model })
 </div>

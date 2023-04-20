@@ -352,7 +352,8 @@
                                         gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.ShippingStatus))
                                         {
                                             Title = T("Admin.Orders.Fields.ShippingStatus").Text,
-                                            Width = "150"
+                                            Width = "150",
+                                            Render = new RenderCustom("renderColumnShipmentStatus")
                                         });
                                     }
                                     gridModel.ColumnCollection.Add(new ColumnProperty(nameof(OrderModel.CustomerEmail))
@@ -412,6 +413,16 @@
                                     }
                                     return '<span class="grid-report-item ' + color + '">' + data + '</span >';
                                 }
+
+                                    function renderColumnShipmentStatus(data, type, row, meta) {
+                                        var color;
+                                        switch (row.ShippingStatusId) {
+                                            case 20:
+                                                color = 'red';
+                                                break;
+                                        }
+                                        return '<span class="grid-report-item ' + color + '">' + data + '</span >';
+                                    }
 
                                 $(document).ready(function() {
                                     $("#@Html.IdFor(model => model.GoDirectlyToCustomOrderNumber)").keydown(

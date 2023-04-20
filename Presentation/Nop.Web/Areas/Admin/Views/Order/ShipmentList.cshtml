@@ -229,13 +229,13 @@
                                             Title = T("Admin.Orders.Shipments.CustomOrderNumber").Text,
                                             Width = "100"
                                         },
-                                        new ColumnProperty(nameof(ShipmentModel.PickupInStore))
-                                        {
-                                            Title = T("Admin.Orders.Shipments.PickupInStore").Text,
-                                            Width = "100",
-                                            ClassName = NopColumnClassDefaults.CenterAll,
-                                            Render = new RenderBoolean()
-                                        },
+                                        //new ColumnProperty(nameof(ShipmentModel.PickupInStore))
+                                        //{
+                                        //    Title = T("Admin.Orders.Shipments.PickupInStore").Text,
+                                        //    Width = "100",
+                                        //    ClassName = NopColumnClassDefaults.CenterAll,
+                                        //    Render = new RenderBoolean()
+                                        //},
                                         new ColumnProperty(nameof(ShipmentModel.TrackingNumber))
                                         {
                                             Title = T("Admin.Orders.Shipments.TrackingNumber").Text
@@ -249,12 +249,7 @@
                                         {
                                             Title = T("Admin.Orders.Shipments.ShippedDate").Text,
                                             Width = "150"
-                                        },
-                                        new ColumnProperty(nameof(ShipmentModel.ReadyForPickupDate))
-                                        {
-                                            Title = T("Admin.Orders.Shipments.ReadyForPickupDate").Text,
-                                            Width = "150"
-                                        },
+                                        },                                       
                                         new ColumnProperty(nameof(ShipmentModel.DeliveryDate))
                                         {
                                             Title = T("Admin.Orders.Shipments.DeliveryDate").Text,
