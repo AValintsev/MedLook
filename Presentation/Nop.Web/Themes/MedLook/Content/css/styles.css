@@ -2237,6 +2237,7 @@ label, label + * {
     letter-spacing: .5px;
     text-transform: uppercase;
     color: #00659C;
+    margin: 42px 0;
 }
 
 .product-grid,

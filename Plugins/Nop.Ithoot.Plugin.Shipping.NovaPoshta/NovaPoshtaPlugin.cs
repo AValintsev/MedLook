@@ -156,11 +156,17 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta
         /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task UninstallAsync()
         {
-            var cityAttr = await _addressAttributeService.GetAddressAttributeByIdAsync(_novaPoshtaSettings.CityAttributeId);
-            await _addressAttributeService.DeleteAddressAttributeAsync(cityAttr);
+            if (_novaPoshtaSettings.CityAttributeId > 0)
+            {
+                var cityAttr = await _addressAttributeService.GetAddressAttributeByIdAsync(_novaPoshtaSettings.CityAttributeId);
+                await _addressAttributeService.DeleteAddressAttributeAsync(cityAttr);
+            }
 
-            var warehouseAttr = await _addressAttributeService.GetAddressAttributeByIdAsync(_novaPoshtaSettings.WarehouseAttributeId);
-            await _addressAttributeService.DeleteAddressAttributeAsync(warehouseAttr);
+            if (_novaPoshtaSettings.WarehouseAttributeId > 0)
+            {
+                var warehouseAttr = await _addressAttributeService.GetAddressAttributeByIdAsync(_novaPoshtaSettings.WarehouseAttributeId);
+                await _addressAttributeService.DeleteAddressAttributeAsync(warehouseAttr);
+            }
 
             //settings
             await _settingService.DeleteSettingAsync<NovaPoshtaSettings>();
