@@ -102,7 +102,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 DateTime = DateTime.Now.ToString("dd.MM.yyyy"),
                 CargoType = "Parcel",
                 Weight = shipment.TotalWeight.HasValue ? (shipment.TotalWeight.Value == 0 ? 1 : shipment.TotalWeight.Value) : 1,
-                VolumeGeneral = 0.008m,                
+                VolumeGeneral = 0.008m,
                 ServiceType = "WarehouseWarehouse",
                 SeatsAmount = 1,
                 Description = "Одяг",
@@ -165,24 +165,19 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             dynamic warehouseParsedDefaulValue = JsonSerializer.Deserialize<ExpandoObject>(warehouseAttr);
             Guid recipientWarehouseId = new Guid(warehouseParsedDefaulValue.id.ToString());
 
-            var gateway = new DefaultNovaPoshtaGateway(_novaPoshtaSettings.ApiKey);
-            var counterpartyService = new CounterpartyService(gateway);
+            var recipientCP = CreateCounterparty(recipientCityId, "Recipient", address.FirstName, address.LastName, "", address.PhoneNumber);
 
-            var recipientRef = CreateCounterparty(recipientCityId, "Recipient", address.FirstName, address.LastName, "", address.PhoneNumber);
-
-            var peronResponse = counterpartyService.GetCounterpartyContactPerson(recipientRef);
+            var peronResponse = recipientCP.ContactPerson;
             var contactRef = Guid.Empty;
+
             if (peronResponse.Success)
             {
-                contactRef = peronResponse.Data
-                    .Where(x => x.LastName == address.LastName && x.FirstName == address.FirstName)
-                    .FirstOrDefault()
-                    .Reference;
+                contactRef = peronResponse.FirstOrDefault.Reference;
             }
 
             return Task.FromResult(new RecipientModel
             {
-                RecipientRef = recipientRef,
+                RecipientRef = recipientCP.Reference,
                 ContactRef = contactRef,
                 CityRef = recipientCityId,
                 AddressRef = recipientWarehouseId,
@@ -205,7 +200,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             return @ref;
         }
 
-        public Guid CreateCounterparty(Guid cityId, string type, string firstName, string lastName, string midName, string phone)
+        public CounterpartyCreateOrUpdate CreateCounterparty(Guid cityId, string type, string firstName, string lastName, string midName, string phone)
         {
             var gateway = new DefaultNovaPoshtaGateway(_novaPoshtaSettings.ApiKey);
             var counterpartyService = new CounterpartyService(gateway);
@@ -221,9 +216,8 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 CounterpartyType = "PrivatePerson",
                 CounterpartyProperty = type
             });
-            var @ref = counterPartyCreateResponse.FirstOrDefault.Reference;
 
-            return @ref;
+            return counterPartyCreateResponse.FirstOrDefault;
         }
 
         public Task<SenderModel> GetSenderAsync()

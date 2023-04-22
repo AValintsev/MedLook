@@ -1,4 +1,5 @@
-﻿using Nop.Core.Domain.Common;
+﻿using Baroque.NovaPoshta.Client.Domain.Countrparty;
+using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
 using Nop.Ithoot.Plugin.Shipping.NovaPoshta.Models;
@@ -19,6 +20,6 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
 
         Task<RecipientModel> GetRecipientAsync(Order order, Shipment shipment, Address address);
 
-        Guid CreateCounterparty(Guid cityId, string type, string firstName, string lastName, string midName, string phone);
+        CounterpartyCreateOrUpdate CreateCounterparty(Guid cityId, string type, string firstName, string lastName, string midName, string phone);
     }
 }
