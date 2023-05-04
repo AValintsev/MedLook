@@ -137,7 +137,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 VolumetricHeight = 30,
                 VolumetricLength = 30,
                 VolumetricWidth = 7,
-                Weight = 2,
+                Weight = 1,
                 VolumetricVolume = 0.008m
             });
 
