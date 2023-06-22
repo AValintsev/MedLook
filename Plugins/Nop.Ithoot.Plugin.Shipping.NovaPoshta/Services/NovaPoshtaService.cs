@@ -101,8 +101,8 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 PaymentMethod = "Cash",
                 DateTime = DateTime.Now.ToString("dd.MM.yyyy"),
                 CargoType = "Parcel",
-                Weight = shipment.TotalWeight.HasValue ? (shipment.TotalWeight.Value == 0 ? 1 : shipment.TotalWeight.Value) : 1,
-                VolumeGeneral = 0.008m,
+                Weight = 1,//shipment.TotalWeight.HasValue ? (shipment.TotalWeight.Value == 0 ? 1 : shipment.TotalWeight.Value) : 1,
+                VolumeGeneral = 0.0368m,
                 ServiceType = "WarehouseWarehouse",
                 SeatsAmount = 1,
                 Description = "Одяг",
@@ -134,11 +134,11 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
 
             request.OptionsSeat.Add(new Seat
             {
-                VolumetricHeight = 30,
-                VolumetricLength = 30,
-                VolumetricWidth = 7,
+                VolumetricHeight = 23,
+                VolumetricLength = 16,
+                VolumetricWidth = 10,
                 Weight = 1,
-                VolumetricVolume = 0.008m
+                VolumetricVolume = 0.0368m
             });
 
             var createDocResponse = service.CreateDocument(request);

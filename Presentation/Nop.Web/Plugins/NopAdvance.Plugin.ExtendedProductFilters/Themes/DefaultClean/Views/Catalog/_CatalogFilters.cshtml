@@ -1,0 +1,350 @@
+@model CatalogProductsModel
+
+@using System.Text.Json
+@using Nop.Services.Helpers
+@using NopAdvance.Plugin.Core.Domain
+@inject IUserAgentHelper userAgentHelper
+@{
+    var pluginLicenseStatus = LicenceHelper.GetPluginStatus(PluginLicence.LicenceType, extendedFiltersSettings.PluginInfo);
+    var isPluginPaidOrTrial = true;
+    ViewBag.isPluginPaidOrTrial = isPluginPaidOrTrial;
+
+    var showAppliedFiltersPanel = true;
+}
+@*<link rel="stylesheet" href="@stylesPath" />*@
+
+@if (!extendedFiltersSettings.EnablePriceRangeFilter
+&& !extendedFiltersSettings.EnableSpecificationFilter
+&& !extendedFiltersSettings.EnableProductAttributesFilter
+&& !extendedFiltersSettings.EnableCategoryFilter
+&& !extendedFiltersSettings.EnableManufacturerFilter
+&& !extendedFiltersSettings.EnableVendorFilter
+&& !extendedFiltersSettings.EnableRatingFilter
+&& !extendedFiltersSettings.EnableSaleFilter
+&& !extendedFiltersSettings.EnableStockFilter)
+{
+    return;
+}
+<div class="filter-title-mob">
+    <button id="filter" type="button" class="filter-btn"><i class="filter-icon"></i>@T("Filter")</button>
+</div>
+<div class="block product-filters">
+    <div class="filter-section">
+        @*@if (showAppliedFiltersPanel)
+        {
+            @await Html.PartialAsync("_FilterAppliedBox")
+        }*@
+
+        @*@if (Model.PriceRangeFilter?.Enabled ?? false)
+        {
+        @await Html.PartialAsync("_FilterPriceBox", Model.PriceRangeFilter)
+        }*@
+
+        @if (Model.SpecificationFilter?.Enabled ?? false)
+        {
+            @await Html.PartialAsync("_FilterSpecsBox", Model.SpecificationFilter)
+        }
+
+        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_AttributeFilter, out var attrobj))
+        {
+            var Filter = JsonSerializer.Deserialize<ProductAttributeFilterModel>(attrobj);
+            if (Filter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterProductAttributeBox", Filter)
+            }
+        }
+
+        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_CategoryFilter, out var catobj))
+        {
+            var Filter = JsonSerializer.Deserialize<CategoryFilterModel>(catobj);
+            if (Filter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterCategoryBox", Filter)
+            }
+        }
+
+        @if (Model.ManufacturerFilter?.Enabled ?? false)
+        {
+            @await Html.PartialAsync("_FilterManufacturerBox", Model.ManufacturerFilter)
+        }
+
+        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_VendorFilter, out var venobj))
+        {
+            var Filter = JsonSerializer.Deserialize<VendorFilterModel>(venobj);
+            if (Filter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterVendorBox", Filter)
+            }
+        }
+
+        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_RatingFilter, out var ratobj))
+        {
+            var Filter = JsonSerializer.Deserialize<RatingFilterModel>(ratobj);
+            if (Filter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterRatingBox", Filter)
+            }
+        }
+
+        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_SaleFilter, out var saleobj))
+        {
+            var Filter = JsonSerializer.Deserialize<SaleFilterModel>(saleobj);
+            if (Filter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterSaleBox", Filter)
+            }
+        }
+
+        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_StockFilter, out var stockobj))
+        {
+            var Filter = JsonSerializer.Deserialize<StockFilterModel>(stockobj);
+            if (Filter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterStockBox", Filter)
+            }
+        }
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        $("#filter").on('click', function (e) {
+            e.preventDefault();
+            $('.product-filters').slideToggle('d-block');
+            $('body').addClass('ishidden');
+        });
+        $(".close-filter").on('click', function (e) {
+            e.preventDefault();
+            $('.product-filters').slideToggle('d-block');
+            $('body').removeClass('ishidden');
+        });
+    });
+</script>
+
+
+
+@if (extendedFiltersSettings.Enabled && extendedFiltersSettings.UseAccordion)
+{
+    <script asp-location="Footer">
+        $(document).on('ready', function () {
+            $('.filter-title').addClass('collapse-btn');
+            $('.filter-content').addClass('collapsible');
+
+            $('.filter-title.collapse-btn').on('click', function () {
+                var $target = $(this).siblings('.filter-content.collapsible:first');
+                if ($target.length > 0)
+                    $target.slideToggle();
+            });
+        });
+    </script>
+}
+
+@if (extendedFiltersSettings.Enabled && extendedFiltersSettings.AutoCloseFilterPanels && userAgentHelper.IsMobileDevice())
+{
+    <script asp-location="Footer">
+        $(document).on('ready', function () {
+            $('.filter-content .item :input').on('change', function () {
+                $target = $(this).parents('.filter-content.collapsible');
+                if ($target.length > 0)
+                    $target.slideUp();
+            });
+        });
+    </script>
+}
+
+@if (isPluginPaidOrTrial)
+{
+    @if (extendedFiltersSettings.EnableLazyLoading && catalogSettings.UseAjaxCatalogProductsLoading)
+    {
+        <script asp-location="Footer">
+            $(document).on('ready', function () {
+            @* Lazy Loading *@
+                                var inProgress = false;
+                var hasNextPage = ($('.next-page').length > 0);
+
+                $(window).scroll(function () {
+                    var $productsWrapper = $('.products-wrapper');
+
+            @* When the user reaches the bottom of the page or products list goes above the center of the window *@
+                                    var lim = Math.min(
+                        $(document).height() - $(window).height() - 10,
+                        $productsWrapper.offset().top + $productsWrapper.height() - $(window).height() / 2);
+                    if ($(window).scrollTop() >= lim) {
+            @* Load and append next page *@
+                                        if (hasNextPage && !inProgress) {
+                            inProgress = true;
+                            CatalogProducts.getProducts($('.next-page a').data('page'), true);
+                        }
+                    }
+                });
+
+                $(CatalogProducts).on('loaded', function () {
+                    inProgress = false;
+                    hasNextPage = ($('.next-page').length > 0);
+                });
+            });
+        </script>
+    }
+
+    @if (showAppliedFiltersPanel)
+    {
+        <script asp-location="Footer">
+            $(document).on('ready', function () {
+                var $appliedFilterPanel = $('.applied-filters .filter-content');
+                var $clearButtons = $('.clear-filters-button');
+                var $appliedFiltersClearButton = $('#clear-applied-filters-button');
+
+                var $priceRangeSlider = $('#price-range-slider');
+                var priceRangeGroupName = $priceRangeSlider.parentsUntil('.product-filter', ':last').siblings('.filter-title').children('strong').html();
+
+                var filterGroupAttributes =
+                    [
+                        "attribute-category",
+                        "attribute-manufacturer",
+                        "prod-attribute-option",
+                        "attribute-rating",
+                        "attribute-product-on-sale",
+                        "attribute-option",
+                        "attribute-product-stoc",
+                        "attribute-vendor"
+                    ]
+            @* Add click event to 'clear all' button *@
+                    $appliedFiltersClearButton.click(clearAllFilters);
+
+            @* Initialize *@
+                    updatePanelElements();
+
+            @* Update list when filters are updated *@
+                    $('.filter-content :input[type=checkbox]').on('change', function () {
+                        updatePanelElements();
+                    });
+
+            @* Update list from other parts of code, e.g. when "Clear filters" button is clicked. *@
+                    $appliedFilterPanel.on('updatePanelElements', function () {
+                        updatePanelElements();
+                    });
+
+                $priceRangeSlider.on('slidestop', function () {
+                    updatePanelElements();
+                });
+
+                function updatePanelElements() {
+                    var groups = {};
+                    $appliedFilterPanel.html("");
+
+            @* For price range filter *@
+                                    if (($priceRangeSlider.length > 0) && $priceRangeSlider.slider()) {
+                        var priceValues = $priceRangeSlider.slider('values');
+                        var minPrice = $priceRangeSlider.slider('option', 'min');
+                        var maxPrice = $priceRangeSlider.slider('option', 'max');
+                        var priceRangeOptionLabel = priceValues[0] + ' - ' + priceValues[1];
+
+                        if (!(priceValues[0] == minPrice && priceValues[1] == maxPrice)) {
+                            groups[priceRangeGroupName] = {
+                                'price-range-slider': priceValues[0] + ' - ' + priceValues[1]
+                            };
+                        }
+                    }
+
+
+            @* For checkboxes *@
+                        $('.filter-content .item :checked').each(function () {
+                            var filterId = $(this).attr('id');
+                            var $label = $('label[for=' + filterId + ']');
+
+                            var groupName = "";
+                            $groupNameEl = $(this).parentsUntil('.filter-content', ':last').children('li.name');
+                            if ($groupNameEl.length > 0) {
+                                groupName = $groupNameEl.children('strong').html();
+                            }
+                            else {
+                                groupName = $(this).parentsUntil('.product-filter', ':last').siblings('.filter-title').children('strong').html();
+                            }
+
+                            filterGroupAttributes.forEach(function (attr) {
+                                if (filterId.indexOf(attr) == 0) {
+                                    if (!groups[groupName])
+                                        groups[groupName] = {};
+                                    if ($label.children().length > 0) {
+                                        groups[groupName][filterId] = $label.contents().filter(function () {
+                                            return this.nodeType === 3 && $.trim(this.nodeValue).length;
+                                        }).first().text();
+
+                                        if ($.isEmptyObject(groups[groupName][filterId])) {
+                                            groups[groupName][filterId] = $label.html();
+                                        }
+                                    }
+                                    else
+                                        groups[groupName][filterId] = $label.html();
+                                }
+                            });
+                        });
+
+            @* Add grouped list of applied filters *@
+                                    for (key in groups) {
+                        var groupHtml =
+                            `<ul class="group applied-filters-group">
+                                                    <li class="name">
+                                                        <strong>` + key + `</strong>
+                                                    </li>`;
+
+                        for (filterId in groups[key]) {
+                            groupHtml += `<div class="option" name="` + filterId + `">` + groups[key][filterId] + `</div>`;
+                        }
+
+                        groupHtml = groupHtml + `</ul>`;
+                        $appliedFilterPanel.append(groupHtml);
+                    }
+
+            @* Add click event to each option *@
+                        $('.applied-filters-group .option').on('click', function () {
+                            var $linkedEl = $('#' + $(this).attr('name'));
+                            if ($linkedEl.slider("instance") != undefined) {
+                                $linkedEl.trigger('resetSlider');
+                            }
+                            else if ($linkedEl.is(':checkbox')) {
+                                $linkedEl.removeAttr('checked');
+                                $linkedEl.trigger('change');
+                            }
+                        });
+
+            @* Hide panel if no filters are applied *@
+                                    if ($.isEmptyObject(groups)) {
+                        $appliedFiltersClearButton.hide();
+                        hidePanel();
+                    }
+                    else {
+                        $appliedFiltersClearButton.show();
+                        $('.applied-filters').show();
+                    }
+                }
+
+                function clearAllFilters() {
+            @*
+                Clear filter options
+                Hide filter buttons
+                Remove Html from applied filters panel
+                Hide applied filters panel
+                Update products
+                *@
+                        $clearButtons.trigger('clearOnly');
+                    $clearButtons.hide();
+                    $('#attribute-product-stock').removeAttr('checked');
+                    $('#attribute-product-on-sale').removeAttr('checked');
+                    $appliedFilterPanel.html('');
+                    hidePanel();
+                    CatalogProducts.getProducts();
+
+                    return false;
+                }
+
+                function hidePanel() {
+                    var $collapsiblePanel = $('.applied-filters .filter-content.collapsible:first');
+                    if ($collapsiblePanel.length > 0) {
+                        $collapsiblePanel.show();
+                    }
+                    $('.applied-filters').hide();
+                }
+            });
+        </script>
+    }
+}

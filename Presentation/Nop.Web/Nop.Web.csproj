@@ -100,6 +100,10 @@
     <Content Update="Themes\MedLook\Views\Shared\_ProductBox.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Views\Catalog\CategoryTemplate.ProductsInGridOrLines.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Update="web.config">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>

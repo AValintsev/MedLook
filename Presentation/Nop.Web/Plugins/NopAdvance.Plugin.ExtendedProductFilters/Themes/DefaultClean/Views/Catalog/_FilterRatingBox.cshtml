@@ -1,0 +1,89 @@
+
+@model RatingFilterModel
+
+@{
+    var query = PluginDefaults.CP_QueryPrefix + "[" + PluginDefaults.CP_RatingFilter + "]";
+}
+
+<div class="product-filter product-rating-filter">
+    <div class="filter-title">
+        <strong>@T("NopAdvance.Plugin.ExtendedProductFilters.Filtering.RatingFilter")</strong>
+        @if(ViewBag.isPluginPaidOrTrial && extendedFiltersSettings.ShowClearFiltersButton)
+        {
+            <a class="clear-filters-button" id="clear-rating-filters-button">Clear</a>
+        }
+    </div>
+    <div class="filter-content">
+        <ul class="group product-rating-group">            
+            @foreach (var rating in Model.Ratings)
+            {
+                <li class="item">
+                    <input id="attribute-rating-@rating.Value" type="checkbox" data-rating-id="@rating.Value" data-rating-text="@rating.Text" checked="@rating.Selected" />
+                    <label for="attribute-rating-@rating.Value">
+                        @for(int index = 0; index < 5; index++)
+                        {
+                            if (index < int.Parse(rating.Value)){
+                                <img src="/Themes/DefaultClean/Content/images/rating2.png" alt="@rating.Text"></img>
+                            }
+                            else{
+                                <img src="/Themes/DefaultClean/Content/images/rating1.png" alt="@rating.Text"></img>
+                            }
+                        }
+                    </label>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        var $rsEls = $('[data-rating-id]');
+        var $clearButton = $('#clear-rating-filters-button');
+
+        $rsEls.on('change', function () {
+            if ($clearButton.length > 0)
+            {
+                if($('[data-rating-id]:checked').length > 0)
+                    $clearButton.show();
+                else
+                    $clearButton.hide();
+            }
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedRs = $.map($rsEls, function (el) {
+                var $rEl = $(el);
+                if ($rEl.is(':checked')) return $rEl.data('rating-id')
+                return null;
+            });
+
+            if (selectedRs && selectedRs.length > 0) {
+                e.payload.urlBuilder
+                    .addParameter('@query', selectedRs.join(','));
+            }
+        });
+        
+        if ($clearButton.length > 0)
+        {
+            $clearButton.on('clearOnly', clearOnly);
+            $clearButton.on('click', function (){
+                clearOnly();
+                CatalogProducts.getProducts();
+                $('.applied-filters .applied-filters-group').trigger('updatePanelElements');
+                return false;
+            });
+            
+            if($('[data-rating-id]:checked').length == 0)
+                $clearButton.hide();
+
+            function clearOnly(){
+                $('[data-rating-id]').each(function(index, elem){
+                    $(elem).removeAttr('checked');
+                });
+                $clearButton.hide();                
+                return false;
+            }
+        }
+    });
+</script>

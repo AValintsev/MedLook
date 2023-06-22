@@ -30,6 +30,14 @@
     {
       "SystemName": "Shipping.NovaPoshta",
       "Version": "1.71"
+    },
+    {
+      "SystemName": "NopAdvance.Core",
+      "Version": "1.12"
+    },
+    {
+      "SystemName": "Nopadvance.Plugin.ExtendedProductFilters",
+      "Version": "1.1"
     }
   ],
   "PluginNamesToUninstall": [],

@@ -1,0 +1,39 @@
+
+@model SaleFilterModel
+
+@{
+    var query = PluginDefaults.CP_QueryPrefix + "[" + PluginDefaults.CP_SaleFilter + "]";
+}
+
+<div class="product-filter product-sale-filter">
+    <div class="filter-title">
+        <strong>@T("NopAdvance.Plugin.ExtendedProductFilters.Filtering.SaleFilter")</strong>
+    </div>
+    <div class="filter-content">
+        <ul class="group product-sale-group">
+            <li class="item">
+                <input id="attribute-product-on-sale" type="checkbox" checked="@Model.Selected" />
+                <label for="attribute-product-on-sale">
+                    @T("NopAdvance.Plugin.ExtendedProductFilters.Filtering.SaleFilter.Option.Sale")
+                </label>
+            </li>
+        </ul>
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        var $saleEl = $('#attribute-product-on-sale');
+        $saleEl.on('change', function () {
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedSale = $saleEl.is(':checked');
+
+            if (selectedSale) {
+                e.payload.urlBuilder
+                    .addParameter('@query', selectedSale);
+            }
+        });
+    });
+</script>

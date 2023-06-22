@@ -1,0 +1,120 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *         Extended Product Filters Plugin by NopAdvance team             *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model ConfigurationModel
+@using NopAdvance.Plugin.Core.Domain
+@inject IGenericHelper genericHelper
+@{
+    Layout = genericHelper.GetPluginConfigureLayout();
+    ViewBag.SystemName = PluginDefaults.SystemName;
+    ViewBag.PluginStatus = Model.PluginStatus;
+    //active menu item (system name)
+    NopHtml.SetActiveMenuItemSystemName(SiteMapDefaults.CONFIGURE_MENU_SYSTEM_NAME);
+
+    
+    var customer = await workContext.GetCurrentCustomerAsync();
+    
+    const string hideGeneralBlockAttributeName = PluginDefaults.SystemName + ".Configure.HideGeneralBlock";
+    var hideGeneralBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideGeneralBlockAttributeName, defaultValue: true);
+    
+    const string hideSortingBlockAttributeName = PluginDefaults.SystemName + ".Configure.HideSortingBlock";
+    var hideSortingBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideSortingBlockAttributeName, defaultValue: true);
+    
+    const string hideFilteringBlockAttributeName = PluginDefaults.SystemName + ".Configure.HideFilteringBlock";
+    var hideFilteringBlock = await genericAttributeService.GetAttributeAsync<bool>(customer, hideFilteringBlockAttributeName, defaultValue: true);
+}
+@Html.Raw(Model.PluginDesc)
+<form asp-controller="@PluginDefaults.ADMIN_CONTROLLER_NAME" asp-action="Configure" method="post">
+    <div class="row">
+        <div class="col-md-10">
+            @await Component.InvokeAsync("StoreScopeConfiguration")
+        </div>
+        <div class="col-md-2">
+            <div class="float-right"> 
+                <button type="submit" name="save" class="btn btn-primary">
+                    <i class="far fa-save"></i>
+                    @T("Admin.Common.Save")
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 clearfix">
+            <div class="float-left">
+                @await Component.InvokeAsync("SettingMode", new { modeName = "category-advanced-mode" })
+            </div>
+        </div>
+    </div>
+
+    <nop-cards id="extended-product-filters-cards">
+        <nop-card asp-name="configure-general" asp-icon="fas fa-info" asp-title="@T("NopAdvance.Plugin.ExtendedProductFilters.Configure.General")" asp-hide-block-attribute-name="@hideGeneralBlockAttributeName" asp-hide="@hideGeneralBlock" asp-advanced="false">@await Html.PartialAsync("_Configure.General", Model)</nop-card>
+        <nop-card asp-name="configure-sorting" asp-icon="fas fa-sort" asp-title="@T("NopAdvance.Plugin.ExtendedProductFilters.Configure.Sorting")" asp-hide-block-attribute-name="@hideSortingBlockAttributeName" asp-hide="@hideSortingBlock" asp-advanced="false">@await Html.PartialAsync("_Configure.Sorting", Model)</nop-card>
+        <nop-card asp-name="configure-filtering" asp-icon="fas fa-filter" asp-title="@T("NopAdvance.Plugin.ExtendedProductFilters.Configure.Filtering")" asp-hide-block-attribute-name="@hideFilteringBlockAttributeName" asp-hide="@hideFilteringBlock" asp-advanced="false">@await Html.PartialAsync("_Configure.Filtering", Model)</nop-card>
+    </nop-cards>    
+</form>
+
+@* Disable properties depending on license types *@
+@if (Model.PluginStatus == PluginLicenceStatusType.Free || Model.PluginStatus == PluginLicenceStatusType.Expired)
+{
+    <script asp-location="Footer">
+        $(document).on('ready', function(){
+            $('#ShowAppliedFiltersPanel').attr('disabled', true);
+            $('#ShowAppliedFiltersPanel_OverrideForStore').attr('disabled', true);
+
+            $('#ShowClearFiltersButton').attr('disabled', true);
+            $('#ShowClearFiltersButton_OverrideForStore').attr('disabled', true);
+
+            $('#ShowNumberOfProducts').attr('disabled', true);
+            $('#ShowNumberOfProducts_OverrideForStore').attr('disabled', true);
+
+            $('#EnableLazyLoading').attr('disabled', true);
+            $('#EnableLazyLoading_OverrideForStore').attr('disabled', true);
+
+            $('#EnableSortByRelevance').attr('disabled', true);
+            $('#EnableSortByRelevance_OverrideForStore').attr('disabled', true);
+            
+            $('#ShowAppliedFiltersPanel').attr('id', 'ShowAppliedFiltersPanel_');
+            $('#ShowClearFiltersButton').attr('id', 'ShowClearFiltersButton_');
+            $('#ShowNumberOfProducts').attr('id', 'ShowNumberOfProducts_');
+            $('#EnableLazyLoading').attr('id', 'EnableLazyLoading_');
+            $('#EnableSortByRelevance').attr('id', 'EnableSortByRelevance_');
+        });
+    </script>
+}

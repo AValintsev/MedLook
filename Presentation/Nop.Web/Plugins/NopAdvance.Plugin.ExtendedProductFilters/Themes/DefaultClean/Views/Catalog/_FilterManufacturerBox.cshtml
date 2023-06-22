@@ -1,0 +1,76 @@
+@model ManufacturerFilterModel
+
+<div class="product-filter product-manufacturer-filter">
+    <div class="filter-title">
+        <strong>@T("NopAdvance.Plugin.ExtendedProductFilters.Filtering.ManufacturerFilter")</strong>
+        @if(ViewBag.isPluginPaidOrTrial && extendedFiltersSettings.ShowClearFiltersButton)
+        {
+            <a class="clear-filters-button" id="clear-manufacturer-filters-button">Clear</a>
+        }
+    </div>
+    <div class="filter-content">
+        <ul class="group product-manufacturer-group">
+            @foreach (var manufacturer in Model.Manufacturers)
+            {
+                <li class="item">
+                    <input id="attribute-manufacturer-@manufacturer.Value" type="checkbox" data-manufacturer-id="@manufacturer.Value" checked="@manufacturer.Selected" />
+                    <label for="attribute-manufacturer-@manufacturer.Value">
+                        @manufacturer.Text
+                    </label>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        var $msEls = $('[data-manufacturer-id]');
+        var $clearButton = $('#clear-manufacturer-filters-button');
+
+        $msEls.on('change', function () {
+            if ($clearButton.length > 0)
+            {
+                if($('[data-manufacturer-id]:checked').length > 0)
+                    $clearButton.show();
+                else
+                    $clearButton.hide();
+            }
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedMs = $.map($msEls, function (el) {
+                var $mEl = $(el);
+                if ($mEl.is(':checked')) return $mEl.data('manufacturer-id')
+                return null;
+            });
+
+            if (selectedMs && selectedMs.length > 0) {
+                e.payload.urlBuilder
+                    .addParameter('ms', selectedMs.join(','));
+            }
+        });
+
+        if ($clearButton.length > 0)
+        {
+            $clearButton.on('clearOnly', clearOnly);
+            $clearButton.on('click', function (){
+                clearOnly();
+                CatalogProducts.getProducts();
+                $('.applied-filters .applied-filters-group').trigger('updatePanelElements');
+                return false;
+            });
+
+            if($('[data-manufacturer-id]:checked').length == 0)
+                $clearButton.hide();
+        }        
+
+        function clearOnly(){
+            $('[data-manufacturer-id]').each(function(index, elem){
+                $(elem).removeAttr('checked');
+            });
+            $clearButton.hide();
+            return false;
+        }
+    });
+</script>

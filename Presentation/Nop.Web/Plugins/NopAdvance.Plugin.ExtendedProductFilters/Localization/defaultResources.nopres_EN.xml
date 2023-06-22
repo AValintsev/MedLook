@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+
+<!-- Plugin Menu -->
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filters">
+    <Value>Extended product filters</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure">
+    <Value>Configuration</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Help">
+    <Value>Help</Value>
+  </LocaleResource>
+<!-- Plugin Menu -->
+
+<!-- Configuration Page -->
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Info">
+    <Value>Note: Your website will be restarted if you Enable/Disable the plugin. Certain settings (and filtering on the Search page) are available only in Paid and Trial license version.</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.General">
+    <Value>General</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Sorting">
+    <Value>Sorting</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Filtering">
+    <Value>Filtering</Value>
+  </LocaleResource>
+
+  <!-- General Settings -->
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.Enabled">
+    <Value>Enabled</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.Enabled.Hint">
+    <Value>Enable or disable all the plugin functionality.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.UseAccordion">
+    <Value>Enable collapsible filter panels</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.UseAccordion.Hint">
+    <Value>Fiters are shown in panels that can expand and collapse for a cleaner viewing experience.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.ShowAppliedFiltersPanel">
+    <Value>Show applied filters</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.ShowAppliedFiltersPanel.Hint">
+    <Value>Show a panel above all the other filter panels, to display all the currently applied filters.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.ShowClearFiltersButton">
+    <Value>Show 'clear filters' button</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.ShowClearFiltersButton.Hint">
+    <Value>Show a button on each filter panel to clear all the filters under that panel.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.ShowNumberOfProducts">
+    <Value>Show number of filtered products</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.ShowNumberOfProducts.Hint">
+    <Value>Show the number of products returned after filtering.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSortByRelevance">
+    <Value>Enable sort by relevance</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSortByRelevance.Hint">
+    <Value>Enable the option to sort products by relevance.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSortByRatings">
+    <Value>Enable sort by ratings</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSortByRatings.Hint">
+    <Value>Enable the option to sort products by their average ratings.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableLazyLoading">
+    <Value>Enable lazy loading</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableLazyLoading.Hint">
+    <Value>Enable the feature to load products as the user scrolls, for a seamless browsing experience.</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableLazyLoading.Warning">
+    <Value>In order to use this setting, you must enable the following setting: Configuration > Settings > Catalog Settings > Catalog Pages > Use AJAX products loading.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.AutoCloseFilterPanels">
+    <Value>Automatically close filter panels (Mobile)</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.AutoCloseFilterPanels.Hint">
+    <Value>Enable the option to close filter panels automatically after a filter is applied (Only on mobile devices)</Value>
+  </LocaleResource>
+  <!-- General Settings -->
+
+  <!-- Filter Settings -->
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableCategoryFilter">
+    <Value>Enable category filter</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableCategoryFilter.Hint">
+    <Value>Enable filtering by category.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableManufacturerFilter">
+    <Value>Enable manufacturer filter</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableManufacturerFilter.Hint">
+    <Value>Enable filtering by manufacturers.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableVendorFilter">
+    <Value>Enable vendor filter</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableVendorFilter.Hint">
+    <Value>Enable filtering by vendors.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSpecificationFilter">
+    <Value>Enable specification filters</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSpecificationFilter.Hint">
+    <Value>Enable filtering by specification attributes.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableProductAttributesFilter">
+    <Value>Enable product attribute filters</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableProductAttributesFilter.Hint">
+    <Value>Enable filtering by product attributes</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableRatingFilter">
+    <Value>Enable rating filter</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableRatingFilter.Hint">
+    <Value>Enable filtering by average ratings of products.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnablePriceRangeFilter">
+    <Value>Enable price range filter</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnablePriceRangeFilter.Hint">
+    <Value>Enable filtering by price range.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableStockFilter">
+    <Value>Enable in-stock filter</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableStockFilter.Hint">
+    <Value>Enable filter option to show 'out of stock' products.</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSaleFilter">
+    <Value>Enable on-sale filter</Value>
+  </LocaleResource>
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableSaleFilter.Hint">
+    <Value>Enable filter option to show discounted products.</Value>
+  </LocaleResource>
+  <!-- Filter Settings -->
+<!-- Configuration Page -->
+
+<!-- Public-side -->
+  <!-- Filter Panel Headings -->  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.PriceFilter">
+    <Value>Filter by price</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.SpecsFilter">
+    <Value>Filter by specification attributes</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.ManufacturerFilter">
+    <Value>Filter by manufacturer</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.CategoryFilter">
+    <Value>Filter by categories</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.VendorFilter">
+    <Value>Filter by vendors</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.ProductAttributeFilter">
+    <Value>Filter by product attributes</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.RatingFilter">
+    <Value>Filter by ratings</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.SaleFilter">
+    <Value>Products on sale</Value>
+  </LocaleResource>
+    
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.SaleFilter.Option.Sale">
+    <Value>Discounted products only</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.StockFilter">
+    <Value>Out of stock products</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="NopAdvance.Plugin.ExtendedProductFilters.Filtering.StockFilter.Option.IncludeOutOfStock">
+    <Value>Include</Value>
+  </LocaleResource>
+  <!-- Filter Panel Headings -->
+<!-- Public-side -->
+
+</Language>
