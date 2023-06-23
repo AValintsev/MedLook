@@ -12,7 +12,7 @@
                 <li class="name">
                     <strong>@attr.Name</strong>
                 </li>
-                @foreach (var value in attr.Values)
+                @foreach (var value in attr.Values.OrderBy(x => x.Name))
                 {
                     <li class="item">
                         <input id="prod-attribute-option-@value.Id" type="checkbox" data-prod-option-id="@value.Id" checked="@value.Selected" />
