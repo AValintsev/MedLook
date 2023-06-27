@@ -28,10 +28,12 @@
     });
 
     function addPagerHandlers() {
-            $('[data-page]').on('click', function (e) {
-                e.preventDefault();
-                CatalogProducts.getProducts($(this).data('page'));
-                return false;
-            });
-        }
+        $('[data-page]').on('click', function (e) {
+            e.preventDefault();
+            CatalogProducts.getProducts($(this).data('page'));
+            document.getElementsByClassName('page')[0].scrollIntoView({ behavior: 'smooth', alignToTop: true });
+
+            return false;
+        });
+    }
 </script>
