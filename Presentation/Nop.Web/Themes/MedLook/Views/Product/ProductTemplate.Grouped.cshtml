@@ -86,6 +86,10 @@
                                 @Html.Raw(Model.ShortDescription)
                             </div>
                         }
+                        <div class="info-links">
+                            <a href="@(Url.RouteUrl<Nop.Core.Domain.Topics.Topic>(new { SeName = "розмірна-сітка" }))">Pозмірна-сітка</a>
+                            <a href="@(Url.RouteUrl<Nop.Core.Domain.Topics.Topic>(new { SeName = "обрати-розмір" }))">Як обрати свій розмір?</a>
+                        </div>
                         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                         <!--product reviews-->
                         @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)

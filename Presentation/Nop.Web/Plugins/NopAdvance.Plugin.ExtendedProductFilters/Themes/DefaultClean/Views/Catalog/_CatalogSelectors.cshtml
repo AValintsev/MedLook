@@ -1,5 +1,8 @@
 
 @model CatalogProductsModel
+@using Nop.Core.Domain.Catalog
+@using Nop.Services.Localization
+@inject ILocalizationService _localizationService
 
 @using NopAdvance.Plugin.Core.Domain
 @{
@@ -54,6 +57,10 @@
 
     @if (Model.AllowProductSorting)
     {
+        foreach (var sortOption in Model.AvailableSortOptions)
+        {
+            sortOption.Text = await _localizationService.GetLocalizedEnumAsync((ProductSortingEnum)int.Parse(sortOption.Value));
+        }
         <div class="product-sorting">
             <span>@T("Catalog.OrderBy")</span>
             @Html.DropDownList("products-orderby", Model.AvailableSortOptions, new { aria_label = T("Catalog.OrderBy.Label") })

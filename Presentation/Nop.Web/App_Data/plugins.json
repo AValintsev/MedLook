@@ -38,6 +38,14 @@
     {
       "SystemName": "Nopadvance.Plugin.ExtendedProductFilters",
       "Version": "1.1"
+    },
+    {
+      "SystemName": "Widgets.NivoSlider",
+      "Version": "1.50"
+    },
+    {
+      "SystemName": "Misc.FopPdf",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],
