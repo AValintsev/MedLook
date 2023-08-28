@@ -4,9 +4,15 @@
 @using Nop.Core.Domain.Catalog
 @using Nop.Core.Domain.Orders
 @using Nop.Core.Domain.Tax
+@using Nop.Services.Catalog
+@using Nop.Services.Localization
 
 @inject CatalogSettings catalogSettings
 @inject IWorkContext workContext
+@inject IProductService productService
+@inject IPriceFormatter priceFormatter
+@inject ILocalizationService localizationService
+
 
 @{
     //prepare "Add to cart" AJAX link
@@ -68,32 +74,42 @@
             <div class="sku">
                 @Model.Sku
             </div>
-        }       
+        }
         <div class="description" @(catalogSettings.ShowShortDescriptionOnCatalogPages ? "" : "data-short-description=none")>
             @Html.Raw(Model.ShortDescription)
         </div>
         <div class="add-info">
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoBefore, additionalData = Model })
             <div class="prices">
-                @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+                @if (Model.ProductType == ProductType.GroupedProduct)
                 {
-                    <span class="price old-price">@Model.ProductPrice.OldPrice</span>
+                    var associated = await productService.GetAssociatedProductsAsync(Model.Id);
+                    var totalPrice = associated.Sum(x => x.Price);
+                    var totalPriceStr = string.Format(await localizationService.GetResourceAsync("Products.PriceRangeFrom"), await priceFormatter.FormatPriceAsync(totalPrice));
+                    <span class="price actual-price">@totalPriceStr</span>
                 }
-                <span class="price actual-price">@Model.ProductPrice.Price</span>
-                @if (Model.ProductPrice.DisplayTaxShippingInfo)
+                else
                 {
-                    var inclTax = await workContext.GetTaxDisplayTypeAsync() == TaxDisplayType.IncludingTax;
-                    //tax info is already included in the price (incl/excl tax). that's why we display only shipping info here
-                    //of course, you can modify appropriate locales to include VAT info there
-                    <span class="tax-shipping-info">
-                        @T(inclTax ? "Products.Price.TaxShipping.InclTax" : "Products.Price.TaxShipping.ExclTax", Url.RouteTopicUrl("shippinginfo"))
-                    </span>
-                }
-                @if (!string.IsNullOrEmpty(Model.ProductPrice.BasePricePAngV))
-                {
-                    <div class="base-price-pangv">
-                        @Model.ProductPrice.BasePricePAngV
-                    </div>
+                    if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+                    {
+                        <span class="price old-price">@Model.ProductPrice.OldPrice</span>
+                    }
+                    <span class="price actual-price">@Model.ProductPrice.Price</span>
+                    @if (Model.ProductPrice.DisplayTaxShippingInfo)
+                    {
+                        var inclTax = await workContext.GetTaxDisplayTypeAsync() == TaxDisplayType.IncludingTax;
+                        //tax info is already included in the price (incl/excl tax). that's why we display only shipping info here
+                        //of course, you can modify appropriate locales to include VAT info there
+                        <span class="tax-shipping-info">
+                            @T(inclTax ? "Products.Price.TaxShipping.InclTax" : "Products.Price.TaxShipping.ExclTax", Url.RouteTopicUrl("shippinginfo"))
+                        </span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ProductPrice.BasePricePAngV))
+                    {
+                        <div class="base-price-pangv">
+                            @Model.ProductPrice.BasePricePAngV
+                        </div>
+                    }
                 }
             </div>
             @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductBoxAddinfoMiddle, additionalData = Model })
@@ -113,7 +129,7 @@
                 }
                 @*@if (!Model.ProductPrice.DisableAddToCompareListButton)
                 {
-                    <button type="button" class="button-2 add-to-compare-list-button" title="@T("ShoppingCart.AddToCompareList")" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;">@T("ShoppingCart.AddToCompareList")</button>
+                <button type="button" class="button-2 add-to-compare-list-button" title="@T("ShoppingCart.AddToCompareList")" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;">@T("ShoppingCart.AddToCompareList")</button>
                 }*@
                 @if (!Model.ProductPrice.DisableWishlistButton)
                 {

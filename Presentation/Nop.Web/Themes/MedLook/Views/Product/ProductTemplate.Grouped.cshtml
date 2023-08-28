@@ -4,10 +4,14 @@
 @using Nop.Core.Domain.Catalog
 @using Nop.Core.Domain.Seo
 @using Nop.Services.Html
+@using Nop.Services.Catalog
+@using Nop.Services.Localization
 
 @inject IHtmlFormatter htmlFormatter
+@inject IPriceFormatter priceFormatter
 @inject IWebHelper webHelper
 @inject SeoSettings seoSettings
+@inject ILocalizationService localizationService
 
 @{
     Layout = "_ColumnsOne";
@@ -110,6 +114,35 @@
                                 @Html.Raw(Model.FullDescription)
                             </div>
                         }
+                        @if (Model.AssociatedProducts.Count > 1)
+                        {
+                            var firstProductPrice = Model.AssociatedProducts.First().ProductPrice;
+                            var totalPrice = Model.AssociatedProducts.Sum(x => x.ProductPrice.PriceValue);
+                            var pm = new Nop.Web.Models.Catalog.ProductDetailsModel.ProductPriceModel
+                            {
+                                BasePricePAngV = firstProductPrice.BasePricePAngV,
+                                BasePricePAngVValue = firstProductPrice.BasePricePAngVValue,
+                                CallForPrice = firstProductPrice.CallForPrice,
+                                CurrencyCode = firstProductPrice.CurrencyCode,
+                                CustomerEntersPrice = firstProductPrice.CustomerEntersPrice,
+                                CustomProperties = firstProductPrice.CustomProperties,
+                                DisplayTaxShippingInfo = firstProductPrice.DisplayTaxShippingInfo,
+                                HidePrices = firstProductPrice.HidePrices,
+                                IsRental = firstProductPrice.IsRental,
+                                OldPrice = null,
+                                OldPriceValue = null,
+                    Price = string.Format(await localizationService.GetResourceAsync("Products.PriceRangeFrom"), await priceFormatter.FormatPriceAsync(totalPrice)),
+                                PriceValue = totalPrice,
+                                PriceWithDiscount = null,
+                                PriceWithDiscountValue = null,
+                                ProductId = Model.Id,
+                                RentalPrice = firstProductPrice.RentalPrice,
+                                RentalPriceValue = firstProductPrice.RentalPriceValue
+                            };
+                            var dataDictPrice = new ViewDataDictionary(ViewData);
+                            dataDictPrice.TemplateInfo.HtmlFieldPrefix = $"price_total";
+                            @await Html.PartialAsync("_ProductPrice", pm, dataDictPrice)
+                        }
                     </div>
                     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
                 </div>
@@ -117,6 +150,9 @@
                 <div class="product-collateral">
                     <!--associated products-->
                     <div class="product-variant-list">
+
+                        
+
                         @foreach (var variant in Model.AssociatedProducts)
                         {
                             <div class="product-variant-line" data-productid="@variant.Id">
