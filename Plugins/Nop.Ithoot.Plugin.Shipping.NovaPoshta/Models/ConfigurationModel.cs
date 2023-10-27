@@ -32,6 +32,13 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Models
         [NopResourceDisplayName("Plugins.Shipping.NovaPoshta.Fields.PrepaymentValue")]
         public int PrepaymentValue { get; set; }
 
+        [NopResourceDisplayName("Plugins.Shipping.NovaPoshta.Fields.DefaultWeight")]
+        public decimal DefaultWeight { get; set; } = 1;
+
+        [NopResourceDisplayName("Plugins.Shipping.NovaPoshta.Fields.DefaultVolumeGeneral")]
+        public decimal DefaultVolumeGeneral { get; set; } = 0.0368m;
+
+
         public ConfigurationModel()
         {
         }

@@ -1,0 +1,101 @@
+﻿<Language Name="Russian" IsRightToLeft="false">
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.showDebugInfo">
+    <Value>Включить отладку</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.showDebugInfo.Hint">
+    <Value>Записывать отладочную информацию в файл. В папке ~/App_Data/</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.SerialNumber">
+    <Value>Серийный номер</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.SerialNumber.Hint">
+    <Value>Серийный номер.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.StoreUrl">
+    <Value>Веб-адрес сайта (для регистрации)</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.StoreUrl.Hint">
+    <Value>Веб-адрес сайта (для регистрации)</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.IsRegisted">
+    <Value>Зарегистрированная версия.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.IsNoRegisted">
+    <Value>Незарегистрированная версия.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.IsExpired">
+    <Value>Срок вашей лицензии истек,Вам следует обновить её с 50% скидкой на следующий год.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.Public_Key">
+    <Value>Публичный ключ</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.Public_Key.Hint">
+    <Value>Публичный ключ</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.Private_Key">
+    <Value>Приватный ключ</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.Private_Key.Hint">
+    <Value>Приватный ключ</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.AdditionalFee">
+    <Value>Дополнительная комиссия</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.AdditionalFee.Hint">
+    <Value>Дополнительная комиссия до заказа. Платит покупатель.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.AdditionalFeePercentage">
+    <Value>Дополнительная комиссия (использовать процент)</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.AdditionalFeePercentage.Hint">
+    <Value>Если отметить, то на всю сумму заказа будет начисляться дополнительная комиссия в процентном исчислении.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.isTestMode">
+    <Value>Включить режим отладки (тест)</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.isTestMode.Hint">
+    <Value>Включить режим отладки. Все транзакции будут равны 1.00 USD, EUR, RUB, UAH, GEL.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.SkipPaymentInfo">
+    <Value>Пропустить окно информации о платежной системе</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.SkipPaymentInfo.Hint">
+    <Value>Пропустить окно информации о платежной системе.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.Locale">
+    <Value>Язык интерфейса (en, ru, uk)</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.Locale.Hint">
+    <Value>Язык интерфейса защищенной страницы шлюза (en, ru, uk)</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.IPNHandler">
+    <Value>URL уведомлений сервер-сервер</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.IPNHandler.Hint">
+    <Value>URL уведомлений сервер-сервер</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.ReturnUrl">
+    <Value>URL магазина клиент-сервер</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.ReturnUrl.Hint">
+    <Value>URL магазина клиент-сервер</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.RedirectionTip">
+    <Value>Вы будете переадресованы на сайт "LiqPay" (ПриватБанк) для завершения сделки.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.PurchaseDesc">
+    <Value>Заказ №{0} на сумму {1}.</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.ErrorMessage">
+    <Value>Неизвестная ошибка.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.FoxNetSoft.Plugin.Payments.LiqPay.ClearLogFile">
+    <Value>Очистить log-файл</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.FoxNetSoft.Plugin.Payments.LiqPay.GetLogFile">
+    <Value>Скачать log-файл</Value>
+  </LocaleResource>
+  <LocaleResource Name="FoxNetSoft.Plugin.Payments.LiqPay.PaymentMethodDescription">
+    <Value>Visa/Mastercard (LiqPay)</Value>
+  </LocaleResource>
+</Language>

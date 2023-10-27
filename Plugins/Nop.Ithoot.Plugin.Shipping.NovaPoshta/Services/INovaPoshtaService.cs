@@ -16,7 +16,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
 
         Task<string> CreateParcelAsync(Order order, Shipment shipment);
 
-        Task<SenderModel> GetSenderAsync();
+        Task<SenderModel> GetSenderAsync(string apiKey);
 
         Task<RecipientModel> GetRecipientAsync(Order order, Shipment shipment, Address address);
 

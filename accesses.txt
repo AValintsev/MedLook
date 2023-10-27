@@ -9,7 +9,7 @@ medlook.com.ua_dploy
 mdAdmin11
 
 medlook_api_key
-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
+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
 
 DB
 Data Source=scp.realhost.pro;

@@ -1,6 +1,15 @@
 ﻿
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap');
 /*********** CSS RESET **********/
+.select2-results {
+    font-size: 16px;
+}
+
+    .select2-results li {
+        line-height: 24px;
+        padding: 10px;
+    }
+
 .medlook_svg {
     background-image: url(../images/medlook.svg);
     height: 50px;
@@ -2526,6 +2535,20 @@ label, label + * {
         .variant-overview .value a:hover {
             text-decoration: underline;
         }
+
+.catr-button-link {
+    height: 43px;
+    border: 0;
+    background-color: #71c5ee;
+    padding: 0 24px;
+    font-size: 15px;
+    color: #feffff !important;
+    text-transform: uppercase;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    width: 140px;
+}
 
 .overview-buttons {
     margin: 0 0 25px;

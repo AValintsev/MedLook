@@ -33,6 +33,9 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta
         public string CityName { get; internal set; }
         public int PrepaymentValue { get; set; }
 
+        public decimal DefaultWeight { get; set; } = 1;
+        public decimal DefaultVolumeGeneral { get; set; } = 0.0368m;
+
         public const string NOVA_POSHTA_SHIPPING_METHOD_NAME = "НОВА ПОШТА";
         public const string NOVA_POSHTA_FORM_KEY = "NovaPoshtaAdd";
 

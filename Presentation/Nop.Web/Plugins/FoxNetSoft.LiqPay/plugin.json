@@ -1,0 +1,16 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Visa/Mastercard (LiqPay)",
+  "SupportedVersions": [
+    "4.60"
+  ],
+  "Author": "FoxNetSoft",
+  "DisplayOrder": 1,
+  "FileName": "FoxNetSoft.Plugin.Payments.LiqPay.dll",
+  "Description": "Visa/Mastercard (LiqPay)",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [],
+  "SystemName": "FoxNetSoft.Payments.LiqPay",
+  "Version": "3.05"
+}

@@ -106,7 +106,10 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Controllers
                 SenderMidName = _novaPoshtaSettings.SenderMidName,
                 SenderPhone = _novaPoshtaSettings.SenderPhoneNumber,
 
-                PrepaymentValue = _novaPoshtaSettings.PrepaymentValue
+                PrepaymentValue = _novaPoshtaSettings.PrepaymentValue,
+
+                DefaultVolumeGeneral = _novaPoshtaSettings.DefaultVolumeGeneral,
+                DefaultWeight = _novaPoshtaSettings.DefaultWeight,
             };
 
             //show configuration tour
@@ -133,8 +136,6 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Controllers
             if (!ModelState.IsValid)
                 return await Configure();
 
-            _novaPoshtaSettings.ApiKey = model.ApiKey;
-
             try
             {
                 _novaPoshtaSettings.CitySenderId = model.CityId;
@@ -143,15 +144,23 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Controllers
                 _novaPoshtaSettings.WarehouseName = model.Warehouse;
                 _novaPoshtaSettings.PrepaymentValue = model.PrepaymentValue;
 
-                var senderInfo = await _novaPoshtaService.GetSenderAsync();
+                _novaPoshtaSettings.DefaultWeight = model.DefaultWeight;
+                _novaPoshtaSettings.DefaultVolumeGeneral = model.DefaultVolumeGeneral;
 
-                _novaPoshtaSettings.SenderId = senderInfo.SenderRef;
-                _novaPoshtaSettings.ContactSenderId = senderInfo.ContactRef;
-                
-                _novaPoshtaSettings.SenderFirstName = senderInfo.SenderFirstName;
-                _novaPoshtaSettings.SenderLastName = senderInfo.SenderLastName;
-                _novaPoshtaSettings.SenderMidName = senderInfo.SenderMidName;
-                _novaPoshtaSettings.SenderPhoneNumber = senderInfo.SenderPhoneNumber;
+                if (_novaPoshtaSettings.ApiKey != model.ApiKey)
+                {
+                    var senderInfo = await _novaPoshtaService.GetSenderAsync(model.ApiKey);
+
+                    _novaPoshtaSettings.SenderId = senderInfo.SenderRef;
+                    _novaPoshtaSettings.ContactSenderId = senderInfo.ContactRef;
+
+                    _novaPoshtaSettings.SenderFirstName = senderInfo.SenderFirstName;
+                    _novaPoshtaSettings.SenderLastName = senderInfo.SenderLastName;
+                    _novaPoshtaSettings.SenderMidName = senderInfo.SenderMidName;
+                    _novaPoshtaSettings.SenderPhoneNumber = senderInfo.SenderPhoneNumber;
+                }
+
+                _novaPoshtaSettings.ApiKey = model.ApiKey;
 
                 await _settingService.SaveSettingAsync(_novaPoshtaSettings);
             }

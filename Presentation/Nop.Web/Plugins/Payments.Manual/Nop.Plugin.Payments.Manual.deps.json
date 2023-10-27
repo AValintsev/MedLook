@@ -33,7 +33,7 @@
   },
   "targets": {
     ".NETCoreApp,Version=v7.0": {
-      "Nop.Plugin.Widgets.What3words/1.0.0": {
+      "Nop.Plugin.Payments.Manual/1.0.0": {
         "dependencies": {
           "Nop.Web": "4.5.0",
           "Microsoft.AspNetCore.Antiforgery": "7.0.0.0",
@@ -334,10 +334,10 @@
           "WindowsBase": "4.0.0.0"
         },
         "runtime": {
-          "Nop.Plugin.Widgets.What3words.dll": {}
+          "Nop.Plugin.Payments.Manual.dll": {}
         },
         "compile": {
-          "Nop.Plugin.Widgets.What3words.dll": {}
+          "Nop.Plugin.Payments.Manual.dll": {}
         }
       },
       "AdvancedStringBuilder/0.1.0": {
@@ -5836,7 +5836,7 @@
     }
   },
   "libraries": {
-    "Nop.Plugin.Widgets.What3words/1.0.0": {
+    "Nop.Plugin.Payments.Manual/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

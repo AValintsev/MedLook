@@ -1,7 +1,9 @@
 ﻿using Baroque.NovaPoshta.Client;
+using Baroque.NovaPoshta.Client.Domain;
 using Baroque.NovaPoshta.Client.Domain.Address;
 using Baroque.NovaPoshta.Client.Domain.Countrparty;
 using Baroque.NovaPoshta.Client.Domain.Documents;
+using Baroque.NovaPoshta.Client.Services.Common;
 using Baroque.NovaPoshta.Client.Services.Counterparties;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Orders;
@@ -38,6 +40,8 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
         {
             var gateway = new DefaultNovaPoshtaGateway(_novaPoshtaSettings.ApiKey);
 
+            var commonService = new CommonService(gateway);
+
             var addressService = new Baroque.NovaPoshta.Client.Services.Address.AddressService(gateway);
             var request = new CitiesGetRequest
             {
@@ -71,7 +75,16 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 FindByString = term
             };
 
-            var wirehouses = addressService.GetWarehouses(request);
+            //var wirehouses = addressService.GetWarehouses(request);
+
+            RequestEnvelope<WarehousesGetRequest> request2 = new RequestEnvelope<WarehousesGetRequest>(request)
+            {
+                ApiKey = _novaPoshtaSettings.ApiKey,
+                CalledMethod = "getWarehouses",
+                ModelName = "Address"
+            };
+            var wirehouses = gateway.CreateRequest<WarehousesGetRequest, WarehouseReponse>(request2);
+
             if (wirehouses.Success)
             {
                 return wirehouses.Data
@@ -101,8 +114,11 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 PaymentMethod = "Cash",
                 DateTime = DateTime.Now.ToString("dd.MM.yyyy"),
                 CargoType = "Parcel",
-                Weight = 1,//shipment.TotalWeight.HasValue ? (shipment.TotalWeight.Value == 0 ? 1 : shipment.TotalWeight.Value) : 1,
-                VolumeGeneral = 0.0368m,
+                Weight = _novaPoshtaSettings.DefaultWeight,
+                //OR calculate weight
+                //shipment.TotalWeight.HasValue ? (shipment.TotalWeight.Value == 0 ? 1 : shipment.TotalWeight.Value) : 1,
+                
+                VolumeGeneral = _novaPoshtaSettings.DefaultVolumeGeneral,// Or calculate
                 ServiceType = "WarehouseWarehouse",
                 SeatsAmount = 1,
                 Description = "Одяг",
@@ -137,8 +153,8 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 VolumetricHeight = 23,
                 VolumetricLength = 16,
                 VolumetricWidth = 10,
-                Weight = 1,
-                VolumetricVolume = 0.0368m
+                Weight = _novaPoshtaSettings.DefaultWeight,
+                VolumetricVolume = _novaPoshtaSettings.DefaultVolumeGeneral
             });
 
             var createDocResponse = service.CreateDocument(request);
@@ -185,9 +201,9 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             });
         }
 
-        public Guid GetCounterparty()
+        public Guid GetCounterparty(string apiKey)
         {
-            var gateway = new DefaultNovaPoshtaGateway(_novaPoshtaSettings.ApiKey);
+            var gateway = new DefaultNovaPoshtaGateway(apiKey);
             var counterpartyService = new CounterpartyService(gateway);
 
             var counterPartyResponse = counterpartyService.GetCounterparties(new GetCounterpartiesRequest
@@ -220,12 +236,12 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             return counterPartyCreateResponse.FirstOrDefault;
         }
 
-        public Task<SenderModel> GetSenderAsync()
+        public Task<SenderModel> GetSenderAsync(string apiKey)
         {
-            var gateway = new DefaultNovaPoshtaGateway(_novaPoshtaSettings.ApiKey);
+            var gateway = new DefaultNovaPoshtaGateway(apiKey);
             var counterpartyService = new CounterpartyService(gateway);
 
-            var senderRef = GetCounterparty();
+            var senderRef = GetCounterparty(apiKey);
 
             var contactPersonResponse = counterpartyService.GetCounterpartyContactPerson(senderRef);
             var contactPersonRef = contactPersonResponse.FirstOrDefault.Reference;

@@ -33,17 +33,67 @@
 
 <script asp-location="Footer">
     $(document).ready(function () {
+        var $city = $('#@Model.CityControlName');
+
+        var city = { id: null, value: null };
+        if ($city.attr('value')) {
+            city = JSON.parse($warehouse.attr('value'));
+        }
+
+        $city.attr('id', 'nova-poshta-city');
+        $city.attr('name', 'nova-poshta-city');
+        $city.after('<input type="hidden" name="@Model.CityControlName" id="@Model.CityControlName" />');
+
+        var $cityHidden = $('#@Model.CityControlName');
+        $cityHidden.val($city.attr('value'));
+
+        $city.select2({
+            minimumInputLength: 2,
+            language: {
+                inputTooShort: function () {
+                    return '@T("Plugins.Shipping.NovaPoshta.Messages.Searching")';
+                },
+                searching: function () {
+                    return '@T("Plugins.Shipping.NovaPoshta.Messages.Searching")';
+                },
+                noResults: function () {
+                    return '@T("Plugins.Shipping.NovaPoshta.Messages.NoResults")';
+                }
+            },
+            ajax: {
+                delay: 120,
+                cache: true,
+                url: '@Url.ActionLink("GetCities", "NovaPoshta")',
+                dataType: 'json',
+                processResults: function (data, params) {
+                    var results = $.map(data, function (obj) {
+                        return { id: obj.id, text: obj.label }
+                    });
+                    return {
+                        results
+                    }
+                }
+            }
+        });
+
+        $city.on('select2:select', function (e) {
+            var valString = JSON.stringify({
+                id: e.params.data.id,
+                value: e.params.data.text
+            });
+
+            $cityHidden.val(valString);
+        });
+
+
 
 
         var $warehouse = $('#@Model.WarehouseControlName');
-        console.log('$warehouse value', $warehouse.attr('value'));
 
         var warehouse = { id: null, value: null };
         if ($warehouse.attr('value')) {
-            var warehouse = JSON.parse($warehouse.attr('value'));
+            warehouse = JSON.parse($warehouse.attr('value'));
         }
-
-        console.log('$warehouse parsed', { attr: $warehouse.attr('value'), warehouse });
 
         $warehouse.attr('id', 'nova-poshta-wirehouse');
         $warehouse.attr('name', 'nova-poshta-wirehouse');
@@ -52,36 +102,19 @@
         var $warehouseHidden = $('#@Model.WarehouseControlName');
         $warehouseHidden.val($warehouse.attr('value'));
 
-        var $city = $('#@Model.CityControlName');
-        var city = { id: null, value: null };
-        if ($city.val()) {
-            var city = JSON.parse($city.val());
-        }
-
-        $city.attr('id', 'nova-poshta-city');
-        $city.attr('name', 'nova-poshta-city');
-        $city.attr('autocomplete', 'autocomplete_off_randString');
-        $city.after('<input type="hidden" name="@Model.CityControlName" id="@Model.CityControlName" />');
-
-        var $cityHidden = $('#@Model.CityControlName');
-        $cityHidden.val($city.val());
-        $city.val(city.value);
-
-        $city.autocomplete({
-            source: '@Url.ActionLink("GetCities", "NovaPoshta")',
-            minLength: 2,
-            select: function (evt, ui) {
-                var valString = JSON.stringify({
-                    id: ui.item.id,
-                    value: ui.item.value
-                });
-
-                $cityHidden.val(valString);
-                $warehouse.val(null).trigger('change');
-            }
-        });
-
         $warehouse.select2({
+            placeholder: '@T("Plugins.Shipping.NovaPoshta.Placeholder.Warehouse")',
+            language: {
+                inputTooShort: function () {
+                    return '@T("Plugins.Shipping.NovaPoshta.Messages.Searching")';
+                },
+                searching: function () {
+                    return '@T("Plugins.Shipping.NovaPoshta.Messages.Searching")';
+                },
+                noResults: function () {
+                    return '@T("Plugins.Shipping.NovaPoshta.Messages.NoResults")';
+                }
+            },
             ajax: {
                 cache: true,
                 url: '@Url.ActionLink("GetWirehouses", "NovaPoshta")',
@@ -114,7 +147,6 @@
                 id: e.params.data.id,
                 value: e.params.data.text
             });
-            console.log('$warehouseHidden on select2:select', e.params.data);
 
             $warehouseHidden.val(valString);
         });

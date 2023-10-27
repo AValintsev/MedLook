@@ -102,18 +102,25 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta
                 ["Plugins.Shipping.NovaPoshta.Fields.MidName"] = "По батькові відправника",
                 ["Plugins.Shipping.NovaPoshta.Fields.Phone"] = "Телефон відправника",
                 ["Plugins.Shipping.NovaPoshta.Fields.PrepaymentValue"] = "Сума передплати",
-
+                ["Plugins.Shipping.NovaPoshta.Fields.PrepaymentValue"] = "Сума передплати",
+                ["Plugins.Shipping.NovaPoshta.Fields.DefaultVolumeGeneral"] = "Загальний об'єм",
+                ["Plugins.Shipping.NovaPoshta.Fields.DefaultWeight"] = "Загальна вага",
 
                 ["Plugins.Shipping.NovaPoshta.Button.Sync"] = "Синхронізувати",
                 ["Plugins.Shipping.NovaPoshta.Button.Add"] = "Зберегти та додати відправлення новою поштою",
 
+                ["Plugins.Shipping.NovaPoshta.Messages.NoResults"] = "Нічого не знайдено",
+                ["Plugins.Shipping.NovaPoshta.Messages.Searching"] = "Ввдеіть 2 або більше букви",
+
+                ["Plugins.Shipping.NovaPoshta.Placeholder.City"] = "Виберіть населенний пункт",
+                ["Plugins.Shipping.NovaPoshta.Placeholder.Warehouse"] = "Виберіть склад, спочатку населенний пункт",
             });
 
             var langs = _languageService.GetAllLanguages();
 
             var novaPoshtaCityAddressAttribute = new AddressAttribute
             {
-                AttributeControlType = Core.Domain.Catalog.AttributeControlType.TextBox,
+                AttributeControlType = Core.Domain.Catalog.AttributeControlType.DropdownList,
                 DisplayOrder = 10,
                 IsRequired = true,
                 Name = "NovaPoshtaCity"
