@@ -44,12 +44,16 @@
       "Version": "1.0"
     },
     {
-      "SystemName": "FoxNetSoft.Payments.LiqPay",
-      "Version": "3.05"
-    },
-    {
       "SystemName": "Shipping.NovaPoshta",
       "Version": "1.71"
+    },
+    {
+      "SystemName": "Payments.Manual",
+      "Version": "1.60"
+    },
+    {
+      "SystemName": "Payments.Monobank",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

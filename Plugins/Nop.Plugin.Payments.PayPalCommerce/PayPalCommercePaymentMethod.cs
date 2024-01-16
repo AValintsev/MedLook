@@ -424,7 +424,7 @@ namespace Nop.Plugin.Payments.PayPalCommerce
                 return typeof(ButtonsViewComponent);
 
             if (widgetZone.Equals(PublicWidgetZones.HeaderLinksBefore) || widgetZone.Equals(PublicWidgetZones.Footer))
-                return typeof(LogoViewComponent);
+                return typeof(PayPalLogoViewComponent);
 
             return null;
         }

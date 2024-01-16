@@ -1,0 +1,89 @@
+﻿@model ConfigurationModel
+
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync(typeof(StoreScopeConfigurationViewComponent))
+
+@if (Model.IsConfigured)
+{
+    @await Component.InvokeAsync(typeof(SettingModeViewComponent))
+}
+
+<form asp-controller="Monobank" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card card-default">
+                <div class="card-body">
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="Token" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="Token" />
+                            <span asp-validation-for="Token"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="WebhookUrl" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="WebhookUrl" />
+                            <span asp-validation-for="WebhookUrl"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="RedirectUrl" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="RedirectUrl" />
+                            <span asp-validation-for="RedirectUrl"></span>
+                        </div>
+                    </div>
+
+                    @*<div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="Reference" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="Reference" />
+                            <span asp-validation-for="Reference"></span>
+                        </div>
+                    </div>*@
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="Validity" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="Validity" />
+                            <span asp-validation-for="Validity"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="QrId" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="QrId" />
+                            <span asp-validation-for="QrId"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-9 offset-md-3">
+                            <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

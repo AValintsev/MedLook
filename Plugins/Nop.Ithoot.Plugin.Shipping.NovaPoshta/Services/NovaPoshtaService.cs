@@ -117,11 +117,12 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 Weight = _novaPoshtaSettings.DefaultWeight,
                 //OR calculate weight
                 //shipment.TotalWeight.HasValue ? (shipment.TotalWeight.Value == 0 ? 1 : shipment.TotalWeight.Value) : 1,
-                
+
                 VolumeGeneral = _novaPoshtaSettings.DefaultVolumeGeneral,// Or calculate
                 ServiceType = "WarehouseWarehouse",
                 SeatsAmount = 1,
-                Description = "Одяг",
+                //Description = "Одяг",
+                Description = $"Order #{order.Id}",
                 Cost = 200,
 
                 CitySender = _novaPoshtaSettings.CitySenderId,

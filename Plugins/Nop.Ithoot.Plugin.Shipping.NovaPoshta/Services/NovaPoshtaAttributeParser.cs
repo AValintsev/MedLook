@@ -47,6 +47,12 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                         {
                             attributesXml = AddAddressAttribute(attributesXml, attribute, attributeValues.ToString().Trim());
                         }
+
+                        if (!StringValues.IsNullOrEmpty(attributeValues)
+                            && attribute.Id == _novaPoshtaSettings.CityAttributeId)
+                        {
+                            attributesXml = AddAddressAttribute(attributesXml, attribute, attributeValues.ToString().Trim());
+                        }
                         break;
                     case AttributeControlType.RadioList:
                         if (!StringValues.IsNullOrEmpty(attributeValues) && int.TryParse(attributeValues, out var value) && value > 0)
