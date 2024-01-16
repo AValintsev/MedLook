@@ -2,11 +2,11 @@
 
 namespace Nop.Ithoot.Plugin.Payments.Monobank.Data
 {
-    public class MonoRequest
+    public class MonoInvoiceCreateRequest
     {
         public string Token { get; set; }
-        public string Cms { get; set; } = "nopCommerce";
-        public string CmsVersion { get; set; } = "4.60";
+        public string Cms { get; set; }
+        public string CmsVersion { get; set; }
 
         public PostData Data { get; set; }
     }

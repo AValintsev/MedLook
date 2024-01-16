@@ -29,5 +29,11 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Models
 
         [NopResourceDisplayName("Plugins.Ithoot.Payments.Monobank.Fields.Validity")]
         public int Validity { get; set; }
+
+        [NopResourceDisplayName("Plugins.Ithoot.Payments.Monobank.Fields.CMS")]
+        public string CMS { get; set; }
+
+        [NopResourceDisplayName("Plugins.Ithoot.Payments.Monobank.Fields.CMSVersion")]
+        public string CMSVersion { get; set; }
     }
 }

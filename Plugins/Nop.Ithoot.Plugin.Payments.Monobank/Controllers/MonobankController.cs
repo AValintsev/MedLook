@@ -55,14 +55,15 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Controllers
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var settings = await _settingService.LoadSettingAsync<MonobankSettings>(storeId);
 
-
             var model = new ConfigurationModel
             {
                 IsConfigured = !string.IsNullOrEmpty(settings.Token),
                 Token = settings.Token,
                 WebhookUrl = settings.WebhookUrl,
                 Validity = settings.Validity,
-                QrId = settings.QrId
+                QrId = settings.QrId,
+                CMS = settings.Cms,
+                CMSVersion = settings.CmsVersion
             };
 
             return View("~/Plugins/Payments.Monobank/Views/Configure.cshtml", model);
@@ -84,8 +85,9 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Controllers
             settings.Token = model.Token;
             settings.WebhookUrl = model.WebhookUrl;
             settings.QrId = model.QrId;
-            //settings.Reference = model.Reference;
             settings.Validity = model.Validity;
+            settings.Cms = model.CMS;
+            settings.CmsVersion = model.CMSVersion;
 
             await _settingService.SaveSettingAsync(settings);
 

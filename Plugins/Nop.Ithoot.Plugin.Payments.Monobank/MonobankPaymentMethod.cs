@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -164,7 +165,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             var redirectUrl = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext)
                 .RouteUrl("OrderDetails", new { orderId = postProcessPaymentRequest.Order.Id }, _webHelper.GetCurrentRequestProtocol());
 
-            var monoRequest = new MonoRequest
+            var monoRequest = new MonoInvoiceCreateRequest
             {
                 Token = _settings.Token,
                 Data = new PostData
@@ -188,7 +189,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
                 }
             };
 
-            var response = await PostRequestAsync(monoRequest);
+            var response = await PostInvoiceCreateAsync(monoRequest);
 
             if (!string.IsNullOrEmpty(response.ErrCode))
             {
@@ -199,35 +200,6 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
 
             _httpContextAccessor.HttpContext.Response.Redirect(response.PageUrl);
-        }
-
-        protected async Task<MonoResponse> PostRequestAsync(MonoRequest monoRequest)
-        {
-            _httpClient.BaseAddress = new Uri(MonobankDefaults.ApiEndpoints.Base);
-            _httpClient.Timeout = TimeSpan.FromSeconds(_settings.RequestTimeout ?? 30);
-            _httpClient.DefaultRequestHeaders.Add("X-Token", monoRequest.Token);
-            _httpClient.DefaultRequestHeaders.Add("X-Cms", monoRequest.Cms);
-            _httpClient.DefaultRequestHeaders.Add("X-Cms-Version", monoRequest.CmsVersion);
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            var json = JsonConvert.SerializeObject(monoRequest.Data);
-
-            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(MonobankDefaults.ApiEndpoints.InvoiceCreate, content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                string responseData = await response.Content.ReadAsStringAsync();
-
-                return JsonConvert.DeserializeObject<MonoResponse>(responseData);
-            }
-            else
-            {
-                return new MonoResponse
-                {
-                    ErrCode = response.StatusCode.ToString()
-                };
-            }
         }
 
 
@@ -252,10 +224,117 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         /// A task that represents the asynchronous operation
         /// The task result contains the result
         /// </returns>
-        public Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
+        public async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
-            return Task.FromResult(new RefundPaymentResult { Errors = new[] { "Refund method not supported" } });
+            try
+            {
+                var orderItems = await _orderService.GetOrderItemsAsync(refundPaymentRequest.Order.Id);
+                var products = await _productService.GetProductsByIdsAsync(orderItems.Select(x => x.ProductId).ToArray());
+
+                var orderRefundItems = new List<MonoRefundRequestItem>(orderItems.Count);
+                foreach (var oi in orderItems)
+                {
+                    var product = products.FirstOrDefault(p => p.Id == oi.ProductId);
+                    var orderItemPicture = await _pictureService.GetProductPictureAsync(product, oi.AttributesXml);
+                    var imageUrl = (await _pictureService.GetPictureUrlAsync(orderItemPicture, _mediaSettings.OrderThumbPictureSize, true)).Url;
+
+                    orderRefundItems.Add(new MonoRefundRequestItem
+                    {
+                        Code = product.Sku,
+                        Name = product.Name,
+                        Qty = oi.Quantity,
+                        Sum = ((int)oi.PriceInclTax) * 100
+                    });
+                }
+
+                var request = new MonoRefundRequest
+                {
+                    Amount = refundPaymentRequest.IsPartialRefund ? (int)refundPaymentRequest.AmountToRefund : null,
+                    InvoiceId = refundPaymentRequest.Order.CaptureTransactionId,
+                    ExtRef = refundPaymentRequest.Order.Id.ToString(),
+                    Items = orderRefundItems
+                };
+
+                MonoRefundResonse response = await PostRefundAsync(request);
+
+                if (response.Status == "failure")
+                {
+                    throw new Exception($"{response.Status} {response.CreatedDate} {response.ModifiedDate}"); 
+                }
+
+                if (response.Status == "processing")
+                {
+                    throw new Exception($"{response.Status} {response.CreatedDate} {response.ModifiedDate}");
+                }
+            }
+            catch (Exception ex)
+            {
+                return new RefundPaymentResult { Errors = new[] { "Refund has been failde", ex.Message } };
+            }
+
+            return new RefundPaymentResult
+            {
+                NewPaymentStatus = refundPaymentRequest.IsPartialRefund ? PaymentStatus.PartiallyRefunded : PaymentStatus.Refunded
+            };
+
         }
+
+        #region Post helpers
+
+        private async Task<MonoRefundResonse> PostRefundAsync(MonoRefundRequest request)
+        {
+            _httpClient.BaseAddress = new Uri(MonobankDefaults.ApiEndpoints.Base);
+            _httpClient.Timeout = TimeSpan.FromSeconds(_settings.RequestTimeout ?? 30);
+            _httpClient.DefaultRequestHeaders.Add("X-Token", _settings.Token);
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var json = JsonConvert.SerializeObject(request);
+
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(MonobankDefaults.ApiEndpoints.Refund, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseData = await response.Content.ReadAsStringAsync();
+
+                return JsonConvert.DeserializeObject<MonoRefundResonse>(responseData);
+            }
+            else
+            {
+                throw new Exception($"Somthing went wrong tring refund {response.StatusCode}");
+            }
+        }
+
+        private async Task<MonoInvoiceCreateResponse> PostInvoiceCreateAsync(MonoInvoiceCreateRequest monoRequest)
+        {
+            _httpClient.BaseAddress = new Uri(MonobankDefaults.ApiEndpoints.Base);
+            _httpClient.Timeout = TimeSpan.FromSeconds(_settings.RequestTimeout ?? 30);
+            _httpClient.DefaultRequestHeaders.Add("X-Token", _settings.Token);
+            _httpClient.DefaultRequestHeaders.Add("X-Cms", _settings.Cms);
+            _httpClient.DefaultRequestHeaders.Add("X-Cms-Version", _settings.CmsVersion);
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var json = JsonConvert.SerializeObject(monoRequest.Data);
+
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(MonobankDefaults.ApiEndpoints.InvoiceCreate, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseData = await response.Content.ReadAsStringAsync();
+
+                return JsonConvert.DeserializeObject<MonoInvoiceCreateResponse>(responseData);
+            }
+            else
+            {
+                return new MonoInvoiceCreateResponse
+                {
+                    ErrCode = response.StatusCode.ToString()
+                };
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Process recurring payment
@@ -404,11 +483,6 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             return Task.FromResult<IList<string>>(new List<string>
             {
                 PublicWidgetZones.CheckoutPaymentInfoTop,
-                PublicWidgetZones.OpcContentBefore,
-                PublicWidgetZones.ProductDetailsTop,
-                PublicWidgetZones.ProductDetailsAddInfo,
-                PublicWidgetZones.OrderSummaryContentBefore,
-                PublicWidgetZones.OrderSummaryContentAfter,
                 PublicWidgetZones.HeaderLinksBefore,
                 PublicWidgetZones.Footer
             });
@@ -424,16 +498,10 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             if (widgetZone == null)
                 throw new ArgumentNullException(nameof(widgetZone));
 
-            if (widgetZone.Equals(PublicWidgetZones.CheckoutPaymentInfoTop) ||
-                widgetZone.Equals(PublicWidgetZones.OpcContentBefore) ||
-                widgetZone.Equals(PublicWidgetZones.ProductDetailsTop) ||
-                widgetZone.Equals(PublicWidgetZones.OrderSummaryContentBefore))
+            if (widgetZone.Equals(PublicWidgetZones.CheckoutPaymentInfoTop))
             {
-                return typeof(ButtonsViewComponent);
+                return typeof(PaymentInfoViewComponent);
             }
-
-            if (widgetZone.Equals(PublicWidgetZones.ProductDetailsAddInfo) || widgetZone.Equals(PublicWidgetZones.OrderSummaryContentAfter))
-                return typeof(ButtonsViewComponent);
 
             if (widgetZone.Equals(PublicWidgetZones.HeaderLinksBefore) || widgetZone.Equals(PublicWidgetZones.Footer))
                 return typeof(MonobankLogoViewComponent);
@@ -490,7 +558,16 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
                 ["Plugins.Ithoot.Payments.Monobank.Fields.QrId"] = "QrId",
                 ["Plugins.Ithoot.Payments.Monobank.Fields.QrId.Hint"] = "Ідентифікатор QR - каси для встановлення суми оплати на існуючих QR - кас.",
 
-                ["Plugins.Ithoot.Payments.Monobank.PaymentMethodDescription"] = "Оплата через Monobank"
+                ["Plugins.Ithoot.Payments.Monobank.Fields.CMS"] = "CMS",
+                ["Plugins.Ithoot.Payments.Monobank.Fields.CMS.Hint"] = "Назва CMS, якщо ви розробляєте платіжний модуль для CMS",
+
+                ["Plugins.Ithoot.Payments.Monobank.Fields.CMSVersion"] = "CMSVersion",
+                ["Plugins.Ithoot.Payments.Monobank.Fields.CMSVersion.Hint"] = "Версія CMS, якщо ви розробляєте платіжний модуль для CMS",
+
+                ["Plugins.Ithoot.Payments.Monobank.PaymentMethodDescription"] = "Оплата через Monobank",
+
+                ["Plugins.Ithoot.Payments.Monobank.RedirectionTip"] = "Після підтвердження замовлення, Вас перенаправить на платіжну систему Монобанку для здійснення оплати",
+
             });
 
             await base.InstallAsync();

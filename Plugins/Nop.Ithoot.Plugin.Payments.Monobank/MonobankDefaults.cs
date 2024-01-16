@@ -85,8 +85,8 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             public static string Base => "https://api.monobank.ua";
 
             public static string InvoiceCreate => "api/merchant/invoice/create";
+            public static string Refund => "api/merchant/invoice/cancel";
         }
-
-        #endregion
     }
+    #endregion
 }

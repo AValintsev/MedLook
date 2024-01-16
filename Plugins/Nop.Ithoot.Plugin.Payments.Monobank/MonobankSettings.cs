@@ -1,5 +1,6 @@
 ﻿using Nop.Core.Configuration;
 using Nop.Ithoot.Plugin.Payments.Monobank.Domain;
+using System.Collections.Generic;
 
 namespace Nop.Ithoot.Plugin.Payments.Monobank
 {
@@ -47,5 +48,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         /// Gets or sets a webhook URL
         /// </summary>
         public string WebhookUrl { get; set; }
+        public string CmsVersion { get; set; } = "4.60";
+        public string Cms { get; set; } = "nopCommerce";
     }
 }

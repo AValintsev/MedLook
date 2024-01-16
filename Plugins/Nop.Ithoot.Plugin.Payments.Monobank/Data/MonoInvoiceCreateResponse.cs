@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Nop.Ithoot.Plugin.Payments.Monobank.Data
 {
-    public class MonoResponse
+    public class MonoInvoiceCreateResponse
     {
         public string InvoiceId { get; set; }   
         public string PageUrl { get; set; }
