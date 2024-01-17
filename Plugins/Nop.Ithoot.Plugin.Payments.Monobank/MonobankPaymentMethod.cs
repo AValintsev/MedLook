@@ -172,9 +172,9 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
                 {
                     Amount = ((int)postProcessPaymentRequest.Order.OrderTotal) * 100,
                     Ccy = 980,
-                    Code = "",
+                    Code = _settings.TerminalCode,
                     PaymentType = _settings.PaymentType == PaymentType.Debit ? "debit" : "hold",
-                    QrId = "",
+                    QrId = _settings.QrId,
                     Validity = _settings.Validity,
                     RedirectUrl = redirectUrl,
                     WebHookUrl = _settings.WebhookUrl,
@@ -259,7 +259,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
 
                 if (response.Status == "failure")
                 {
-                    throw new Exception($"{response.Status} {response.CreatedDate} {response.ModifiedDate}"); 
+                    throw new Exception($"{response.Status} {response.CreatedDate} {response.ModifiedDate}");
                 }
 
                 if (response.Status == "processing")
@@ -557,6 +557,9 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
 
                 ["Plugins.Ithoot.Payments.Monobank.Fields.QrId"] = "QrId",
                 ["Plugins.Ithoot.Payments.Monobank.Fields.QrId.Hint"] = "Ідентифікатор QR - каси для встановлення суми оплати на існуючих QR - кас.",
+
+                ["Plugins.Ithoot.Payments.Monobank.Fields.TerminalCode"] = "TerminalCode",
+                ["Plugins.Ithoot.Payments.Monobank.Fields.TerminalCode.Hint"] = "Код терміналу субмерчанта, з апі 'Список субмерчантів'. Доступний обмеженому колу мерчантів, які точно знають, що їм це потрібно.",
 
                 ["Plugins.Ithoot.Payments.Monobank.Fields.CMS"] = "CMS",
                 ["Plugins.Ithoot.Payments.Monobank.Fields.CMS.Hint"] = "Назва CMS, якщо ви розробляєте платіжний модуль для CMS",

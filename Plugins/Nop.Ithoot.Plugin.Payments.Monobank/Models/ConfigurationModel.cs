@@ -35,5 +35,8 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Models
 
         [NopResourceDisplayName("Plugins.Ithoot.Payments.Monobank.Fields.CMSVersion")]
         public string CMSVersion { get; set; }
+
+        [NopResourceDisplayName("Plugins.Ithoot.Payments.Monobank.Fields.TerminalCode")]
+        public string TerminalCode { get; set; }
     }
 }

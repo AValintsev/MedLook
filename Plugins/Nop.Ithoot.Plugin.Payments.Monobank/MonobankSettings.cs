@@ -50,5 +50,6 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         public string WebhookUrl { get; set; }
         public string CmsVersion { get; set; } = "4.60";
         public string Cms { get; set; } = "nopCommerce";
+        public string TerminalCode { get; set; }
     }
 }
