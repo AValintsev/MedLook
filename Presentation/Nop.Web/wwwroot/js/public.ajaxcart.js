@@ -86,6 +86,7 @@ var AjaxCart = {
     },
 
     success_process: function (response) {
+        console.log(response);
         if (response.updatetopcartsectionhtml) {
             $(AjaxCart.topcartselector).html(response.updatetopcartsectionhtml);
         }
@@ -111,6 +112,11 @@ var AjaxCart = {
                 //error
                 if (AjaxCart.usepopupnotifications === true) {
                     displayPopupNotification(response.message, 'error', true);
+                    // higlight required
+                    const attrText = $('.attributes .text-prompt').text();
+                    const attrExist = response.message.find(x => attrText.includes(x));
+                    if (attrExist)
+                        $('.attributes .required.prompt').show();
                 }
                 else {
                     //no timeout for errors
