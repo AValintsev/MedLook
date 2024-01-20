@@ -178,10 +178,10 @@ label, label + * {
 
 .master-wrapper-content {
     position: relative;
-    top: 60px;
+    /*top: 60px;*/
     z-index: 0;
     /*width: 90%;*/
-    margin: 10px;
+    margin: 20px 10px 10px 10px;
     /*padding-top: 80px;*/
 }
 
@@ -1137,7 +1137,8 @@ label, label + * {
     display: flex;
     flex-flow: column;
     justify-content: center;
-    width: 15%;
+    width: 100%;
+    margin-bottom: 0px;
     background-color: #333;
     color: #eee;
 }
@@ -1163,55 +1164,12 @@ label, label + * {
                 background-color: #666;
             }
 
-. /*header {
-    z-index: 10;
-    display: flex;
-    flex-direction: column;*/
-/*position: relative;
-	width: 95%;
-	margin: auto;
-	padding-top: 50px;
-	text-align: center;*/
-/*}
-
-.header-upper {
-    display: flex;
-    position: fixed;*/
-/*top: 0;*/
-/*left: 0;*/
-/*z-index: 1;
-    border-bottom: 1px solid #ddd;
-    width: 100%;
-    height: 60px;
-    background-color: #71C5EE;
-}
-
-    .header-upper .header-logo {
-        display: flex;
-    }
-
-        .header-upper .header-logo img {
-            height: 130px;
-            top: -30px;
-            position: relative;
-            left: -60px;
-        }
-
-        .header-upper .header-logo a {
-            display: flex;
-            align-items: center;
-            font-size: 32px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #00659C;
-        }*/
 .header-lower {
     display: flex;
     flex-direction: column;
     align-content: center;
     align-items: center;
     justify-content: center;
-    margin-top: 60px;
     width: 100%;
 }
 
@@ -1272,6 +1230,9 @@ label, label + * {
         width: 100%;
     }
 
+.slider-wrapper {
+    margin-bottom: 20px !important;
+}
 
 @media all and (max-width: 600px) {
     .home-page-logo {
@@ -1313,7 +1274,9 @@ label, label + * {
 }
 
 .ui-autocomplete {
-    width: 285px !important;
+    display: block;
+    width: 100%;
+    z-index: 3;
     border: 1px solid #ddd;
     border-top: none;
     overflow: hidden;
@@ -1344,7 +1307,7 @@ label, label + * {
         background: none !important;
         padding: 15px !important;
         line-height: normal !important;
-        color: #777 !important;
+        color: #00659c !important;
     }
 
         .ui-autocomplete a:hover,
@@ -1354,8 +1317,7 @@ label, label + * {
 
     .ui-autocomplete img {
         display: none;
-        min-width: 20px;
-        margin: 0 10px 0 0;
+        margin: 20px;
         vertical-align: middle;
     }
 
@@ -2280,9 +2242,9 @@ label, label + * {
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
-            font-weight: 300;
-            letter-spacing: .5px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: .4px;
             text-transform: uppercase;
             color: #00659C;
             height: 60px;
@@ -7117,7 +7079,6 @@ pre {
 
 
     .ui-autocomplete {
-        width: 280px !important;
     }
 
         .ui-autocomplete img {

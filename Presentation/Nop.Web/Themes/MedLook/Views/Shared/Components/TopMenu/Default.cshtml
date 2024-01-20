@@ -33,11 +33,6 @@
                                 <a href="@Url.RouteUrl("Homepage")">@T("Homepage")</a>
                             </li>
                         }
-                        <li class="mobile-nav--item js-mobile-nav-item no-padding-left search-box-nav-item">
-                            <div class="search-box store-search-box">
-                                @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
-                            </div>
-                        </li>
                         
                         @foreach (var category in rootCategoriesResponsive)
                         {
