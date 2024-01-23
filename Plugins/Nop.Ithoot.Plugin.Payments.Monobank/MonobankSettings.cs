@@ -1,6 +1,5 @@
 ﻿using Nop.Core.Configuration;
 using Nop.Ithoot.Plugin.Payments.Monobank.Domain;
-using System.Collections.Generic;
 
 namespace Nop.Ithoot.Plugin.Payments.Monobank
 {
@@ -37,7 +36,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         /// <summary>
         /// Gets or sets a period (in seconds) before the request times out
         /// </summary>
-        public int? RequestTimeout { get; set; }
+        public int RequestTimeout { get; set; } = 60;
 
         /// <summary>
         /// The validity period in seconds. Default 24 hours

@@ -105,9 +105,13 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
 					}
 					else
 					{
-						if (attribute.Id == _novaPoshtaSettings.WarehouseAttributeId)
+                        if (attribute.Id == _novaPoshtaSettings.CityAttributeId)
+                        {
+                            var obj = JsonSerializer.Deserialize<AutocompleteModel>(valueStr);
+                            formattedAttribute = obj.value;
+                        }
+                        if (attribute.Id == _novaPoshtaSettings.WarehouseAttributeId)
 						{
-							//valuesStr = JsonSerializer.Serialize<AutocompleteModel>(valuesStr);
 							var obj = JsonSerializer.Deserialize<AutocompleteModel>(valueStr);
 							formattedAttribute = obj.value;
 						}

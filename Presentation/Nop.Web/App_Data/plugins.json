@@ -46,6 +46,10 @@
     {
       "SystemName": "Shipping.NovaPoshta",
       "Version": "1.71"
+    },
+    {
+      "SystemName": "Payments.Monobank",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

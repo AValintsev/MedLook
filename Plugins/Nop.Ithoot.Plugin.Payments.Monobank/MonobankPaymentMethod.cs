@@ -46,12 +46,8 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
     {
         #region Fields
 
-        private readonly CurrencySettings _currencySettings;
         private readonly IActionContextAccessor _actionContextAccessor;
-        private readonly ICurrencyService _currencyService;
-        private readonly IGenericAttributeService _genericAttributeService;
         private readonly ILocalizationService _localizationService;
-        private readonly IPaymentService _paymentService;
         private readonly ISettingService _settingService;
         private readonly IStoreService _storeService;
         private readonly IUrlHelperFactory _urlHelperFactory;
@@ -72,12 +68,9 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
 
         #region Ctor
 
-        public MonobankPaymentMethod(CurrencySettings currencySettings,
+        public MonobankPaymentMethod(
             IActionContextAccessor actionContextAccessor,
-            ICurrencyService currencyService,
-            IGenericAttributeService genericAttributeService,
             ILocalizationService localizationService,
-            IPaymentService paymentService,
             ISettingService settingService,
             IStoreService storeService,
             IUrlHelperFactory urlHelperFactory,
@@ -92,12 +85,8 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper)
         {
-            _currencySettings = currencySettings;
             _actionContextAccessor = actionContextAccessor;
-            _currencyService = currencyService;
-            _genericAttributeService = genericAttributeService;
             _localizationService = localizationService;
-            _paymentService = paymentService;
             _settingService = settingService;
             _storeService = storeService;
             _urlHelperFactory = urlHelperFactory;
@@ -284,7 +273,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         private async Task<MonoRefundResonse> PostRefundAsync(MonoRefundRequest request)
         {
             _httpClient.BaseAddress = new Uri(MonobankDefaults.ApiEndpoints.Base);
-            _httpClient.Timeout = TimeSpan.FromSeconds(_settings.RequestTimeout ?? 30);
+            _httpClient.Timeout = TimeSpan.FromSeconds(_settings.RequestTimeout);
             _httpClient.DefaultRequestHeaders.Add("X-Token", _settings.Token);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -308,7 +297,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         private async Task<MonoInvoiceCreateResponse> PostInvoiceCreateAsync(MonoInvoiceCreateRequest monoRequest)
         {
             _httpClient.BaseAddress = new Uri(MonobankDefaults.ApiEndpoints.Base);
-            _httpClient.Timeout = TimeSpan.FromSeconds(_settings.RequestTimeout ?? 30);
+            _httpClient.Timeout = TimeSpan.FromSeconds(_settings.RequestTimeout);
             _httpClient.DefaultRequestHeaders.Add("X-Token", _settings.Token);
             _httpClient.DefaultRequestHeaders.Add("X-Cms", _settings.Cms);
             _httpClient.DefaultRequestHeaders.Add("X-Cms-Version", _settings.CmsVersion);
@@ -567,10 +556,12 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
                 ["Plugins.Ithoot.Payments.Monobank.Fields.CMSVersion"] = "CMSVersion",
                 ["Plugins.Ithoot.Payments.Monobank.Fields.CMSVersion.Hint"] = "Версія CMS, якщо ви розробляєте платіжний модуль для CMS",
 
+                ["Plugins.Ithoot.Payments.Monobank.Fields.RequestTimeout"] = "Request timeout",
+                ["Plugins.Ithoot.Payments.Monobank.Fields.RequestTimeout.Hint"] = "Визначай час очікування для запиту (60 - дефалтивно)",                
+
                 ["Plugins.Ithoot.Payments.Monobank.PaymentMethodDescription"] = "Оплата через Monobank",
 
                 ["Plugins.Ithoot.Payments.Monobank.RedirectionTip"] = "Після підтвердження замовлення, Вас перенаправить на платіжну систему Монобанку для здійснення оплати",
-
             });
 
             await base.InstallAsync();

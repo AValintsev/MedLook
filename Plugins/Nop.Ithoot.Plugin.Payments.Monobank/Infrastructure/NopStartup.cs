@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
-using Nop.Ithoot.Plugin.Payments.Monobank.Services;
 using Nop.Web.Framework.Infrastructure.Extensions;
 
 namespace Nop.Ithoot.Plugin.Payments.Monobank.Infrastructure
@@ -19,7 +18,6 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Infrastructure
         /// <param name="configuration">Configuration of the application</param>
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddHttpClient<OnboardingHttpClient>().WithProxy();
             //services.AddScoped<ServiceManager>();
         }
 

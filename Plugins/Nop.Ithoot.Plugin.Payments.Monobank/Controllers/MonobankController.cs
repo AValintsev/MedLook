@@ -63,7 +63,8 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Controllers
                 Validity = settings.Validity,
                 QrId = settings.QrId,
                 CMS = settings.Cms,
-                CMSVersion = settings.CmsVersion
+                CMSVersion = settings.CmsVersion,
+                RequestTimeout = settings.RequestTimeout
             };
 
             return View("~/Plugins/Payments.Monobank/Views/Configure.cshtml", model);
@@ -88,6 +89,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Controllers
             settings.Validity = model.Validity;
             settings.Cms = model.CMS;
             settings.CmsVersion = model.CMSVersion;
+            settings.RequestTimeout = model.RequestTimeout;
 
             await _settingService.SaveSettingAsync(settings);
 

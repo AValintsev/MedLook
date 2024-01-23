@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Http.Extensions;
 using Nop.Ithoot.Plugin.Payments.Monobank.Models;
-using Nop.Ithoot.Plugin.Payments.Monobank.Services;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Payments;
