@@ -61,6 +61,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Controllers
                 Token = settings.Token,
                 WebhookUrl = settings.WebhookUrl,
                 Validity = settings.Validity,
+                TerminalCode = settings.TerminalCode,
                 QrId = settings.QrId,
                 CMS = settings.Cms,
                 CMSVersion = settings.CmsVersion,
@@ -89,6 +90,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank.Controllers
             settings.Validity = model.Validity;
             settings.Cms = model.CMS;
             settings.CmsVersion = model.CMSVersion;
+            settings.TerminalCode = model.TerminalCode;
             settings.RequestTimeout = model.RequestTimeout;
 
             await _settingService.SaveSettingAsync(settings);
