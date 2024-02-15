@@ -122,6 +122,16 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Plugins\DiscountRules.CustomerRoles\Views\" />
+    <Folder Include="Plugins\Feed.GoogleShopping\Content\" />
+    <Folder Include="Plugins\Feed.GoogleShopping\Files\" />
+    <Folder Include="Plugins\Feed.GoogleShopping\Views\" />
+    <Folder Include="Plugins\Misc.FopPdf\Views\" />
+    <Folder Include="Plugins\Payments.CashOnDelivery\Views\" />
+    <Folder Include="Plugins\Widgets.FacebookPixel\Views\Configuration\" />
+  </ItemGroup>
+
   <!-- This target execute after "Build" target.
     We use it to clean up folder with plugins from unnecessary and obsolete libraries. -->
   <Target Name="NopTarget" AfterTargets="Build">

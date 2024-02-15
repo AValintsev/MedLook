@@ -24,10 +24,6 @@
       "Version": "1.91"
     },
     {
-      "SystemName": "Misc.Sendinblue",
-      "Version": "3.56"
-    },
-    {
       "SystemName": "NopAdvance.Core",
       "Version": "1.12"
     },
@@ -50,9 +46,19 @@
     {
       "SystemName": "Payments.Monobank",
       "Version": "1.0"
+    },
+    {
+      "SystemName": "Misc.Sendinblue",
+      "Version": "3.56"
     }
   ],
   "PluginNamesToUninstall": [],
-  "PluginNamesToDelete": [],
+  "PluginNamesToDelete": [ 
+    "Tax.Avalara",
+    "Tax.FixedOrByCountryStateZip",
+    "Widgets.What3words",
+    "Widgets.AccessiBe",
+    "Payments.CyberSource"
+  ],
   "PluginNamesToInstall": []
 }
