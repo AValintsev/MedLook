@@ -24,5 +24,5 @@ Password=MdAdmin11
 
 brevo (sendinblue)
 sales@medlook.com.ua
-api key: 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
-smtp key: FHxQaZPXS7JtwhEz
+api key: see on site https://app.brevo.com/settings/keys/api
+smtp key: see on site  https://app.brevo.com/settings/keys/api
