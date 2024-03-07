@@ -444,7 +444,7 @@
         //almost the same implementation is used in the \Views\Product\_RentalInfo.cshtml file
         <script asp-location="Footer">
             function @(attributeChangeHandlerFuncName)() {
-
+    
                 $.ajax({
                     cache: false,
                     url: "@Html.Raw(Url.Action("productdetails_attributechange", "shoppingcart", new { productId = Model.Id, validateAttributeConditions = attributesHaveConditions, loadPicture = attributesHaveAssociatedPictures }))",

@@ -7,6 +7,7 @@
 @using Nop.Services.Media
 @inject IDownloadService downloadService
 @inject CatalogSettings catalogSettings
+
 @{
     var query = PluginDefaults.CP_QueryPrefix + "[" + PluginDefaults.CP_AttributeFilter + "]";
 }
@@ -27,22 +28,28 @@
 
                         @foreach (var value in attr.Values.OrderBy(x => x.Name))
                         {
-                            <div class="col-auto item">
-                                <input class="btn-check" id="prod-attribute-option-@value.Id" type="checkbox" data-prod-option-id="@value.Id" checked="@value.Selected" />
-                                @if (string.IsNullOrEmpty(value.ColorSquaresRgb))
-                                {
-                                    <label class="btn-label" for="prod-attribute-option-@value.Id">
-                                        @value.Name
-                                    </label>
-                                }
-                                else
-                                {
-                                    <label for="prod-attribute-option-@value.Id" class="btn-label attribute-squares color-squares">
-                                        <span class="attribute-square" style="background-color: @(value.ColorSquaresRgb);"></span>
-                                        @value.Name
-                                    </label>
-                                }
+                            <div class="col-auto item" data-attr-value="@value.Id">
+                                <input class="btn-check" id="@(controlId)_@(value.Id)" type="radio" name="@(controlId)"
+                                       value="@value.Id" checked="@value.Selected" />
+                                <label class="btn-label" for="@(controlId)_@(value.Id)">@value.Name</label>
                             </div>
+
+                            @*  <li class="item">
+                    <input id="prod-attribute-option-@value.Id" type="checkbox" data-prod-option-id="@value.Id" checked="@value.Selected" />
+                    @if (string.IsNullOrEmpty(value.ColorSquaresRgb))
+                    {
+                    <label for="prod-attribute-option-@value.Id">
+                    @value.Name
+                    </label>
+                    }
+                    else
+                    {
+                    <label for="prod-attribute-option-@value.Id" class="attribute-squares color-squares">
+                    <span class="attribute-square" style="background-color: @(value.ColorSquaresRgb);"></span>
+                    @value.Name
+                    </label>
+                    }
+                    </li> *@
                         }
                     </div>
                 </dd>
@@ -55,9 +62,8 @@
         var $optionEls = $('[data-prod-option-id]');
         var $clearButton = $('#clear-product-attribute-filters-button');
 
-        $optionEls.on('click', function () {
+        $optionEls.on('change', function () {
             if ($clearButton.length > 0) {
-
                 if ($('[data-prod-option-id]:checked').length > 0)
                     $clearButton.show();
                 else

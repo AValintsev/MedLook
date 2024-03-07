@@ -225,9 +225,15 @@ label, label + * {
     margin: 20px auto !important;
 }
 
-    .block-recently-viewed-products li {
-        display: flex;
+@media (min-width: 320px) and (max-width: 1000px) {
+    .block-recently-viewed-products .listbox {
+        display: none;
     }
+}
+
+.block-recently-viewed-products li {
+    display: flex;
+}
 
 .home-page-categories {
     margin: 32px 0;
@@ -1523,7 +1529,7 @@ label, label + * {
 
 
 .block {
-    max-width: 600px; /*width limit in mobile*/
+    /*max-width: 600px; *//*width limit in mobile*/
     min-height: 50px;
     margin: auto;
     text-align: left;
@@ -1837,35 +1843,38 @@ label, label + * {
         font-size: 0;
     }
 
+@media (min-width: 320px) and (max-width: 1000px) {
+    .block.product-filters {
+        display: none;
+    }
+}
+
 .product-filters {
-    display: fl;
+    display: block;
     width: 100%;
     margin: -20px 0 20px;
     border-bottom: 1px solid #ddd;
 }
 
-.product-filter {
+
+.product-filter .filter-title {
     margin: 0 0 10px;
+    background-color: #f6f6f6;
+    padding: 10px;
+    font-size: 17px;
+    color: #00659C;
 }
 
-    .product-filter .filter-title {
-        margin: 0 0 10px;
-        background-color: #f6f6f6;
-        padding: 10px;
-        font-size: 17px;
-        color: #00659C;
+    .product-filter .filter-title strong {
+        font-weight: normal;
     }
 
-        .product-filter .filter-title strong {
-            font-weight: normal;
-        }
-
-    .product-filter .filter-content {
-        padding: 10px;
-        color: #00659C;
-        display: flex;
-        align-items: flex-start;
-    }
+.product-filter .filter-content {
+    padding: 10px;
+    color: #00659C;
+    display: flex;
+    align-items: flex-start;
+}
 
 @media (max-width: 581px) {
     .product-filter .filter-content {
@@ -2935,6 +2944,12 @@ label, label + * {
         .product-tags-list a:hover {
             color: #00659C;
         }
+
+.attributes.filter {
+    margin: 0;
+    padding-top: 20px;
+    border: solid 1px #71c5ee;
+}
 
 .attributes {
     margin: 20px 0;
@@ -4411,7 +4426,7 @@ label, label + * {
         padding: 10px 20px;
         font-size: 16px;
         color: #feffff;
-        margin: 0 5px;
+        margin: 5px;
     }
 
         .shopping-cart-page .common-buttons button:hover {
