@@ -41,7 +41,7 @@ namespace Nop.Web.Controllers
         private readonly AddressSettings _addressSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly CustomerSettings _customerSettings;
-        private readonly IAddressAttributeParser _addressAttributeParser;        
+        private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IAddressModelFactory _addressModelFactory;
         private readonly IAddressService _addressService;
         private readonly ICheckoutModelFactory _checkoutModelFactory;
@@ -255,7 +255,7 @@ namespace Nop.Web.Controllers
 
                     throw new Exception(errors);
                 }
-                
+
                 var customer = await _workContext.GetCurrentCustomerAsync();
                 var store = await _storeContext.GetCurrentStoreAsync();
                 var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
@@ -271,7 +271,7 @@ namespace Nop.Web.Controllers
                 var customAttributes = await _addressAttributeParser.ParseCustomAddressAttributesAsync(form);
                 var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarningsAsync(customAttributes);
 
-                if (customAttributeWarnings.Any()) 
+                if (customAttributeWarnings.Any())
                     return Json(new { error = 1, message = customAttributeWarnings });
 
                 address = addressModel.ToEntity(address);
@@ -498,7 +498,7 @@ namespace Nop.Web.Controllers
         {
             return await DeleteAddressAsync(addressId, async (cart) =>
             {
-                if (!opc) 
+                if (!opc)
                     return Json(new { redirect = Url.RouteUrl("CheckoutBillingAddress") });
 
                 var billingAddressModel = await _checkoutModelFactory.PrepareBillingAddressModelAsync(cart);
@@ -526,7 +526,7 @@ namespace Nop.Web.Controllers
                     return Json(new { redirect = Url.RouteUrl("CheckoutShippingAddress") });
 
                 var shippingAddressModel = await _checkoutModelFactory.PrepareShippingAddressModelAsync(cart);
-                
+
                 return Json(new
                 {
                     update_section = new UpdateSectionJsonModel
@@ -569,7 +569,7 @@ namespace Nop.Web.Controllers
                 });
             });
         }
-        
+
         #endregion
 
         #region Methods (multistep checkout)
@@ -2005,11 +2005,11 @@ namespace Nop.Web.Controllers
             {
                 var customer = await _workContext.GetCurrentCustomerAsync();
 
-                var isCaptchaSettingEnabled = await _customerService.IsGuestAsync(customer) && 
+                var isCaptchaSettingEnabled = await _customerService.IsGuestAsync(customer) &&
                     _captchaSettings.Enabled && _captchaSettings.ShowOnCheckoutPageForGuests;
 
                 var confirmOrderModel = new CheckoutConfirmModel()
-                { 
+                {
                     DisplayCaptcha = isCaptchaSettingEnabled
                 };
 
@@ -2150,7 +2150,17 @@ namespace Nop.Web.Controllers
                     Order = order
                 };
 
-                await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+                try
+                {
+                    await _logger.InformationAsync("try to run _paymentService.PostProcessPaymentAsync");
+                    await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+
+                }
+                catch (Exception e)
+                {
+                    await _logger.ErrorAsync("_paymentService.PostProcessPaymentAsync has been failed", e);
+                }
+
 
                 if (_webHelper.IsRequestBeingRedirected || _webHelper.IsPostBeingDone)
                 {

@@ -18,10 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Services\ServiceManager.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="logo.png" />
     <None Remove="plugin.json" />
     <None Remove="Views\Configure.cshtml" />
@@ -48,19 +44,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PayPal" Version="2.0.0-rc2" />
-    <PackageReference Include="PayPalCheckoutSdk" Version="1.0.3" />
-    <PackageReference Include="PayPalHttp" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Presentation\Nop.Web\Nop.Web.csproj" />
     <ClearPluginAssemblies Include="$(MSBuildProjectDirectory)\..\..\Build\ClearPluginAssemblies.proj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-    <Folder Include="Validators\" />
+    <ProjectReference Include="..\..\Libraries\Nop.Core\Nop.Core.csproj" />
+    <ProjectReference Include="..\..\Libraries\Nop.Data\Nop.Data.csproj" />
+    <ProjectReference Include="..\..\Libraries\Nop.Services\Nop.Services.csproj" />
+    <ProjectReference Include="..\..\Presentation\Nop.Web.Framework\Nop.Web.Framework.csproj" />
   </ItemGroup>
 
   <!-- This target execute after "Build" target -->

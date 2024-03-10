@@ -23,6 +23,7 @@ using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
+using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Orders;
 using Nop.Services.Payments;
@@ -55,12 +56,14 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         private readonly MonobankSettings _settings;
         private readonly WidgetSettings _widgetSettings;
 
+
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOrderService _orderService;
         private readonly IProductService _productService;
         private readonly IPictureService _pictureService;
         private readonly IWebHelper _webHelper;
 
+        private readonly ILogger _logger;
         private readonly MediaSettings _mediaSettings;
         private readonly HttpClient _httpClient;
 
@@ -83,7 +86,8 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             IPictureService pictureService,
             MediaSettings mediaSettings,
             IHttpContextAccessor httpContextAccessor,
-            IWebHelper webHelper)
+            IWebHelper webHelper,
+            ILogger logger)
         {
             _actionContextAccessor = actionContextAccessor;
             _localizationService = localizationService;
@@ -100,6 +104,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
             _mediaSettings = mediaSettings;
             _httpContextAccessor = httpContextAccessor;
             _webHelper = webHelper;
+            _logger = logger;
         }
 
         #endregion
@@ -129,6 +134,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
         /// </summary>
         /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
         /// <returns>A task that represents the asynchronous operation</returns>
+        [IgnoreAntiforgeryToken]
         public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
             var orderItems = await _orderService.GetOrderItemsAsync(postProcessPaymentRequest.Order.Id);
@@ -187,6 +193,8 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
 
             postProcessPaymentRequest.Order.CaptureTransactionId = response.InvoiceId;
             await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+
+            await _logger.InformationAsync($"Monobank redirect url {response.PageUrl}");
 
             _httpContextAccessor.HttpContext.Response.Redirect(response.PageUrl);
         }
@@ -557,7 +565,7 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
                 ["Plugins.Ithoot.Payments.Monobank.Fields.CMSVersion.Hint"] = "Версія CMS, якщо ви розробляєте платіжний модуль для CMS",
 
                 ["Plugins.Ithoot.Payments.Monobank.Fields.RequestTimeout"] = "Request timeout",
-                ["Plugins.Ithoot.Payments.Monobank.Fields.RequestTimeout.Hint"] = "Визначай час очікування для запиту (60 - дефалтивно)",                
+                ["Plugins.Ithoot.Payments.Monobank.Fields.RequestTimeout.Hint"] = "Визначай час очікування для запиту (60 - дефалтивно)",
 
                 ["Plugins.Ithoot.Payments.Monobank.PaymentMethodDescription"] = "Оплата через Monobank",
 
