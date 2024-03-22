@@ -1,0 +1,62 @@
+﻿@model OnePageCheckoutModel
+@using Nop.Core
+@using Nop.Services.Customers
+@inject IWebHelper webHelper
+@inject IWorkContext workContext
+@inject ICustomerService _customerService
+@{
+    Layout = "_ColumnsOne";
+
+    var storeLocation = webHelper.GetStoreLocation();
+
+    //title
+    NopHtml.AddTitleParts(T("PageTitle.Checkout").Text);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-checkout-page");
+}
+@{
+    //step numbers
+    var billingAddressStepNumber = 1;
+    var shippingAddressStepNumber = 2;
+    var shippingMethodStepNumber = 3;
+    var paymentMethodStepNumber = 4;
+    var paymentInfoStepNumber = 5;
+    var confirmOrderStepNumber = 6;
+    if (!Model.ShippingRequired)
+    {
+        paymentMethodStepNumber = paymentMethodStepNumber - 2;
+        paymentInfoStepNumber = paymentInfoStepNumber - 2;
+        confirmOrderStepNumber = confirmOrderStepNumber - 2;
+    }
+    if (Model.DisableBillingAddressCheckoutStep)
+    {
+        shippingAddressStepNumber--;
+        shippingMethodStepNumber--;
+        paymentMethodStepNumber--;
+        paymentInfoStepNumber--;
+        confirmOrderStepNumber--;
+    }
+}
+
+<script src="~/js/public.accordion.js" asp-location="Footer"></script>
+<script src="~/js/public.onepagecheckout.js" asp-location="Footer"></script>
+
+<div class="page checkout-page">
+    <div class="page-title">
+        Hws
+        <h1>@T("Checkout")</h1>
+    </div>
+    <div class="page-body checkout-data">
+       
+    <script asp-location="Footer">
+        Accordion.init('checkout-steps', '.step-title', true);
+        Accordion.openSection('#opc-billing');
+        Checkout.init('@(storeLocation)cart/');
+        if (Billing.disableBillingAddressCheckoutStep)
+        {
+            Accordion.hideSection('#opc-billing');
+            Billing.save();
+        }
+    </script>
+</div>
+</div
