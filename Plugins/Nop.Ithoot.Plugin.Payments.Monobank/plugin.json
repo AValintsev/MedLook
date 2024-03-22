@@ -1,6 +1,6 @@
 ﻿{
   "Group": "Payment methods",
-  "FriendlyName": "Monobank",
+  "FriendlyName": "plata by mono",
   "SystemName": "Payments.Monobank",
   "Version": "1.0",
   "SupportedVersions": [ "4.60" ],

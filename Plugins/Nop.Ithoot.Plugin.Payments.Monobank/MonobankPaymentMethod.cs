@@ -184,7 +184,17 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
                 }
             };
 
-            var response = await PostInvoiceCreateAsync(monoRequest);
+            MonoInvoiceCreateResponse response = null;
+            try
+            {
+                await _logger.InformationAsync($"PostProcessPaymentAsync tries PostInvoiceCreateAsync");
+
+                response = await PostInvoiceCreateAsync(monoRequest);
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync("PostProcessPaymentAsync tries PostInvoiceCreateAsync calling error", ex);
+            }
 
             if (!string.IsNullOrEmpty(response.ErrCode))
             {
@@ -313,17 +323,19 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
 
             var json = JsonConvert.SerializeObject(monoRequest.Data);
 
+            await _logger.InformationAsync("PostInvoiceCreateAsync gonna post to monobank api", new Exception(json.ToString()));
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(MonobankDefaults.ApiEndpoints.InvoiceCreate, content);
 
             if (response.IsSuccessStatusCode)
             {
                 string responseData = await response.Content.ReadAsStringAsync();
-
+                await _logger.InformationAsync("PostInvoiceCreateAsync success respone", new Exception(responseData));
                 return JsonConvert.DeserializeObject<MonoInvoiceCreateResponse>(responseData);
             }
             else
             {
+                await _logger.ErrorAsync("PostInvoiceCreateAsync error", new Exception(response.StatusCode.ToString()));
                 return new MonoInvoiceCreateResponse
                 {
                     ErrCode = response.StatusCode.ToString()
@@ -567,9 +579,9 @@ namespace Nop.Ithoot.Plugin.Payments.Monobank
                 ["Plugins.Ithoot.Payments.Monobank.Fields.RequestTimeout"] = "Request timeout",
                 ["Plugins.Ithoot.Payments.Monobank.Fields.RequestTimeout.Hint"] = "Визначай час очікування для запиту (60 - дефалтивно)",
 
-                ["Plugins.Ithoot.Payments.Monobank.PaymentMethodDescription"] = "Оплата через Monobank",
+                ["Plugins.Ithoot.Payments.Monobank.PaymentMethodDescription"] = "Оплата карткою, ApplePay, GooglePay",
 
-                ["Plugins.Ithoot.Payments.Monobank.RedirectionTip"] = "Після підтвердження замовлення, Вас перенаправить на платіжну систему Монобанку для здійснення оплати",
+                ["Plugins.Ithoot.Payments.Monobank.RedirectionTip"] = "Після підтвердження замовлення, Вас перенаправить на платіжну plata by mono (оплата карткою, ApplePay, GooglePay)",
             });
 
             await base.InstallAsync();
