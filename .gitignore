@@ -219,3 +219,4 @@ src/packages/*
 /Presentation/Nop.Web/Plugins/Misc.FopPdf/Nop.Web.runtimeconfig.json
 /Presentation/Nop.Web/Plugins/Misc.FopPdf/Nop.Web.staticwebassets.runtime.json
 /Presentation/Nop.Web/Plugins/MultiFactorAuth.GoogleAuthenticator/refs
+/Presentation/Nop.Web/Plugins/ExternalAuth.Facebook/runtimes
