@@ -123,7 +123,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 SeatsAmount = 1,
                 //Description = "Одяг",
                 Description = $"Order #{order.Id}",
-                Cost = 200,
+                Cost = (int)order.OrderTotal,
 
                 CitySender = _novaPoshtaSettings.CitySenderId,
                 Sender = _novaPoshtaSettings.SenderId,

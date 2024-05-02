@@ -675,6 +675,7 @@ label, label + * {
             display: flex;
             flex-flow: column;
             margin-left: 0.6rem;
+            width: 100%;
         }
 
             .cart .cart-item .cart-body .product-name {
