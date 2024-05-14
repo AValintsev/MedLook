@@ -102,7 +102,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
         public async Task<string> CreateParcelAsync(Order order, Shipment shipment)
         {
             var gateway = new DefaultNovaPoshtaGateway(_novaPoshtaSettings.ApiKey);
-            var service = new Baroque.NovaPoshta.Client.Services.Documents.DocumentService(gateway);
+            var service = new NovaPoshtaDocumentService(gateway);
 
             var address = await _addressService.GetAddressByIdAsync(order.BillingAddressId);
 
@@ -121,7 +121,6 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 VolumeGeneral = _novaPoshtaSettings.DefaultVolumeGeneral,// Or calculate
                 ServiceType = "WarehouseWarehouse",
                 SeatsAmount = 1,
-                //Description = "Одяг",
                 Description = $"Order #{order.Id}",
                 Cost = (int)order.OrderTotal,
 
@@ -157,6 +156,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 Weight = _novaPoshtaSettings.DefaultWeight,
                 VolumetricVolume = _novaPoshtaSettings.DefaultVolumeGeneral
             });
+
 
             var createDocResponse = service.CreateDocument(request);
 
