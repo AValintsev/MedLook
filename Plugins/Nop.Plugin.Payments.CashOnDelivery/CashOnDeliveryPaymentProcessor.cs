@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
+using Nop.Plugin.Payments.CashOnDelivery.Components;
 using Nop.Plugin.Payments.CashOnDelivery.Controllers;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -23,7 +24,7 @@ namespace Nop.Plugin.Payments.CashOnDelivery
 
         private readonly CashOnDeliveryPaymentSettings _cashOnDeliveryPaymentSettings;
         private readonly ILocalizationService _localizationService;
-        private readonly IPaymentService _paymentService;
+        private readonly IOrderTotalCalculationService _orderTotalCalculationService;
         private readonly ISettingService _settingService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IWebHelper _webHelper;
@@ -34,14 +35,14 @@ namespace Nop.Plugin.Payments.CashOnDelivery
 
         public CashOnDeliveryPaymentProcessor(CashOnDeliveryPaymentSettings cashOnDeliveryPaymentSettings,
             ILocalizationService localizationService,
-            IPaymentService paymentService,
+            IOrderTotalCalculationService orderTotalCalculationService,
             ISettingService settingService,
             IShoppingCartService shoppingCartService,
             IWebHelper webHelper)
         {
             _cashOnDeliveryPaymentSettings = cashOnDeliveryPaymentSettings;
             _localizationService = localizationService;
-            _paymentService = paymentService;
+            _orderTotalCalculationService = orderTotalCalculationService;
             _settingService = settingService;
             _shoppingCartService = shoppingCartService;
             _webHelper = webHelper;
@@ -91,7 +92,7 @@ namespace Nop.Plugin.Payments.CashOnDelivery
         /// <returns>Additional handling fee</returns>
         public async Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
         {
-            return await _paymentService.CalculateAdditionalFeeAsync(cart,
+            return await _orderTotalCalculationService.CalculatePaymentAdditionalFeeAsync(cart,
                 _cashOnDeliveryPaymentSettings.AdditionalFee, _cashOnDeliveryPaymentSettings.AdditionalFeePercentage);
         }
 
@@ -179,13 +180,13 @@ namespace Nop.Plugin.Payments.CashOnDelivery
             var settings = new CashOnDeliveryPaymentSettings
             {
                 DescriptionText = "<p>In cases where an order is placed, an authorized representative will contact you, personally or over telephone, to confirm the order.<br />After the order is confirmed, it will be processed.<br />Orders once confirmed, cannot be cancelled.</p><p>P.S. You can edit this text from admin panel.</p>",
-                SkipPaymentInfo = true
+                SkipPaymentInfo = false
             };
 
             await _settingService.SaveSettingAsync(settings);
 
             //locales
-            await _localizationService.AddLocaleResourceAsync(new Dictionary<string, string>
+            await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
             {
                 ["Plugins.Payment.CashOnDelivery.DescriptionText"] = "Description",
                 ["Plugins.Payment.CashOnDelivery.DescriptionText.Hint"] = "Enter info that will be shown to customers during checkout",
@@ -218,9 +219,9 @@ namespace Nop.Plugin.Payments.CashOnDelivery
         /// Gets a name of a view component for displaying plugin in public store ("payment info" checkout step)
         /// </summary>
         /// <returns>View component name</returns>
-        public string GetPublicViewComponentName()
+        public Type GetPublicViewComponent()
         {
-            return CashOnDeliveryDefaults.PAYMENT_INFO_VIEW_COMPONENT_NAME;
+            return typeof(PaymentCashOnDeliveryViewComponent);
         }
 
         /// <summary>
@@ -273,7 +274,7 @@ namespace Nop.Plugin.Payments.CashOnDelivery
         /// <summary>
         /// Gets a value indicating whether we should display a payment information page for this plugin
         /// </summary>
-        public bool SkipPaymentInfo => true;
+        public bool SkipPaymentInfo => _cashOnDeliveryPaymentSettings.SkipPaymentInfo;
 
         #endregion
     }

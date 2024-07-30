@@ -5,30 +5,60 @@
   "InstalledPlugins": [
     {
       "SystemName": "Pickup.PickupInStore",
-      "Version": "1.39"
+      "Version": "1.47"
     },
     {
       "SystemName": "Payments.CashOnDelivery",
-      "Version": "1.44"
-    },
-    {
-      "SystemName": "Shipping.FixedByWeightByTotal",
-      "Version": "2.28"
-    },
-    {
-      "SystemName": "Payments.CheckMoneyOrder",
       "Version": "1.46"
     },
     {
+      "SystemName": "Shipping.FixedByWeightByTotal",
+      "Version": "2.36"
+    },
+    {
+      "SystemName": "Payments.CheckMoneyOrder",
+      "Version": "1.51"
+    },
+    {
       "SystemName": "PromotionFeed.GoogleShopping",
-      "Version": "1.89"
+      "Version": "1.91"
+    },
+    {
+      "SystemName": "NopAdvance.Core",
+      "Version": "1.12"
+    },
+    {
+      "SystemName": "Nopadvance.Plugin.ExtendedProductFilters",
+      "Version": "1.1"
+    },
+    {
+      "SystemName": "Widgets.NivoSlider",
+      "Version": "1.50"
+    },
+    {
+      "SystemName": "Misc.FopPdf",
+      "Version": "1.0"
+    },
+    {
+      "SystemName": "Shipping.NovaPoshta",
+      "Version": "1.71"
+    },
+    {
+      "SystemName": "Payments.Monobank",
+      "Version": "1.0"
     },
     {
       "SystemName": "Misc.Sendinblue",
-      "Version": "3.32"
+      "Version": "3.56"
     }
   ],
   "PluginNamesToUninstall": [],
-  "PluginNamesToDelete": [],
+  "PluginNamesToDelete": [
+    "Tax.Avalara",
+    "Tax.FixedOrByCountryStateZip",
+    "Widgets.What3words",
+    "Widgets.AccessiBe",
+    "Payments.CyberSource"
+  ],
   "PluginNamesToInstall": []
 }

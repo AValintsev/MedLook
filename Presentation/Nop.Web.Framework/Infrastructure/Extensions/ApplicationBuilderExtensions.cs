@@ -1,11 +1,16 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
@@ -14,6 +19,7 @@ using Microsoft.Net.Http.Headers;
 using Nop.Core;
 using Nop.Core.Configuration;
 using Nop.Core.Domain.Common;
+using Nop.Core.Http;
 using Nop.Core.Infrastructure;
 using Nop.Data;
 using Nop.Data.Migrations;
@@ -24,9 +30,14 @@ using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Media.RoxyFileman;
 using Nop.Services.Plugins;
+using Nop.Services.ScheduleTasks;
+using Nop.Services.Security;
+using Nop.Services.Seo;
 using Nop.Web.Framework.Globalization;
 using Nop.Web.Framework.Mvc.Routing;
-using WebMarkupMin.AspNetCore5;
+using QuestPDF.Drawing;
+using WebMarkupMin.AspNetCore7;
+using WebOptimizer;
 
 namespace Nop.Web.Framework.Infrastructure.Extensions
 {
@@ -51,12 +62,8 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             //further actions are performed only when the database is installed
             if (DataSettingsManager.IsDatabaseInstalled())
             {
-                //initialize and start schedule tasks
-                Services.Tasks.TaskManager.Instance.Initialize();
-                Services.Tasks.TaskManager.Instance.Start();
-
                 //log application start
-                engine.Resolve<ILogger>().InformationAsync("Application started").Wait();
+                engine.Resolve<ILogger>().Information("Application started");
 
                 //install and update plugins
                 var pluginService = engine.Resolve<IPluginService>();
@@ -66,15 +73,13 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                 //update nopCommerce core and db
                 var migrationManager = engine.Resolve<IMigrationManager>();
                 var assembly = Assembly.GetAssembly(typeof(ApplicationBuilderExtensions));
-                migrationManager.ApplyUpMigrations(assembly, true);
+                migrationManager.ApplyUpMigrations(assembly, MigrationProcessType.Update);
                 assembly = Assembly.GetAssembly(typeof(IMigrationManager));
-                migrationManager.ApplyUpMigrations(assembly, true);
+                migrationManager.ApplyUpMigrations(assembly, MigrationProcessType.Update);
 
-#if DEBUG
-                //prevent save the update migrations into the DB during the developing process  
-                var versions = EngineContext.Current.Resolve<IRepository<MigrationVersionInfo>>();
-                versions.DeleteAsync(mvi => mvi.Description.StartsWith(string.Format(NopMigrationDefaults.UpdateMigrationDescriptionPrefix, NopVersion.FULL_VERSION)));
-#endif
+                var taskScheduler = engine.Resolve<ITaskScheduler>();
+                taskScheduler.InitializeAsync().Wait();
+                taskScheduler.StartScheduler();
             }
         }
 
@@ -86,7 +91,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
         {
             var appSettings = EngineContext.Current.Resolve<AppSettings>();
             var webHostEnvironment = EngineContext.Current.Resolve<IWebHostEnvironment>();
-            var useDetailedExceptionPage = appSettings.CommonConfig.DisplayFullErrorStack || webHostEnvironment.IsDevelopment();
+            var useDetailedExceptionPage = appSettings.Get<CommonConfig>().DisplayFullErrorStack || webHostEnvironment.IsDevelopment();
             if (useDetailedExceptionPage)
             {
                 //get detailed exceptions for developing and testing purposes
@@ -110,7 +115,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                     try
                     {
                         //check whether database is installed
-                        if (await DataSettingsManager.IsDatabaseInstalledAsync())
+                        if (DataSettingsManager.IsDatabaseInstalled())
                         {
                             //get current customer
                             var currentCustomer = await EngineContext.Current.Resolve<IWorkContext>().GetCurrentCustomerAsync();
@@ -146,7 +151,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                         var originalPath = context.HttpContext.Request.Path;
                         var originalQueryString = context.HttpContext.Request.QueryString;
 
-                        if (await DataSettingsManager.IsDatabaseInstalledAsync())
+                        if (DataSettingsManager.IsDatabaseInstalled())
                         {
                             var commonSettings = EngineContext.Current.Resolve<CommonSettings>();
 
@@ -204,10 +209,34 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
         {
             if (!DataSettingsManager.IsDatabaseInstalled())
                 return;
-            
+
             //whether to use compression (gzip by default)
             if (EngineContext.Current.Resolve<CommonSettings>().UseResponseCompression)
                 application.UseResponseCompression();
+        }
+
+        /// <summary>
+        /// Adds WebOptimizer to the <see cref="IApplicationBuilder"/> request execution pipeline
+        /// </summary>
+        /// <param name="application">Builder for configuring an application's request pipeline</param>
+        public static void UseNopWebOptimizer(this IApplicationBuilder application)
+        {
+            var fileProvider = EngineContext.Current.Resolve<INopFileProvider>();
+            var webHostEnvironment = EngineContext.Current.Resolve<IWebHostEnvironment>();
+
+            application.UseWebOptimizer(webHostEnvironment, new[]
+            {
+                new FileProviderOptions
+                {
+                    RequestPath =  new PathString("/Plugins"),
+                    FileProvider = new PhysicalFileProvider(fileProvider.MapPath(@"Plugins"))
+                },
+                new FileProviderOptions
+                {
+                    RequestPath =  new PathString("/Themes"),
+                    FileProvider = new PhysicalFileProvider(fileProvider.MapPath(@"Themes"))
+                }
+            });
         }
 
         /// <summary>
@@ -221,9 +250,26 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
 
             void staticFileResponse(StaticFileResponseContext context)
             {
-                if (!string.IsNullOrEmpty(appSettings.CommonConfig.StaticFilesCacheControl))
-                    context.Context.Response.Headers.Append(HeaderNames.CacheControl, appSettings.CommonConfig.StaticFilesCacheControl);
+                if (!string.IsNullOrEmpty(appSettings.Get<CommonConfig>().StaticFilesCacheControl))
+                    context.Context.Response.Headers.Append(HeaderNames.CacheControl, appSettings.Get<CommonConfig>().StaticFilesCacheControl);
             }
+
+            //add handling if sitemaps 
+            application.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(fileProvider.GetAbsolutePath(NopSeoDefaults.SitemapXmlDirectory)),
+                RequestPath = new PathString($"/{NopSeoDefaults.SitemapXmlDirectory}"),
+                OnPrepareResponse = context =>
+                {
+                    if (!DataSettingsManager.IsDatabaseInstalled() ||
+                        !EngineContext.Current.Resolve<SitemapXmlSettings>().SitemapXmlEnabled)
+                    {
+                        context.Context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Context.Response.ContentLength = 0;
+                        context.Context.Response.Body = Stream.Null;
+                    }
+                }
+            });
 
             //common static files
             application.UseStaticFiles(new StaticFileOptions { OnPrepareResponse = staticFileResponse });
@@ -245,13 +291,13 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             };
 
             //exclude files in blacklist
-            if (!string.IsNullOrEmpty(appSettings.CommonConfig.PluginStaticFileExtensionsBlacklist))
+            if (!string.IsNullOrEmpty(appSettings.Get<CommonConfig>().PluginStaticFileExtensionsBlacklist))
             {
                 var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
 
-                foreach (var ext in appSettings.CommonConfig.PluginStaticFileExtensionsBlacklist
+                foreach (var ext in appSettings.Get<CommonConfig>().PluginStaticFileExtensionsBlacklist
                     .Split(';', ',')
-                    .Select(e => e.Trim().ToLower())
+                    .Select(e => e.Trim().ToLowerInvariant())
                     .Select(e => $"{(e.StartsWith(".") ? string.Empty : ".")}{e}")
                     .Where(fileExtensionContentTypeProvider.Mappings.ContainsKey))
                 {
@@ -273,7 +319,17 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             {
                 FileProvider = new PhysicalFileProvider(fileProvider.GetAbsolutePath(NopCommonDefaults.DbBackupsPath)),
                 RequestPath = new PathString("/db_backups"),
-                ContentTypeProvider = provider
+                ContentTypeProvider = provider,
+                OnPrepareResponse = context =>
+                {
+                    if (!DataSettingsManager.IsDatabaseInstalled() ||
+                        !EngineContext.Current.Resolve<IPermissionService>().AuthorizeAsync(StandardPermissionProvider.ManageMaintenance).Result)
+                    {
+                        context.Context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        context.Context.Response.ContentLength = 0;
+                        context.Context.Response.Body = Stream.Null;
+                    }
+                }
             });
 
             //add support for webmanifest files
@@ -290,9 +346,19 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             {
                 application.UseStaticFiles(new StaticFileOptions
                 {
-                    FileProvider = new RoxyFilemanProvider(fileProvider.GetAbsolutePath(NopRoxyFilemanDefaults.DefaultRootDirectory.TrimStart('/').Split('/'))),
+                    FileProvider = EngineContext.Current.Resolve<IRoxyFilemanFileProvider>(),
                     RequestPath = new PathString(NopRoxyFilemanDefaults.DefaultRootDirectory),
                     OnPrepareResponse = staticFileResponse
+                });
+            }
+
+            if (appSettings.Get<CommonConfig>().ServeUnknownFileTypes)
+            {
+                application.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(fileProvider.GetAbsolutePath(".well-known")),
+                    RequestPath = new PathString("/.well-known"),
+                    ServeUnknownFileTypes = true,
                 });
             }
         }
@@ -329,6 +395,27 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
         }
 
         /// <summary>
+        /// Configure PDF
+        /// </summary>
+        /// <param name="application">Builder for configuring an application's request pipeline</param>
+        public static void UseNopPdf(this IApplicationBuilder application)
+        {
+            if (!DataSettingsManager.IsDatabaseInstalled())
+                return;
+
+            var fileProvider = EngineContext.Current.Resolve<INopFileProvider>();
+            var fontPaths = fileProvider.EnumerateFiles(fileProvider.MapPath("~/App_Data/Pdf/"), "*.ttf") ?? Enumerable.Empty<string>();
+
+            //write placeholder characters instead of unavailable glyphs for both debug/release configurations
+            QuestPDF.Settings.CheckIfAllTextGlyphsAreAvailable = false;
+
+            foreach (var fp in fontPaths)
+            {
+                FontManager.RegisterFont(File.OpenRead(fp));
+            }
+        }
+
+        /// <summary>
         /// Configure the request localization feature
         /// </summary>
         /// <param name="application">Builder for configuring an application's request pipeline</param>
@@ -336,7 +423,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
         {
             application.UseRequestLocalization(async options =>
             {
-                if (!await DataSettingsManager.IsDatabaseInstalledAsync())
+                if (!DataSettingsManager.IsDatabaseInstalled())
                     return;
 
                 //prepare supported cultures
@@ -344,9 +431,15 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                     .OrderBy(language => language.DisplayOrder)
                     .Select(language => new CultureInfo(language.LanguageCulture)).ToList();
                 options.SupportedCultures = cultures;
+                options.SupportedUICultures = cultures;
                 options.DefaultRequestCulture = new RequestCulture(cultures.FirstOrDefault());
+                options.ApplyCurrentCultureToResponseHeaders = true;
 
-                options.AddInitialRequestCultureProvider(new NopRequestCultureProvider(options));
+                //configure culture providers
+                options.AddInitialRequestCultureProvider(new NopSeoUrlCultureProvider());
+                var cookieRequestCultureProvider = options.RequestCultureProviders.OfType<CookieRequestCultureProvider>().FirstOrDefault();
+                if (cookieRequestCultureProvider is not null)
+                    cookieRequestCultureProvider.CookieName = $"{NopCookieDefaults.Prefix}{NopCookieDefaults.CultureCookie}";
             });
         }
 
@@ -362,6 +455,47 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                 //register all routes
                 EngineContext.Current.Resolve<IRoutePublisher>().RegisterRoutes(endpoints);
             });
+        }
+
+        /// <summary>
+        /// Configure applying forwarded headers to their matching fields on the current request.
+        /// </summary>
+        /// <param name="application">Builder for configuring an application's request pipeline</param>
+        public static void UseNopProxy(this IApplicationBuilder application)
+        {
+            var appSettings = EngineContext.Current.Resolve<AppSettings>();
+
+            if (appSettings.Get<HostingConfig>().UseProxy)
+            {
+                var options = new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.All,
+                    // IIS already serves as a reverse proxy and will add X-Forwarded headers to all requests,
+                    // so we need to increase this limit, otherwise, passed forwarding headers will be ignored.
+                    ForwardLimit = 2
+                };
+
+                if (!string.IsNullOrEmpty(appSettings.Get<HostingConfig>().ForwardedForHeaderName))
+                    options.ForwardedForHeaderName = appSettings.Get<HostingConfig>().ForwardedForHeaderName;
+
+                if (!string.IsNullOrEmpty(appSettings.Get<HostingConfig>().ForwardedProtoHeaderName))
+                    options.ForwardedProtoHeaderName = appSettings.Get<HostingConfig>().ForwardedProtoHeaderName;
+
+                if (!string.IsNullOrEmpty(appSettings.Get<HostingConfig>().KnownProxies))
+                {
+                    foreach (var strIp in appSettings.Get<HostingConfig>().KnownProxies.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList())
+                    {
+                        if (IPAddress.TryParse(strIp, out var ip))
+                            options.KnownProxies.Add(ip);
+                    }
+
+                    if (options.KnownProxies.Count > 1)
+                        options.ForwardLimit = null; //disable the limit, because KnownProxies is configured
+                }
+
+                //configure forwarding
+                application.UseForwardedHeaders(options);
+            }
         }
 
         /// <summary>

@@ -1,8 +1,9 @@
 ﻿.header {
-    height: 60px;
+    min-height: 60px;
     width: 100%;
     background-color: #71C5EE;
-    position: fixed;
+    color: #00659c;
+    position: sticky;
     z-index: 11;
     top: 0;
     transition: .2s ease-out;
@@ -23,57 +24,64 @@
 }
 
 .header .mobile-menu-inner {
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
-    z-index: 2;
+    z-index: 3;
     height: 100%;
     width: 100%;
     text-align: right;
-}
-
-@media (max-width: 767px) {
-    .header .mobile-menu-inner {
-        padding-top: 24px;
-    }
-}
-
-
-
-.header .mobile-menu--body nav {
-    margin-left: 8vw;
-    margin-right: 8vw;
+    /*margin: 18px 0 0 32px;*/
 }
 
 .header .mobile-menu--body .nav--link,
 .header .mobile-menu--body .mobile-nav--item {
     list-style: none;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 30px;
-    font-size: 20px;
-    color: #292929;
-    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
     cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-left: 12px;
+    border-bottom: 1px solid;
+    line-height: 60px;
+    width: 100%;
+}
+
+.header .mobile-menu--body .nav--child-item .mobile-nav--item {
+    border: none;
+}
+
+.header .mobile-menu--body .sublist-toggle.mobile-nav--item.expanded {
+    opacity: 1;
+}
+
+.header .mobile-menu--body .mobile-nav--item:hover {
+    opacity: 0.6;
+}
+
+.header .mobile-menu--body .nav--child-item .nav--link {
+    text-transform: capitalize;
+}
+
+.header .mobile-menu--body .nav--link a {
+    display: flex;
+    flex-direction: row;
 }
 
 .header-inner--logo {
-    flex-shrink: 0;
 }
 
     .header-inner--logo .medlook {
         background: url('../images/medlook-logo-text.svg') left center no-repeat;
-        width: 60%;
+        height: 50px;
+        width: 100%;
     }
-
-@media (max-width: 581px) {
-    .header-inner--logo .medlook {
-        background: url('../images/medlook-logo.svg') left center no-repeat;
-        height: 42px;
-        width: 42px;
-    }
-}
-
 
 .header-inner--actions, .header-inner--logo, .header-inner--nav {
     display: inline-flex;
@@ -97,17 +105,122 @@
     border: 0;
     border-left: 0;
     border-right: 0;
-    opacity: 0;
 }
 
     #menu__toggle svg {
         height: 32px;
         width: 32px;
-        z-index: 2;
+        z-index: 4;
     }
 
+/* Search box */
+#searchbox {
+    display: flex;
+    align-items: center;
+}
+
+    #searchbox a {
+        background: url('../images/search.svg') left 1px no-repeat;
+        height: 32px;
+        width: 28px;
+    }
+
+    #searchbox .search-component {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        position: relative;
+        width: 100%;
+        padding: 1rem;
+    }
+
+        #searchbox .search-component .remove-btn {
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 3.2rem 1.8rem;
+            width: 20px;
+            height: 20px;
+            opacity: 0.7    ;
+            background: transparent;
+            border: none;
+        }
+
+            #searchbox .search-component .remove-btn:hover {
+                opacity: 1;
+            }
+
+            #searchbox .search-component .remove-btn:before,
+            #searchbox .search-component .remove-btn:after {
+                position: absolute;
+                left: 15px;
+                content: ' ';
+                height: 33px;
+                width: 2px;
+                background-color: #00659c;
+            }
+
+            #searchbox .search-component .remove-btn:before {
+                transform: rotate(45deg);
+            }
+
+            #searchbox .search-component .remove-btn:after {
+                transform: rotate(-45deg);
+            }
+
+        #searchbox .search-component .input-group-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            padding: 2.5rem 1.7rem;
+        }
+
+    #searchbox .icon-search {
+        /*position: absolute;
+        top: 50%;*/
+        background: url('../images/search.svg') left 1px no-repeat;
+        background-size: cover;
+        height: 22px;
+        width: 18px;
+    }
+
+    #searchbox #small-search-box-form .search-box-text {
+        /*margin: 10px auto;
+            width: 90%;*/
+        position: relative;
+        flex: 1 1 auto;
+        width: 1%;
+        min-width: 0;
+        padding: 2.2rem 2rem;
+    }
+
+    #searchbox #small-search-box-form {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 100%;
+        z-index: 3;
+        background-color: #fff;
+        box-shadow: 0 15px 15px -15px rgba(0,0,0,.1);
+    }
+
+        #searchbox #small-search-box-form.expanded {
+            display: block;
+        }
 
 
+/*
+        #searchbox a svg {
+            height: 32px;
+            width: 30px;
+        }*/
 #wishlistlink {
     display: flex;
     align-items: center;
@@ -161,19 +274,6 @@
         border-radius: 50%;
     }
 
-
-@media (max-width: 1199px) {
-    .header {
-        width: 100vw;
-    }
-
-    .header-inner--logo .logo-wrapper {
-        display: flex;
-        align-items: center;
-    }
-}
-
-
 .hamburger {
     cursor: pointer;
     transition-property: opacity, filter;
@@ -191,18 +291,12 @@
     width: 26px;
     height: 26px;
     cursor: pointer;
-    z-index: 3;
+    z-index: 5;
 }
 
     .hamburger:hover {
-        opacity: 0.7;
+        /*opacity: 0.7;*/
     }
-
-@media (max-width: 500px) {
-    .hamburger {
-        margin-left: 2vh;
-    }
-}
 
 .hamburger-box {
     width: 40px;
@@ -220,7 +314,7 @@
     .hamburger-inner, .hamburger-inner::before, .hamburger-inner::after {
         width: 40px;
         height: 4px;
-        background-color: #000;
+        background-color: #00659c;
         border-radius: 4px;
         position: absolute;
         transition-property: transform;
@@ -240,7 +334,6 @@
         .hamburger-inner::after {
             bottom: -10px;
         }
-
 /*
    * Slider
    */
@@ -259,7 +352,6 @@
         top: 20px;
     }
 
-
 #menu__toggle:checked ~ .hamburger--slider .hamburger-inner {
     transform: translate3d(0, 10px, 0) rotate(45deg);
 }
@@ -273,14 +365,11 @@
         transform: translate3d(0, -20px, 0) rotate(-90deg);
     }
 
-
 #menu__toggle:checked ~ .hamburger:hover {
-    opacity: 0.7;
+    /*opacity: 0.7;*/
 }
 
-#menu__toggle:checked ~ .hamburger-inner,
-#menu__toggle:checked ~ .hamburger-inner::before,
-#menu__toggle:checked ~ .hamburger-inner::after {
+#menu__toggle:checked ~ .hamburger-inner, #menu__toggle:checked ~ .hamburger-inner::before, #menu__toggle:checked ~ .hamburger-inner::after {
     background-color: #000;
 }
 
@@ -292,14 +381,15 @@
     display: flex;
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100%;
+    right: 0;
     background-color: #71C5EE;
     color: #feffff;
     transition: all .4s ease-out;
     overflow: hidden;
-    z-index: 2;
+    z-index: 4;
+    height: 100%;
+    width: 400px;
+    border-left: 1px solid #00659c;
 }
 
 .main_menu_item {
@@ -317,40 +407,135 @@
     transition-duration: 0.25s;
 }
 
-    .menu__item:hover {
-        background-color: #CFD8DC;
-    }
 
 .menu__item-category {
-    font-size: 18px;
-    font-weight: 400;
-    color: #4d4d4d;
+    /*margin-bottom: 18px;*/
 }
-
-.menu__item-categor-container {
-    margin-left: 24px;
-    padding: 12px 8px;
-}
-
-    .menu__item-categor-container:hover {
-        background-color: #CFD8DC;
-    }
-
 
 .language-selector {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 24px;
+    margin-bottom: 18px;
 }
 
-    .language-selector a {
-        padding: 0 15px;
-        margin: 0 5px;
+.language-selector-items {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.language-selector a {
+    padding: 6px;
+    margin: 2px;
+    line-height: 1.5;
+}
+
+    .language-selector a:hover {
+        background-color: #00659c;
+        border-radius: 6px;
+        color: #fff;
+        padding: 6px;
     }
 
-        .language-selector a.selected {
-            opacity: 0.7;
-            cursor: default;
-            box-shadow: 2px 5px 5px -7px black;
+    .language-selector a.selected {
+        cursor: default;
+        background-color: #00659c;
+        border-radius: 6px;
+        color: #fff;
+        opacity: 0.7;
+        padding: 6px;
+    }
+
+.nav--dropdown {
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.nav--dropdown-inner {
+    display: flex;
+    flex-direction: row;
+}
+
+.no-padding-left {
+    padding-left: 0 !important;
+}
+
+.sublist-toggle {
+    width: 55px;
+    background: url('../images/toggle-black.png') right no-repeat;
+    background-position-y: 18px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.sublist {
+    display: none;
+    width: 100%;
+}
+
+.search-box-nav-item:hover {
+    opacity: 1 !important;
+}
+
+.search-box {
+    height: 60px;
+    width: 100%;
+}
+
+    .search-box form {
+        display: flex;
+        width: 100%;
+    }
+
+    .search-box input.search-box-text {
+        margin: 0;
+        color: red;
+        height: 60px;
+        width: 100%;
+    }
+
+    .search-box .search-box-button {
+        display: none;
+    }
+
+        .search-box .search-box-button:hover {
+            background-color: #248ece;
         }
+
+    .search-box .ui-autocomplete-loading {
+        background: #feffff url('../images/ajax-loader-small.gif') right center no-repeat;
+    }
+
+
+
+@media (max-width: 581px) {
+    .header-inner--logo .medlook {
+        /*background: url('../images/medlook-logo.svg') left center no-repeat;*/
+        height: 42px;
+        /*width: 42px;*/
+    }
+}
+
+@media (max-width: 1199px) {
+    .header {
+        width: 100vw;
+    }
+
+    .header-inner--logo .logo-wrapper {
+        display: flex;
+        align-items: center;
+    }
+}
+
+@media (max-width: 500px) {
+    .hamburger {
+        margin-left: 2vh;
+    }
+}
+
+@media (max-width: 620px) {
+    #menu__toggle:checked ~ .mobile-menu {
+        width: 100%;
+    }
+}

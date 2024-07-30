@@ -10,7 +10,7 @@ namespace Nop.Core.Domain.Shipping
     /// <summary>
     /// Type converted for ShippingOption
     /// </summary>
-    public class ShippingOptionTypeConverter : TypeConverter
+    public partial class ShippingOptionTypeConverter : TypeConverter
     {
         /// <summary>
         /// Gets a value indicating whether this converter can        
@@ -39,7 +39,7 @@ namespace Nop.Core.Domain.Shipping
         /// <returns>Result</returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            if (!(value is string)) 
+            if (value is not string) 
                 return base.ConvertFrom(context, culture, value);
             
             var valueStr = value as string;
@@ -76,7 +76,7 @@ namespace Nop.Core.Domain.Shipping
             if (destinationType != typeof(string)) 
                 return base.ConvertTo(context, culture, value, destinationType);
 
-            if (!(value is ShippingOption)) 
+            if (value is not ShippingOption) 
                 return string.Empty;
 
             var sb = new StringBuilder();

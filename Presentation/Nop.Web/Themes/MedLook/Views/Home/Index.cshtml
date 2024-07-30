@@ -1,33 +1,25 @@
 ﻿@{
-	Layout = "_ColumnsOne";
+    Layout = "_ColumnsOne";
 
-	//page class
-	Html.AppendPageCssClassParts("html-home-page");
+    //page class
+    NopHtml.AppendPageCssClassParts("html-home-page");
 }
 <div class="page home-page">
-	<div class="page-body">
-		<h1 style="display: none">Medlook</h1>
+    <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HomepageTop })
 
-		<div class="home-page-logo">
-			@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageTop })
-			<div class="header-prompt">
-				@await Component.InvokeAsync("TopicBlock", new { systemName = "HomepageText" })
-			</div>
-		</div>
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeCategories })
+        @await Component.InvokeAsync("HomepageCategories")
 
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeCategories })
-		@await Component.InvokeAsync("HomepageCategories")
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
+        @await Component.InvokeAsync("HomepageProducts")
 
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
-		@await Component.InvokeAsync("HomepageProducts")
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeBestSellers })
+        @await Component.InvokeAsync("HomepageBestSellers")
 
-		@await Component.InvokeAsync("TopicBlock", new { systemName = "HomepageTextInfo" })
-
-		@*@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeBestSellers })
-			@await Component.InvokeAsync("HomepageBestSellers")*@
-
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBottom })
-	</div>
+        @await Component.InvokeAsync("TopicBlock", new { systemName = "HomepageTextInfo" })
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBottom })
+    </div>
 </div>
 
 

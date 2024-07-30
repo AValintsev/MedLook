@@ -28,6 +28,16 @@ namespace Nop.Services.Localization
         Task<IList<Language>> GetAllLanguagesAsync(bool showHidden = false, int storeId = 0);
 
         /// <summary>
+        /// Gets all languages
+        /// </summary>
+        /// <param name="storeId">Load records allowed only in a specified store; pass 0 to load all records</param>
+        /// <param name="showHidden">A value indicating whether to show hidden records</param>
+        /// <returns>
+        /// The languages
+        /// </returns>
+        IList<Language> GetAllLanguages(bool showHidden = false, int storeId = 0);
+
+        /// <summary>
         /// Gets a language
         /// </summary>
         /// <param name="languageId">Language identifier</param>
@@ -51,7 +61,6 @@ namespace Nop.Services.Localization
         /// <returns>A task that represents the asynchronous operation</returns>
         Task UpdateLanguageAsync(Language language);
 
-        //TODO: migrate to an extension method
         /// <summary>
         /// Get 2 letter ISO language code
         /// </summary>

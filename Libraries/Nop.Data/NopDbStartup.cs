@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentMigrator;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Conventions;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Data.Mapping;
 using Nop.Data.Migrations;
 
 namespace Nop.Data
@@ -15,7 +17,7 @@ namespace Nop.Data
     /// <summary>
     /// Represents object for the configuring DB context on application startup
     /// </summary>
-    public class NopDbStartup : INopStartup
+    public partial class NopDbStartup : INopStartup
     {
         /// <summary>
         /// Add and configure any of the middleware
@@ -24,7 +26,8 @@ namespace Nop.Data
         /// <param name="configuration">Configuration of the application</param>
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var mAssemblies = new AppDomainTypeFinder().FindClassesOfType<MigrationBase>()
+            var typeFinder = Singleton<ITypeFinder>.Instance;
+            var mAssemblies = typeFinder.FindClassesOfType<MigrationBase>()
                 .Select(t => t.Assembly)
                 .Where(assembly => !assembly.FullName.Contains("FluentMigrator.Runner"))
                 .Distinct()
@@ -36,12 +39,31 @@ namespace Nop.Data
                 .AddScoped<IProcessorAccessor, NopProcessorAccessor>()
                 // set accessor for the connection string
                 .AddScoped<IConnectionStringAccessor>(x => DataSettingsManager.LoadSettings())
-                .AddScoped<IMigrationManager, MigrationManager>()
+                .AddSingleton<IMigrationManager, MigrationManager>()
                 .AddSingleton<IConventionSet, NopConventionSet>()
+                .AddTransient<IMappingEntityAccessor>(x => x.GetRequiredService<IDataProviderManager>().DataProvider)
                 .ConfigureRunner(rb =>
                     rb.WithVersionTable(new MigrationVersionInfo()).AddSqlServer().AddMySql5().AddPostgres()
                         // define the assembly containing the migrations
                         .ScanIn(mAssemblies).For.Migrations());
+
+            services.AddTransient(p => new Lazy<IVersionLoader>(p.GetRequiredService<IVersionLoader>()));
+
+            //data layer
+            services.AddTransient<IDataProviderManager, DataProviderManager>();
+            services.AddTransient(serviceProvider =>
+                serviceProvider.GetRequiredService<IDataProviderManager>().DataProvider);
+
+            //repositories	
+            services.AddScoped(typeof(IRepository<>), typeof(EntityRepository<>));
+
+            if (!DataSettingsManager.IsDatabaseInstalled())
+                return;
+
+            using var scope = services.BuildServiceProvider().CreateScope();
+            var runner = scope.ServiceProvider.GetRequiredService<IMigrationManager>();
+            foreach (var assembly in mAssemblies)
+                runner.ApplyUpMigrations(assembly, MigrationProcessType.NoDependencies);
         }
 
         /// <summary>

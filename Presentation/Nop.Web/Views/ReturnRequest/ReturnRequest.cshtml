@@ -1,11 +1,14 @@
 ﻿@model SubmitReturnRequestModel
+
+@using Nop.Core.Domain.Catalog
+
 @{
     Layout = "_ColumnsOne";
 
     //title
-    Html.AddTitleParts(T("PageTitle.ReturnItems").Text);
+    NopHtml.AddTitleParts(T("PageTitle.ReturnItems").Text);
     //page class
-    Html.AppendPageCssClassParts("html-return-request-page");
+    NopHtml.AppendPageCssClassParts("html-return-request-page");
 }
 <div class="page return-request-page">
     <div class="page-title">
@@ -50,7 +53,7 @@
                                 {
                                     <tr>
                                         <td class="product">
-                                            <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName</a>
                                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                             {
                                                 <div class="attributes">
@@ -105,9 +108,11 @@
                         </div>
                         @if (Model.AllowFiles)
                         {
-                            //register CSS and JS
-                            Html.AddCssFileParts("~/lib_npm/fine-uploader/fine-uploader/fine-uploader.min.css");
-                            Html.AddScriptParts(ResourceLocation.Footer, "~/lib_npm/fine-uploader/jquery.fine-uploader/jquery.fine-uploader.min.js");
+                            @* register CSS and JS *@
+                            <link rel="stylesheet" href="~/lib_npm/fine-uploader/fine-uploader/fine-uploader.min.css" />
+                            <script asp-exclude-from-bundle="true" src="~/lib_npm/fine-uploader/jquery.fine-uploader/jquery.fine-uploader.min.js" asp-location="Footer"></script>
+
+
                             var allowedFileExtensionsList = new List<string>();
                             //allowedFileExtensionsList.Add("jpg");
                             //allowedFileExtensionsList.Add("jpeg");

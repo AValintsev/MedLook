@@ -12,7 +12,7 @@ namespace Nop.Web.Framework.TagHelpers.Admin
     /// "nop-tabs" tag helper
     /// </summary>
     [HtmlTargetElement("nop-tabs", Attributes = ID_ATTRIBUTE_NAME)]
-    public class NopTabsTagHelper : TagHelper
+    public partial class NopTabsTagHelper : TagHelper
     {
         #region Constants
 
@@ -131,7 +131,7 @@ namespace Nop.Web.Framework.TagHelpers.Admin
             output.Content.AppendHtml(await tabsTitlediv.RenderHtmlContentAsync());
             output.Content.AppendHtml(await tabsContentout.RenderHtmlContentAsync());
 
-            bool.TryParse(RenderSelectedTabInput, out var renderSelectedTabInput);
+            _ = bool.TryParse(RenderSelectedTabInput, out var renderSelectedTabInput);
             if (string.IsNullOrEmpty(RenderSelectedTabInput) || renderSelectedTabInput)
             {
                 //render input contains selected tab name
@@ -173,7 +173,7 @@ namespace Nop.Web.Framework.TagHelpers.Admin
     /// "nop-tab" tag helper
     /// </summary>
     [HtmlTargetElement("nop-tab", ParentTag = "nop-tabs", Attributes = NAME_ATTRIBUTE_NAME)]
-    public class NopTabTagHelper : TagHelper
+    public partial class NopTabTagHelper : TagHelper
     {
         #region Constants
 
@@ -247,7 +247,7 @@ namespace Nop.Web.Framework.TagHelpers.Admin
             var viewContextAware = _htmlHelper as IViewContextAware;
             viewContextAware?.Contextualize(ViewContext);
 
-            bool.TryParse(IsDefault, out var isDefaultTab);
+            _ = bool.TryParse(IsDefault, out var isDefaultTab);
 
             //get name of the tab should be selected
             var tabNameToSelect = context.Items.ContainsKey("tabNameToSelect")
@@ -325,7 +325,7 @@ namespace Nop.Web.Framework.TagHelpers.Admin
     /// <summary>
     /// Tab context item
     /// </summary>
-    public class NopTabContextItem
+    public partial class NopTabContextItem
     {
         /// <summary>
         /// Title

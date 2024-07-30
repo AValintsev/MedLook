@@ -1,0 +1,139 @@
+@*
+    // ***	 ** ****** ****** ****** ******* **     ** ****** ***   ** **** ****
+    // ****  ** **  ** **  ** **  **  **  **  **   **  **  ** ****  ** *    *
+    // ** ** ** **  ** ****** ******  **  **   ** **   ****** ** ** ** *    ***
+    // **  **** **  ** **	  **  **  **  **    ***    **  ** **  **** *    *
+    // **   *** ****** **	  **  ** *******     *     **  ** **   *** **** ****
+    //
+    // **************************************************************************
+    // *                                                                		*
+	// *         Extended Product Filters Plugin by NopAdvance team             *
+    // *			Copyright (c) NopAdvance LLP. All Rights Reserved			*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Email:		contact@nopadvance.com										*
+    // * Website:	https://nopadvance.com										*
+    // *                                                                       	*
+    // **************************************************************************
+    // *                                                                       	*
+    // * Please see the  License file for the full End User License Agreement. 	*
+    // * The  complete license agreement is also available on  our  website at 	*
+    // * https://nopadvance.com/license-terms									*
+    // *                                                                       	*
+    // * This  software / plugin  is furnished  under a license  and  may   be  *
+    // * used  and modified  only in accordance with the terms of such license  *
+    // * and with the inclusion of the above copyright notice.  This  software	*
+    // * or any other copies thereof may not be  provided  or  otherwise  made	*
+    // * available  to any other person.  No title to  and  ownership  of  the  *
+    // * software is hereby transferred.                                        *
+    // *                                                                       	*
+    // * You may not reverse  engineer, decompile, defeat  license  encryption 	*
+    // * mechanisms  or  disassemble this software product or software product 	*
+    // * license.  NopAdvance may terminate this  license if you don't  comply 	*
+    // * with any of the terms & conditions set forth in our  end user license	*
+    // * agreement (EULA).  In such event , licensee agrees to return licensor	*
+    // * or destroy  all copies of software  upon termination  of the license.	*
+    // *                                                                       	*
+    // **************************************************************************
+*@
+@model ConfigurationModel
+
+<div class="card-body">
+
+    <div class="callout bg-light no-margin">
+        <i class="fa fa-info"></i>
+        <b>@T(LocaleResourceDefaults.CONFIGURE_INFO)</b>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-override-store-checkbox asp-for="Enabled_OverrideForStore" asp-input="Enabled" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+            <nop-label asp-for="Enabled" />
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="Enabled"/>
+            <span asp-validation-for="Enabled"></span>
+        </div>
+    </div>
+
+    <div class="form-group row advanced-setting">
+        <div class="col-md-3">
+            <nop-override-store-checkbox asp-for="ShowAppliedFiltersPanel_OverrideForStore"
+                asp-input="ShowAppliedFiltersPanel" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+            <nop-label asp-for="ShowAppliedFiltersPanel" />
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="ShowAppliedFiltersPanel" />
+            <span asp-validation-for="ShowAppliedFiltersPanel"></span>
+        </div>
+    </div>
+
+    <div class="form-group row advanced-setting">
+        <div class="col-md-3">
+            <nop-override-store-checkbox asp-for="UseAccordion_OverrideForStore" asp-input="UseAccordion"
+                asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+            <nop-label asp-for="UseAccordion" />
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="UseAccordion" />
+            <span asp-validation-for="UseAccordion"></span>
+        </div>
+        
+    </div>
+    <nop-nested-setting asp-for="UseAccordion">
+        <div class="form-group row advanced-setting">
+            <div class="col-md-3">
+                <nop-override-store-checkbox asp-for="AutoCloseFilterPanels_OverrideForStore"
+                    asp-input="AutoCloseFilterPanels" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                <nop-label asp-for="AutoCloseFilterPanels" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="AutoCloseFilterPanels" />
+                <span asp-validation-for="AutoCloseFilterPanels"></span>
+            </div>
+        </div>
+    </nop-nested-setting>
+
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-override-store-checkbox asp-for="ShowClearFiltersButton_OverrideForStore"
+                asp-input="ShowClearFiltersButton" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+            <nop-label asp-for="ShowClearFiltersButton" />
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="ShowClearFiltersButton" />
+            <span asp-validation-for="ShowClearFiltersButton"></span>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-3">
+            <nop-override-store-checkbox asp-for="ShowNumberOfProducts_OverrideForStore"
+                asp-input="ShowNumberOfProducts" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+            <nop-label asp-for="ShowNumberOfProducts" />
+        </div>
+        <div class="col-md-9">
+            <nop-editor asp-for="ShowNumberOfProducts" />
+            <span asp-validation-for="ShowNumberOfProducts"></span>
+        </div>
+    </div>
+
+    <div class="form-group row advanced-setting">
+        <div class="col-md-3">
+            <nop-override-store-checkbox asp-for="EnableLazyLoading_OverrideForStore" asp-input="EnableLazyLoading"
+                asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+            <nop-label asp-for="EnableLazyLoading" />
+        </div>
+        <div class="col-md-1">
+            <nop-editor asp-for="EnableLazyLoading" />
+            <span asp-validation-for="EnableLazyLoading"></span>
+        </div>
+        <div class="col-md-8">
+            <div class="callout bg-gray-light no-margin">
+                @T("NopAdvance.Plugin.ExtendedProductFilters.Configure.Fields.EnableLazyLoading.Warning")
+            </div>
+        </div>
+    </div>
+    
+</div>

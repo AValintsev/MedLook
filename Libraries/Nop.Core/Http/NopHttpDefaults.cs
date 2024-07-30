@@ -16,18 +16,8 @@
         public static string IsPostBeingDoneRequestItem => "nop.IsPOSTBeingDone";
 
         /// <summary>
-        /// Gets the name of HTTP_CLUSTER_HTTPS header
+        /// Gets the name of a request item that stores the value that indicates whether the request is being redirected by the generic route transformer
         /// </summary>
-        public static string HttpClusterHttpsHeader => "HTTP_CLUSTER_HTTPS";
-
-        /// <summary>
-        /// Gets the name of HTTP_X_FORWARDED_PROTO header
-        /// </summary>
-        public static string HttpXForwardedProtoHeader => "X-Forwarded-Proto";
-
-        /// <summary>
-        /// Gets the name of X-FORWARDED-FOR header
-        /// </summary>
-        public static string XForwardedForHeader => "X-FORWARDED-FOR";
+        public static string GenericRouteInternalRedirect => "nop.RedirectFromGenericPathRoute";
     }
 }

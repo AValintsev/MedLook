@@ -1,0 +1,79 @@
+@model CategoryFilterModel
+
+@{
+    var query = PluginDefaults.CP_QueryPrefix + "[" + PluginDefaults.CP_CategoryFilter + "]";
+}
+
+<div class="product-filter product-category-filter">
+    <div class="filter-title">
+            <a class="clear-filters-button" id="clear-category-filters-button">Clear</a>
+    </div>
+    <div class="filter-content">
+        <ul class="group product-category-group">
+            @foreach (var category in Model.Categories)
+            {
+                <li class="item">
+                    <input id="attribute-category-@category.Value" type="checkbox" data-category-id="@category.Value" checked="@category.Selected" />
+                    <label for="attribute-category-@category.Value">
+                        @category.Text
+                    </label>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        var $csEls = $('[data-category-id]');
+        var $clearButton = $('#clear-category-filters-button');
+
+        $csEls.on('change', function () {
+            if($clearButton.length > 0)
+            {
+                if($('[data-category-id]:checked').length > 0)
+                    $clearButton.show();
+                else
+                    $clearButton.hide();
+            }
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedCs = $.map($csEls, function (el) {
+                var $cEl = $(el);
+                if ($cEl.is(':checked')) return $cEl.data('category-id')
+                return null;
+            });
+
+            if (selectedCs && selectedCs.length > 0) {
+                e.payload.urlBuilder
+                    .addParameter('@query', selectedCs.join(','));
+            }
+        });
+
+        if($clearButton.length > 0)
+        {
+            $clearButton.on('clearOnly', clearOnly);
+            $clearButton.on('click', function (){
+                clearOnly();
+                CatalogProducts.getProducts();
+                $('.applied-filters .applied-filters-group').trigger('updatePanelElements');
+                return false;
+            });
+
+            $clearButton.show();
+            if($('[data-category-id]:checked').length == 0)
+            {
+                $clearButton.hide();
+            }
+            
+            function clearOnly(){
+                $('[data-category-id]').each(function(index, elem){
+                    $(elem).removeAttr('checked');
+                });
+                $clearButton.hide();
+                return false;
+            }
+        }
+    });
+</script>

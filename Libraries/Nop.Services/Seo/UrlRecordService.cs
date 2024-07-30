@@ -19,7 +19,7 @@ namespace Nop.Services.Seo
     {
         #region Fields
 
-        private static readonly object _lock = new object();
+        private static readonly object _lock = new();
         private static Dictionary<string, string> _seoCharacterTable;
 
         private readonly ILanguageService _languageService;
@@ -1117,16 +1117,6 @@ namespace Nop.Services.Seo
             return returnChar;
         }
 
-        /// <summary>
-        /// Updates the URL record
-        /// </summary>
-        /// <param name="urlRecord">URL record</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        protected virtual async Task UpdateUrlRecordAsync(UrlRecord urlRecord)
-        {
-            await _urlRecordRepository.UpdateAsync(urlRecord);
-        }
-
         #endregion
 
         #region Methods
@@ -1162,6 +1152,16 @@ namespace Nop.Services.Seo
         public virtual async Task InsertUrlRecordAsync(UrlRecord urlRecord)
         {
             await _urlRecordRepository.InsertAsync(urlRecord);
+        }
+
+        /// <summary>
+        /// Updates the URL record
+        /// </summary>
+        /// <param name="urlRecord">URL record</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task UpdateUrlRecordAsync(UrlRecord urlRecord)
+        {
+            await _urlRecordRepository.UpdateAsync(urlRecord);
         }
 
         /// <summary>
@@ -1515,11 +1515,11 @@ namespace Nop.Services.Seo
         /// </summary>
         /// <param name="entity">Entity</param>
         /// <param name="seName">Search engine name to validate</param>
-        /// <param name="name">User-friendly name used to generate sename</param>
-        /// <param name="ensureNotEmpty">Ensure that sename is not empty</param>
+        /// <param name="name">User-friendly name used to generate seName</param>
+        /// <param name="ensureNotEmpty">Ensure that seName is not empty</param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the valid sename
+        /// The task result contains the valid seName
         /// </returns>
         public virtual async Task<string> ValidateSeNameAsync<T>(T entity, string seName, string name, bool ensureNotEmpty) where T : BaseEntity, ISlugSupported
         {
@@ -1537,15 +1537,15 @@ namespace Nop.Services.Seo
         /// <param name="entityId">Entity identifier</param>
         /// <param name="entityName">Entity name</param>
         /// <param name="seName">Search engine name to validate</param>
-        /// <param name="name">User-friendly name used to generate sename</param>
-        /// <param name="ensureNotEmpty">Ensure that sename is not empty</param>
+        /// <param name="name">User-friendly name used to generate seName</param>
+        /// <param name="ensureNotEmpty">Ensure that seName is not empty</param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the valid sename
+        /// The task result contains the valid seName
         /// </returns>
         public virtual async Task<string> ValidateSeNameAsync(int entityId, string entityName, string seName, string name, bool ensureNotEmpty)
         {
-            //use name if sename is not specified
+            //use name if seName is not specified
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(name))
                 seName = name;
 
@@ -1559,7 +1559,7 @@ namespace Nop.Services.Seo
             {
                 if (ensureNotEmpty)
                 {
-                    //use entity identifier as sename if empty
+                    //use entity identifier as seName if empty
                     seName = entityId.ToString();
                 }
                 else
@@ -1569,7 +1569,7 @@ namespace Nop.Services.Seo
                 }
             }
 
-            //ensure this sename is not reserved yet
+            //ensure this seName is not reserved yet
             var i = 2;
             var tempSeName = seName;
             while (true)

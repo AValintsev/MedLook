@@ -35,6 +35,13 @@ namespace Nop.Services.Seo
         Task InsertUrlRecordAsync(UrlRecord urlRecord);
 
         /// <summary>
+        /// Update an URL record
+        /// </summary>
+        /// <param name="urlRecord">URL record</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        Task UpdateUrlRecordAsync(UrlRecord urlRecord);
+
+        /// <summary>
         /// Find URL record
         /// </summary>
         /// <param name="slug">Slug</param>
@@ -127,11 +134,11 @@ namespace Nop.Services.Seo
         /// </summary>
         /// <param name="entity">Entity</param>
         /// <param name="seName">Search engine name to validate</param>
-        /// <param name="name">User-friendly name used to generate sename</param>
-        /// <param name="ensureNotEmpty">Ensure that sename is not empty</param>
+        /// <param name="name">User-friendly name used to generate seName</param>
+        /// <param name="ensureNotEmpty">Ensure that seName is not empty</param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the valid sename
+        /// The task result contains the valid seName
         /// </returns>
         Task<string> ValidateSeNameAsync<T>(T entity, string seName, string name, bool ensureNotEmpty) where T : BaseEntity, ISlugSupported;
 
@@ -141,11 +148,11 @@ namespace Nop.Services.Seo
         /// <param name="entityId">Entity identifier</param>
         /// <param name="entityName">Entity name</param>
         /// <param name="seName">Search engine name to validate</param>
-        /// <param name="name">User-friendly name used to generate sename</param>
-        /// <param name="ensureNotEmpty">Ensure that sename is not empty</param>
+        /// <param name="name">User-friendly name used to generate seName</param>
+        /// <param name="ensureNotEmpty">Ensure that seName is not empty</param>
         /// <returns>
         /// A task that represents the asynchronous operation
-        /// The task result contains the valid sename
+        /// The task result contains the valid seName
         /// </returns>
         Task<string> ValidateSeNameAsync(int entityId, string entityName, string seName, string name, bool ensureNotEmpty);
     }

@@ -32,10 +32,14 @@ var AjaxCart = {
         }
         this.setLoadWaiting(true);
 
+        var postData = {};
+        addAntiForgeryToken(postData);
+
         $.ajax({
             cache: false,
             url: urladd,
             type: "POST",
+            data: postData,
             success: this.success_process,
             complete: this.resetLoadWaiting,
             error: this.ajaxFailure
@@ -67,10 +71,14 @@ var AjaxCart = {
         }
         this.setLoadWaiting(true);
 
+        var postData = {};
+        addAntiForgeryToken(postData);
+
         $.ajax({
             cache: false,
             url: urladd,
             type: "POST",
+            data: postData,
             success: this.success_process,
             complete: this.resetLoadWaiting,
             error: this.ajaxFailure
@@ -78,6 +86,7 @@ var AjaxCart = {
     },
 
     success_process: function (response) {
+        console.log(response);
         if (response.updatetopcartsectionhtml) {
             $(AjaxCart.topcartselector).html(response.updatetopcartsectionhtml);
         }
@@ -85,27 +94,29 @@ var AjaxCart = {
             $(AjaxCart.topwishlistselector).html(response.updatetopwishlistsectionhtml);
         }
         if (response.updateflyoutcartsectionhtml) {
-            console.log('AjaxCart.flyoutcartselector', AjaxCart.flyoutcartselector, $(AjaxCart.flyoutcartselector));
             $(AjaxCart.flyoutcartselector).replaceWith(response.updateflyoutcartsectionhtml);
         }
         if (response.message) {
             //display notification
             if (response.success === true) {
                 //success
-                //$(AjaxCart.flyoutcartselector).show();
-                displayPopupNotificationHtml(response.updateflyoutcartsectionhtml, response.message);
-                //if (AjaxCart.usepopupnotifications === true) {
-                //    displayPopupNotification(response.message, 'success', true);
-                //}
-                //else {
-                //    //specify timeout for success messages
-                //    displayBarNotification(response.message, 'success', 3500);
-                //}
+                if (AjaxCart.usepopupnotifications === true) {
+                    displayPopupNotification(response.message, 'success', true);
+                }
+                else {
+                    //specify timeout for success messages
+                    displayBarNotification(response.message, 'success', 3500);
+                }
             }
             else {
                 //error
                 if (AjaxCart.usepopupnotifications === true) {
                     displayPopupNotification(response.message, 'error', true);
+                    // higlight required
+                    const attrText = $('.attributes .text-prompt').text();
+                    const attrExist = response.message.find(x => attrText.includes(x));
+                    if (attrExist)
+                        $('.attributes .required.prompt').show();
                 }
                 else {
                     //no timeout for errors

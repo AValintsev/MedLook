@@ -1,0 +1,37 @@
+@model StockFilterModel
+
+@{
+    var query = PluginDefaults.CP_QueryPrefix + "[" + PluginDefaults.CP_StockFilter + "]";
+}
+
+<div class="product-filter product-stock-filter">
+    <div class="filter-title">
+        <strong>@T("NopAdvance.Plugin.ExtendedProductFilters.Filtering.StockFilter")</strong>
+    </div>
+    <div class="filter-content">
+        <ul class="group product-stock-group">
+            <li class="item">
+                <input id="attribute-product-stock" type="checkbox" checked="@Model.Selected" />
+                <label for="attribute-product-stock">
+                    @T("NopAdvance.Plugin.ExtendedProductFilters.Filtering.StockFilter.Option.IncludeOutOfStock")
+                </label>
+            </li>
+        </ul>
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        var $stockEl = $('#attribute-product-stock');
+        $stockEl.on('change', function () {
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedStock = $stockEl.is(':checked');
+            if (selectedStock) {
+                e.payload.urlBuilder
+                    .addParameter('@query', selectedStock);
+            }
+        });
+    });
+</script>

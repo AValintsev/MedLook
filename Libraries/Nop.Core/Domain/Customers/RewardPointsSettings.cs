@@ -5,7 +5,7 @@ namespace Nop.Core.Domain.Customers
     /// <summary>
     /// Reward points settings
     /// </summary>
-    public class RewardPointsSettings : ISettings
+    public partial class RewardPointsSettings : ISettings
     {
         /// <summary>
         /// Gets or sets a value indicating whether Reward Points Program is enabled
@@ -26,6 +26,11 @@ namespace Nop.Core.Domain.Customers
         /// Gets or sets the maximum reward points to use per order
         /// </summary>
         public int MaximumRewardPointsToUsePerOrder { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum redemption rate of the total order amount
+        /// </summary>
+        public decimal MaximumRedeemedRate { get; set; }
 
         /// <summary>
         /// Gets or sets a number of points awarded for registration

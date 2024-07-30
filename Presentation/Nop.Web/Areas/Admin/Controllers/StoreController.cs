@@ -33,6 +33,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IStoreModelFactory _storeModelFactory;
         private readonly IStoreService _storeService;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IWebHelper _webHelper;
         private readonly IWorkContext _workContext;
 
         #endregion
@@ -48,6 +49,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             IStoreModelFactory storeModelFactory,
             IStoreService storeService,
             IGenericAttributeService genericAttributeService,
+            IWebHelper webHelper,
             IWorkContext workContext)
         {
             _customerActivityService = customerActivityService;
@@ -59,6 +61,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             _storeModelFactory = storeModelFactory;
             _storeService = storeService;
             _genericAttributeService = genericAttributeService;
+            _webHelper = webHelper;
             _workContext = workContext;
 
         }
@@ -67,14 +70,38 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Utilities
 
-        /// <returns>A task that represents the asynchronous operation</returns>
-        protected virtual async Task UpdateAttributeLocalesAsync(Store store, StoreModel model)
+        protected virtual async Task UpdateLocalesAsync(Store store, StoreModel model)
         {
             foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.SaveLocalizedValueAsync(store,
                     x => x.Name,
                     localized.Name,
+                    localized.LanguageId);
+
+                await _localizedEntityService.SaveLocalizedValueAsync(store,
+                    x => x.DefaultTitle,
+                    localized.DefaultTitle,
+                    localized.LanguageId);
+
+                await _localizedEntityService.SaveLocalizedValueAsync(store,
+                    x => x.DefaultMetaDescription,
+                    localized.DefaultMetaDescription,
+                    localized.LanguageId);
+
+                await _localizedEntityService.SaveLocalizedValueAsync(store,
+                    x => x.DefaultMetaKeywords,
+                    localized.DefaultMetaKeywords,
+                    localized.LanguageId);
+
+                await _localizedEntityService.SaveLocalizedValueAsync(store,
+                    x => x.HomepageDescription,
+                    localized.HomepageDescription,
+                    localized.LanguageId);
+
+                await _localizedEntityService.SaveLocalizedValueAsync(store,
+                    x => x.HomepageTitle,
+                    localized.HomepageTitle,
                     localized.LanguageId);
             }
         }
@@ -138,7 +165,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     string.Format(await _localizationService.GetResourceAsync("ActivityLog.AddNewStore"), store.Id), store);
 
                 //locales
-                await UpdateAttributeLocalesAsync(store, model);
+                await UpdateLocalesAsync(store, model);
 
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Configuration.Stores.Added"));
 
@@ -152,6 +179,31 @@ namespace Nop.Web.Areas.Admin.Controllers
             return View(model);
         }
 
+        [HttpsRequirement(ignore: true)]
+        public virtual async Task<IActionResult> SetStoreSslByCurrentRequestScheme(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageStores))
+                return AccessDeniedView();
+
+            //try to get a store with the specified id
+            var store = await _storeService.GetStoreByIdAsync(id);
+            if (store == null)
+                return RedirectToAction("List");
+
+            var value = _webHelper.IsCurrentConnectionSecured();
+
+            if (store.SslEnabled != value)
+            {
+                store.SslEnabled = value;
+                await _storeService.UpdateStoreAsync(store);
+
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Configuration.Stores.Ssl.Updated"));
+            }
+
+            return RedirectToAction("Edit", new { id = id });
+        }
+
+        [HttpsRequirement(ignore: true)]
         public virtual async Task<IActionResult> Edit(int id, bool showtour = false)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageStores))
@@ -168,9 +220,9 @@ namespace Nop.Web.Areas.Admin.Controllers
             //show configuration tour
             if (showtour)
             {
-                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), NopCustomerDefaults.HideConfigurationStepsAttribute);
-
-                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), NopCustomerDefaults.CloseConfigurationStepsAttribute);
+                var customer = await _workContext.GetCurrentCustomerAsync();
+                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(customer, NopCustomerDefaults.HideConfigurationStepsAttribute);
+                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(customer, NopCustomerDefaults.CloseConfigurationStepsAttribute);
 
                 if (!hideCard && !closeCard)
                     ViewBag.ShowTour = true;
@@ -206,7 +258,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     string.Format(await _localizationService.GetResourceAsync("ActivityLog.EditStore"), store.Id), store);
 
                 //locales
-                await UpdateAttributeLocalesAsync(store, model);
+                await UpdateLocalesAsync(store, model);
 
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Configuration.Stores.Updated"));
 

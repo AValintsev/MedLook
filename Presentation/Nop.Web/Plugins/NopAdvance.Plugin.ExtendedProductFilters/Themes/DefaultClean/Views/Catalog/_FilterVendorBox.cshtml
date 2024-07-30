@@ -1,0 +1,82 @@
+
+@model VendorFilterModel
+
+@{
+    var query = PluginDefaults.CP_QueryPrefix + "[" + PluginDefaults.CP_VendorFilter + "]";
+}
+
+<div class="product-filter product-vendor-filter">
+    <div class="filter-title">
+        <strong>@T("NopAdvance.Plugin.ExtendedProductFilters.Filtering.VendorFilter")</strong>
+        @if (ViewBag.isPluginPaidOrTrial && extendedFiltersSettings.ShowClearFiltersButton)
+        {
+            <a class="clear-filters-button" id="clear-vendor-filters-button">Clear</a>
+        }
+    </div>
+    <div class="filter-content">
+        <ul class="group product-vendor-group">
+            @foreach (var vendor in Model.Vendors)
+            {
+                <li class="item">
+                    <input id="attribute-vendor-@vendor.Value" type="checkbox" data-vendor-id="@vendor.Value"
+                checked="@vendor.Selected" />
+                    <label for="attribute-vendor-@vendor.Value">
+                        @vendor.Text
+                    </label>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        var $vsEls = $('[data-vendor-id]');
+        var $clearButton = $('#clear-vendor-filters-button');
+
+        $vsEls.on('change', function () {
+            if ($clearButton.length > 0) {
+                if ($('[data-vendor-id]:checked').length > 0)
+                    $clearButton.show();
+                else
+                    $clearButton.hide();
+            }
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedVs = $.map($vsEls, function (el) {
+                var $vEl = $(el);
+                if ($vEl.is(':checked')) return $vEl.data('vendor-id')
+                return null;
+            });
+
+            if (selectedVs && selectedVs.length > 0) {
+                e.payload.urlBuilder
+                    .addParameter('@query', selectedVs.join(','));
+            }
+        });
+
+        if ($clearButton.length > 0) 
+        {
+            $clearButton.on('clearOnly', clearOnly);
+            $clearButton.on('click', function () {
+                clearOnly();
+                CatalogProducts.getProducts();                
+                $('.applied-filters .applied-filters-group').trigger('updatePanelElements');
+                return false;
+            });
+
+            if ($('[data-vendor-id]:checked').length == 0)
+                $clearButton.hide();
+
+            function clearOnly()
+            {
+                $('[data-vendor-id]').each(function (index, elem) {
+                    $(elem).removeAttr('checked');
+                });
+                $clearButton.hide();                
+                return false;
+            }
+        }
+    });
+</script>

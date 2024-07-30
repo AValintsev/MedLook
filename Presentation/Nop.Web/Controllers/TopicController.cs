@@ -10,6 +10,7 @@ using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Web.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public partial class TopicController : BasePublicController
     {
         #region Fields
@@ -46,12 +47,24 @@ namespace Nop.Web.Controllers
 
         public virtual async Task<IActionResult> TopicDetails(int topicId)
         {
+            var topic = await _topicService.GetTopicByIdAsync(topicId);
+
+            if (topic == null)
+                return InvokeHttp404();
+
+            var notAvailable = !topic.Published ||
+                //ACL (access control list)
+                !await _aclService.AuthorizeAsync(topic) ||
+                //store mapping
+                !await _storeMappingService.AuthorizeAsync(topic);
+
             //allow administrators to preview any topic
             var hasAdminAccess = await _permissionService.AuthorizeAsync(StandardPermissionProvider.AccessAdminPanel) && await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageTopics);
 
-            var model = await _topicModelFactory.PrepareTopicModelByIdAsync(topicId, hasAdminAccess);
-            if (model == null)
+            if (notAvailable && !hasAdminAccess)
                 return InvokeHttp404();
+
+            var model = await _topicModelFactory.PrepareTopicModelAsync(topic);
 
             //display "edit" (manage) link
             if (hasAdminAccess)
@@ -62,7 +75,7 @@ namespace Nop.Web.Controllers
             return View(templateViewPath, model);
         }
 
-        [CheckLanguageSeoCode(true)]
+        [CheckLanguageSeoCode(ignore: true)]
         public virtual async Task<IActionResult> TopicDetailsPopup(string systemName)
         {
             var model = await _topicModelFactory.PrepareTopicModelBySystemNameAsync(systemName);
@@ -77,7 +90,6 @@ namespace Nop.Web.Controllers
         }
 
         [HttpPost]
-        [AutoValidateAntiforgeryToken]
         public virtual async Task<IActionResult> Authenticate(int id, string password)
         {
             var authResult = false;

@@ -4,7 +4,7 @@
 }
 @using Nop.Plugin.Payments.CheckMoneyOrder.Models
 
-@await Component.InvokeAsync("StoreScopeConfiguration")
+@await Component.InvokeAsync(typeof(StoreScopeConfigurationViewComponent))
 <form asp-controller="PaymentCheckMoneyOrder" asp-action="Configure" method="post">
     <div class="cards-group">
         <div class="card card-default">
@@ -17,7 +17,7 @@
                             <nop-label asp-for="@Model.Locales[item].DescriptionText" />
                         </div>
                         <div class="col-md-9">
-                            <nop-textarea asp-for="@Model.Locales[item].DescriptionText" />
+                            <nop-editor asp-for="@Model.Locales[item].DescriptionText" />
                             <span asp-validation-for="@Model.Locales[item].DescriptionText"></span>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
                             <nop-label asp-for="DescriptionText" />
                         </div>
                         <div class="col-md-9">
-                            <nop-textarea asp-for="DescriptionText" />
+                            <nop-editor asp-for="DescriptionText" />
                             <span asp-validation-for="DescriptionText"></span>
                         </div>
                     </div>

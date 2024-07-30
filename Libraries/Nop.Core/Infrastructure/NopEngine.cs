@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Nop.Core.Configuration;
-using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Core.Infrastructure.Mapper;
 
 namespace Nop.Core.Infrastructure
@@ -16,7 +14,7 @@ namespace Nop.Core.Infrastructure
     /// <summary>
     /// Represents Nop engine
     /// </summary>
-    public class NopEngine : IEngine
+    public partial class NopEngine : IEngine
     {
         #region Utilities
 
@@ -24,7 +22,7 @@ namespace Nop.Core.Infrastructure
         /// Get IServiceProvider
         /// </summary>
         /// <returns>IServiceProvider</returns>
-        protected IServiceProvider GetServiceProvider(IServiceScope scope = null)
+        protected virtual IServiceProvider GetServiceProvider(IServiceScope scope = null)
         {
             if (scope == null)
             {
@@ -38,10 +36,10 @@ namespace Nop.Core.Infrastructure
         /// <summary>
         /// Run startup tasks
         /// </summary>
-        /// <param name="typeFinder">Type finder</param>
-        protected virtual void RunStartupTasks(ITypeFinder typeFinder)
+        protected virtual void RunStartupTasks()
         {
             //find startup tasks provided by other assemblies
+            var typeFinder = Singleton<ITypeFinder>.Instance;
             var startupTasks = typeFinder.FindClassesOfType<IStartupTask>();
 
             //create and sort instances of startup tasks
@@ -53,47 +51,16 @@ namespace Nop.Core.Infrastructure
 
             //execute tasks
             foreach (var task in instances)
-                task.ExecuteAsync().Wait();
-        }
-
-        /// <summary>
-        /// Register dependencies
-        /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        /// <param name="appSettings">App settings</param>
-        public virtual void RegisterDependencies(IServiceCollection services, AppSettings appSettings)
-        {
-            var typeFinder = new WebAppTypeFinder();
-
-            //register engine
-            services.AddSingleton<IEngine>(this);
-
-            //register type finder
-            services.AddSingleton<ITypeFinder>(typeFinder);
-
-            //find dependency registrars provided by other assemblies
-            var dependencyRegistrars = typeFinder.FindClassesOfType<IDependencyRegistrar>();
-
-            //create and sort instances of dependency registrars
-            var instances = dependencyRegistrars
-                .Select(dependencyRegistrar => (IDependencyRegistrar)Activator.CreateInstance(dependencyRegistrar))
-                .OrderBy(dependencyRegistrar => dependencyRegistrar.Order);
-
-            //register all provided dependencies
-            foreach (var dependencyRegistrar in instances)
-                dependencyRegistrar.Register(services, typeFinder, appSettings);
-
-            services.AddSingleton(services);
+                task.Execute();
         }
 
         /// <summary>
         /// Register and configure AutoMapper
         /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        /// <param name="typeFinder">Type finder</param>
-        protected virtual void AddAutoMapper(IServiceCollection services, ITypeFinder typeFinder)
+        protected virtual void AddAutoMapper()
         {
             //find mapper configurations provided by other assemblies
+            var typeFinder = Singleton<ITypeFinder>.Instance;
             var mapperConfigurations = typeFinder.FindClassesOfType<IOrderedMapperProfile>();
 
             //create and sort instances of mapper configurations
@@ -114,7 +81,7 @@ namespace Nop.Core.Infrastructure
             AutoMapperConfiguration.Init(config);
         }
 
-        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        protected virtual Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             //check for assembly already loaded
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
@@ -122,8 +89,8 @@ namespace Nop.Core.Infrastructure
                 return assembly;
 
             //get assembly from TypeFinder
-            var tf = Resolve<ITypeFinder>();            
-            assembly = tf?.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+            var typeFinder = Singleton<ITypeFinder>.Instance;
+            assembly = typeFinder?.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
             return assembly;
         }
 
@@ -136,10 +103,13 @@ namespace Nop.Core.Infrastructure
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
         /// <param name="configuration">Configuration of the application</param>
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public virtual void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
+            //register engine
+            services.AddSingleton<IEngine>(this);
+
             //find startup configurations provided by other assemblies
-            var typeFinder = new WebAppTypeFinder();
+            var typeFinder = Singleton<ITypeFinder>.Instance;
             var startupConfigurations = typeFinder.FindClassesOfType<INopStartup>();
 
             //create and sort instances of startup configurations
@@ -151,11 +121,13 @@ namespace Nop.Core.Infrastructure
             foreach (var instance in instances)
                 instance.ConfigureServices(services, configuration);
 
+            services.AddSingleton(services);
+
             //register mapper configurations
-            AddAutoMapper(services, typeFinder);
+            AddAutoMapper();
 
             //run startup tasks
-            RunStartupTasks(typeFinder);
+            RunStartupTasks();
 
             //resolve assemblies here. otherwise, plugins can throw an exception when rendering views
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
@@ -165,12 +137,12 @@ namespace Nop.Core.Infrastructure
         /// Configure HTTP request pipeline
         /// </summary>
         /// <param name="application">Builder for configuring an application's request pipeline</param>
-        public void ConfigureRequestPipeline(IApplicationBuilder application)
+        public virtual void ConfigureRequestPipeline(IApplicationBuilder application)
         {
             ServiceProvider = application.ApplicationServices;
 
             //find startup configurations provided by other assemblies
-            var typeFinder = Resolve<ITypeFinder>();
+            var typeFinder = Singleton<ITypeFinder>.Instance;
             var startupConfigurations = typeFinder.FindClassesOfType<INopStartup>();
 
             //create and sort instances of startup configurations
@@ -189,7 +161,7 @@ namespace Nop.Core.Infrastructure
         /// <param name="scope">Scope</param>
         /// <typeparam name="T">Type of resolved service</typeparam>
         /// <returns>Resolved service</returns>
-        public T Resolve<T>(IServiceScope scope = null) where T : class
+        public virtual T Resolve<T>(IServiceScope scope = null) where T : class
         {
             return (T)Resolve(typeof(T), scope);
         }
@@ -200,10 +172,10 @@ namespace Nop.Core.Infrastructure
         /// <param name="type">Type of resolved service</param>
         /// <param name="scope">Scope</param>
         /// <returns>Resolved service</returns>
-        public object Resolve(Type type, IServiceScope scope = null)
+        public virtual object Resolve(Type type, IServiceScope scope = null)
         {
             return GetServiceProvider(scope)?.GetService(type);
-        }        
+        }
 
         /// <summary>
         /// Resolve dependencies

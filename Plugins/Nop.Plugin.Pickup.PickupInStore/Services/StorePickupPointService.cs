@@ -10,7 +10,7 @@ namespace Nop.Plugin.Pickup.PickupInStore.Services
     /// <summary>
     /// Store pickup point service
     /// </summary>
-    public partial class StorePickupPointService : IStorePickupPointService
+    public class StorePickupPointService : IStorePickupPointService
     {
         #region Constants
 
@@ -20,7 +20,7 @@ namespace Nop.Plugin.Pickup.PickupInStore.Services
         /// <remarks>
         /// {0} : current store ID
         /// </remarks>
-        private readonly CacheKey _pickupPointAllKey = new CacheKey("Nop.pickuppoint.all-{0}", PICKUP_POINT_PATTERN_KEY);
+        private readonly CacheKey _pickupPointAllKey = new("Nop.pickuppoint.all-{0}", PICKUP_POINT_PATTERN_KEY);
         private const string PICKUP_POINT_PATTERN_KEY = "Nop.pickuppoint.";
 
         #endregion

@@ -10,7 +10,7 @@ namespace Nop.Web.Framework.Infrastructure
     /// <summary>
     /// Represents object for the configuring common features and middleware on application startup
     /// </summary>
-    public class NopCommonStartup : INopStartup
+    public partial class NopCommonStartup : INopStartup
     {
         /// <summary>
         /// Add and configure any of the middleware
@@ -19,9 +19,6 @@ namespace Nop.Web.Framework.Infrastructure
         /// <param name="configuration">Configuration of the application</param>
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            //compression
-            services.AddResponseCompression();
-
             //add options feature
             services.AddOptions();
 
@@ -37,9 +34,6 @@ namespace Nop.Web.Framework.Infrastructure
             //add anti-forgery
             services.AddAntiForgery();
 
-            //add localization
-            services.AddLocalization();
-
             //add theme support
             services.AddThemes();
 
@@ -47,7 +41,7 @@ namespace Nop.Web.Framework.Infrastructure
             services.AddRouting(options =>
             {
                 //add constraint key for language
-                options.ConstraintMap[NopPathRouteDefaults.LanguageParameterTransformer] = typeof(LanguageParameterTransformer);
+                options.ConstraintMap[NopRoutingDefaults.LanguageParameterTransformer] = typeof(LanguageParameterTransformer);
             });
         }
 
@@ -57,12 +51,6 @@ namespace Nop.Web.Framework.Infrastructure
         /// <param name="application">Builder for configuring an application's request pipeline</param>
         public void Configure(IApplicationBuilder application)
         {
-            //use response compression
-            application.UseNopResponseCompression();
-
-            //use static files feature
-            application.UseNopStaticFiles();
-
             //check whether requested page is keep alive page
             application.UseKeepAlive();
 
@@ -74,6 +62,9 @@ namespace Nop.Web.Framework.Infrastructure
 
             //use request localization
             application.UseNopRequestLocalization();
+
+            //configure PDF
+            application.UseNopPdf();
         }
 
         /// <summary>

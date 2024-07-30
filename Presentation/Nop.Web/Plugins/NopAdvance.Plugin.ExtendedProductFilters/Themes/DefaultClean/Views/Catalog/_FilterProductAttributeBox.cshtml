@@ -1,0 +1,105 @@
+@model ProductAttributeFilterModel
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Media
+@using System.Text
+@using Nop.Services.Catalog
+@using Nop.Services.Media
+@inject IDownloadService downloadService
+@inject CatalogSettings catalogSettings
+@{
+    var query = PluginDefaults.CP_QueryPrefix + "[" + PluginDefaults.CP_AttributeFilter + "]";
+}
+
+<div class="product-filter product-attr-filter">
+    <div class="filter-content">
+        @foreach (var attr in Model.Attributes)
+        {
+            <dl>
+                <dt>
+                    <label class="text-prompt">@attr.Name</label>
+                </dt>
+                <dd id="@($"{NopCatalogDefaults.ProductAttributePrefix}input_{attr.Id}")">
+                    <div data-attr="@(attr.Id)" class="option-list size-buttons">
+                        @{
+                            var controlId = $"{NopCatalogDefaults.ProductAttributePrefix}{attr.Id}";
+                        }
+
+                        @foreach (var value in attr.Values.OrderBy(x => x.Name))
+                        {
+                            <div class="col-auto item">
+                                <input class="btn-check" id="prod-attribute-option-@value.Id" type="checkbox" data-prod-option-id="@value.Id" checked="@value.Selected" />
+                                @if (string.IsNullOrEmpty(value.ColorSquaresRgb))
+                                {
+                                    <label class="btn-label" for="prod-attribute-option-@value.Id">
+                                        @value.Name
+                                    </label>
+                                }
+                                else
+                                {
+                                    <label for="prod-attribute-option-@value.Id" class="btn-label attribute-squares color-squares">
+                                        <span class="attribute-square" style="background-color: @(value.ColorSquaresRgb);"></span>
+                                        @value.Name
+                                    </label>
+                                }
+                            </div>
+                        }
+                    </div>
+                </dd>
+            </dl>
+        }
+    </div>
+</div>
+<script asp-location="Footer">
+    $(document).ready(function () {
+        var $optionEls = $('[data-prod-option-id]');
+        var $clearButton = $('#clear-product-attribute-filters-button');
+
+        $optionEls.on('click', function () {
+            if ($clearButton.length > 0) {
+
+                if ($('[data-prod-option-id]:checked').length > 0)
+                    $clearButton.show();
+                else
+                    $clearButton.hide();
+            }
+            CatalogProducts.getProducts();
+        });
+
+        $(CatalogProducts).on('before', function (e) {
+            var selectedOptions = $.map($optionEls, function (el) {
+                var $optionEl = $(el);
+                if ($optionEl.is(':checked')) return $optionEl.data('prod-option-id');
+                return null;
+            });
+
+            if (selectedOptions && selectedOptions.length > 0) {
+                e.payload.urlBuilder
+                    .addParameter('@query', selectedOptions.join(','));
+            }
+        });
+
+        if ($clearButton.length > 0) {
+            $clearButton.on('clearOnly', clearOnly);
+            $clearButton.on('click', function () {
+                clearOnly();
+                CatalogProducts.getProducts();
+                $('.applied-filters .applied-filters-group').trigger('updatePanelElements');
+                return false;
+            });
+
+            if ($('[data-prod-option-id]:checked').length == 0)
+                $clearButton.hide();
+            else
+                $clearButton.show();
+
+            function clearOnly() {
+                $('[data-prod-option-id]').each(function (index, elem) {
+                    $(elem).removeAttr('checked');
+                });
+                $clearButton.hide();
+                return false;
+            }
+        }
+    });
+</script>

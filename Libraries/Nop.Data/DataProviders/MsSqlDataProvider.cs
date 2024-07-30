@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,9 +8,8 @@ using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider;
 using LinqToDB.DataProvider.SqlServer;
+using Microsoft.Data.SqlClient;
 using Nop.Core;
-using Nop.Core.Infrastructure;
-using Nop.Data.Migrations;
 
 namespace Nop.Data.DataProviders
 {
@@ -20,21 +18,7 @@ namespace Nop.Data.DataProviders
     /// </summary>
     public partial class MsSqlNopDataProvider : BaseDataProvider, INopDataProvider
     {
-        #region Fields
-
-        private static readonly Lazy<IDataProvider> _dataProvider = new(() => new SqlServerDataProvider(ProviderName.SqlServer, SqlServerVersion.v2012, SqlServerProvider.SystemDataSqlClient), true);
-
-        #endregion
-
         #region Utils
-
-        /// <returns>A task that represents the asynchronous operation</returns>
-        protected virtual async Task<SqlConnectionStringBuilder> GetConnectionStringBuilderAsync()
-        {
-            var connectionString = (await DataSettingsManager.LoadSettingsAsync()).ConnectionString;
-
-            return new SqlConnectionStringBuilder(connectionString);
-        }
 
         protected virtual SqlConnectionStringBuilder GetConnectionStringBuilder()
         {
@@ -46,7 +30,7 @@ namespace Nop.Data.DataProviders
         #endregion
 
         #region Utils
-        
+
         /// <summary>
         /// Gets a connection to the database for a current data provider
         /// </summary>
@@ -55,7 +39,7 @@ namespace Nop.Data.DataProviders
         protected override DbConnection GetInternalDbConnection(string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentException(nameof(connectionString));
+                throw new ArgumentNullException(nameof(connectionString));
 
             return new SqlConnection(connectionString);
         }
@@ -126,8 +110,8 @@ namespace Nop.Data.DataProviders
         {
             try
             {
-                await using var connection = GetInternalDbConnection(await GetCurrentConnectionStringAsync());
-                
+                await using var connection = GetInternalDbConnection(GetCurrentConnectionString());
+
                 //just try to connect
                 await connection.OpenAsync();
 
@@ -160,15 +144,6 @@ namespace Nop.Data.DataProviders
         }
 
         /// <summary>
-        /// Initialize database
-        /// </summary>
-        public void InitializeDatabase()
-        {
-            var migrationManager = EngineContext.Current.Resolve<IMigrationManager>();
-            migrationManager.ApplyUpMigrations(typeof(NopDbStartup).Assembly);
-        }
-
-        /// <summary>
         /// Get the current identity value
         /// </summary>
         /// <typeparam name="TEntity">Entity type</typeparam>
@@ -176,15 +151,15 @@ namespace Nop.Data.DataProviders
         /// A task that represents the asynchronous operation
         /// The task result contains the integer identity; null if cannot get the result
         /// </returns>
-        public virtual async Task<int?> GetTableIdentAsync<TEntity>() where TEntity : BaseEntity
+        public virtual Task<int?> GetTableIdentAsync<TEntity>() where TEntity : BaseEntity
         {
-            using var currentConnection = await CreateDataConnectionAsync();
-            var tableName = GetEntityDescriptor<TEntity>().TableName;
+            using var currentConnection = CreateDataConnection();
+            var tableName = GetEntityDescriptor(typeof(TEntity)).EntityName;
 
             var result = currentConnection.Query<decimal?>($"SELECT IDENT_CURRENT('[{tableName}]') as Value")
                 .FirstOrDefault();
 
-            return result.HasValue ? Convert.ToInt32(result) : 1;
+            return Task.FromResult<int?>(result.HasValue ? Convert.ToInt32(result) : 1);
         }
 
         /// <summary>
@@ -195,12 +170,12 @@ namespace Nop.Data.DataProviders
         /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task SetTableIdentAsync<TEntity>(int ident) where TEntity : BaseEntity
         {
-            using var currentConnection = await CreateDataConnectionAsync();
+            using var currentConnection = CreateDataConnection();
             var currentIdent = await GetTableIdentAsync<TEntity>();
             if (!currentIdent.HasValue || ident <= currentIdent.Value)
                 return;
 
-            var tableName = GetEntityDescriptor<TEntity>().TableName;
+            var tableName = GetEntityDescriptor(typeof(TEntity)).EntityName;
 
             await currentConnection.ExecuteAsync($"DBCC CHECKIDENT([{tableName}], RESEED, {ident})");
         }
@@ -211,7 +186,7 @@ namespace Nop.Data.DataProviders
         /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task BackupDatabaseAsync(string fileName)
         {
-            using var currentConnection = await CreateDataConnectionAsync();
+            using var currentConnection = CreateDataConnection();
             var commandText = $"BACKUP DATABASE [{currentConnection.Connection.Database}] TO DISK = '{fileName}' WITH FORMAT";
             await currentConnection.ExecuteAsync(commandText);
         }
@@ -223,7 +198,7 @@ namespace Nop.Data.DataProviders
         /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task RestoreDatabaseAsync(string backupFileName)
         {
-            using var currentConnection = await CreateDataConnectionAsync();
+            using var currentConnection = CreateDataConnection();
             var commandText = string.Format(
                 "DECLARE @ErrorMessage NVARCHAR(4000)\n" +
                 "ALTER DATABASE [{0}] SET OFFLINE WITH ROLLBACK IMMEDIATE\n" +
@@ -250,7 +225,7 @@ namespace Nop.Data.DataProviders
         /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task ReIndexTablesAsync()
         {
-            using var currentConnection = await CreateDataConnectionAsync();
+            using var currentConnection = CreateDataConnection();
             var commandText = $@"
                     DECLARE @TableName sysname 
                     DECLARE cur_reindex CURSOR FOR
@@ -285,7 +260,8 @@ namespace Nop.Data.DataProviders
                 DataSource = nopConnectionString.ServerName,
                 InitialCatalog = nopConnectionString.DatabaseName,
                 PersistSecurityInfo = false,
-                IntegratedSecurity = nopConnectionString.IntegratedSecurity
+                IntegratedSecurity = nopConnectionString.IntegratedSecurity,
+                TrustServerCertificate = true
             };
 
             if (!nopConnectionString.IntegratedSecurity)
@@ -322,7 +298,7 @@ namespace Nop.Data.DataProviders
         }
 
         /// <summary>
-        /// Updates records in table, using values from entity parameter. 
+        /// Updates records in table, using values from entity parameter.
         /// Records to update are identified by match on primary key value from obj value.
         /// </summary>
         /// <param name="entities">Entities with data to update</param>
@@ -330,13 +306,30 @@ namespace Nop.Data.DataProviders
         /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task UpdateEntitiesAsync<TEntity>(IEnumerable<TEntity> entities)
         {
-            using var dataContext = await CreateDataConnectionAsync();
+            using var dataContext = CreateDataConnection();
             await dataContext.GetTable<TEntity>()
                 .Merge()
                 .Using(entities)
                 .OnTargetKey()
                 .UpdateWhenMatched()
                 .MergeAsync();
+        }
+
+        /// <summary>
+        /// Updates records in table, using values from entity parameter.
+        /// Records to update are identified by match on primary key value from obj value.
+        /// </summary>
+        /// <param name="entities">Entities with data to update</param>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        public override void UpdateEntities<TEntity>(IEnumerable<TEntity> entities)
+        {
+            using var dataContext = CreateDataConnection();
+            dataContext.GetTable<TEntity>()
+                .Merge()
+                .Using(entities)
+                .OnTargetKey()
+                .UpdateWhenMatched()
+                .Merge();
         }
 
         #endregion
@@ -346,7 +339,7 @@ namespace Nop.Data.DataProviders
         /// <summary>
         /// Sql server data provider
         /// </summary>
-        protected override IDataProvider LinqToDbDataProvider => _dataProvider.Value;
+        protected override IDataProvider LinqToDbDataProvider => SqlServerTools.GetDataProvider(SqlServerVersion.v2012, SqlServerProvider.MicrosoftDataSqlClient);
 
         /// <summary>
         /// Gets allowed a limit input value of the data for hashing functions, returns 0 if not limited

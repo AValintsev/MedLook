@@ -20,6 +20,10 @@
     </div>
 }
 
+@*<div class="search-box">
+    @await Component.InvokeAsync("SearchBox")
+</div>*@
+
 
 @if (Model.ShoppingCartEnabled)
 {
@@ -38,6 +42,8 @@
         </a>
     </div>
 }
+
+@await Component.InvokeAsync(typeof(SearchBoxViewComponent))
 
 
 @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksAfter })

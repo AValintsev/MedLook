@@ -18,6 +18,7 @@ using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Plugin.ExternalAuth.Facebook.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class FacebookAuthenticationController : BasePluginController
     {
         #region Fields
@@ -81,7 +82,6 @@ namespace Nop.Plugin.ExternalAuth.Facebook.Controllers
         }
 
         [HttpPost]
-        [AutoValidateAntiforgeryToken]
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
         public async Task<IActionResult> Configure(ConfigurationModel model)
@@ -107,8 +107,9 @@ namespace Nop.Plugin.ExternalAuth.Facebook.Controllers
 
         public async Task<IActionResult> Login(string returnUrl)
         {
+            var store = await _storeContext.GetCurrentStoreAsync();
             var methodIsAvailable = await _authenticationPluginManager
-                .IsPluginActiveAsync(FacebookAuthenticationDefaults.SystemName, await _workContext.GetCurrentCustomerAsync(), (await _storeContext.GetCurrentStoreAsync()).Id);
+                .IsPluginActiveAsync(FacebookAuthenticationDefaults.SystemName, await _workContext.GetCurrentCustomerAsync(), store.Id);
             if (!methodIsAvailable)
                 throw new NopException("Facebook authentication module cannot be loaded");
 
@@ -148,6 +149,17 @@ namespace Nop.Plugin.ExternalAuth.Facebook.Controllers
 
             //authenticate Nop user
             return await _externalAuthenticationService.AuthenticateAsync(authenticationParameters, returnUrl);
+        }
+
+        public async Task<IActionResult> DataDeletionStatusCheck(int earId)
+        {
+            var externalAuthenticationRecord = await _externalAuthenticationService.GetExternalAuthenticationRecordByIdAsync(earId);
+            if (externalAuthenticationRecord is not null)
+                _notificationService.WarningNotification(await _localizationService.GetResourceAsync("Plugins.ExternalAuth.Facebook.AuthenticationDataExist"));
+            else
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.ExternalAuth.Facebook.AuthenticationDataDeletedSuccessfully"));
+
+            return RedirectToRoute("CustomerInfo");
         }
 
         #endregion

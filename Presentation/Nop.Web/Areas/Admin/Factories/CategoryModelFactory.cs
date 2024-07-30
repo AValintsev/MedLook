@@ -194,7 +194,7 @@ namespace Nop.Web.Areas.Admin.Factories
         /// </returns>
         public virtual async Task<CategoryModel> PrepareCategoryModelAsync(CategoryModel model, Category category, bool excludeProperties = false)
         {
-            Action<CategoryLocalizedModel, int> localizedModelConfiguration = null;
+            Func<CategoryLocalizedModel, int, Task> localizedModelConfiguration = null;
 
             if (category != null)
             {
@@ -248,7 +248,7 @@ namespace Nop.Web.Areas.Admin.Factories
                 defaultItemText: await _localizationService.GetResourceAsync("Admin.Catalog.Categories.Fields.Parent.None"));
 
             //prepare model discounts
-            var availableDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories, showHidden: true);
+            var availableDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories, showHidden: true, isActive: null);
             await _discountSupportedModelFactory.PrepareModelDiscountsAsync(model, category, availableDiscounts, excludeProperties);
 
             //prepare model customer roles

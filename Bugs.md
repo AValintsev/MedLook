@@ -1,0 +1,1 @@
+﻿1 - 27.10.2023 - Not all address find in Nova Poshta - fixed

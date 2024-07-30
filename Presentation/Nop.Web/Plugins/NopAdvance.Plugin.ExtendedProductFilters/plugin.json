@@ -1,0 +1,15 @@
+{
+  "Group": "NopAdvance",
+  "FriendlyName": "Extended Product Filters",
+  "SystemName": "Nopadvance.Plugin.ExtendedProductFilters",
+  "Version": "1.1",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "NopAdvance team",
+  "DisplayOrder": 1,
+  "FileName": "Nopadvance.Plugin.Misc.ExtendedProductFilters.dll",
+  "Description": "This plugin provides more detailed and efficient filtering options.",
+  "DependsOnSystemNames": [ "NopAdvance.Core" ],
+  "CoreVersion": "1.11",
+  "ProductUrl": "https://store.nopadvance.com/extended-product-filters-nopcommerce-plugin",
+  "HelpUrl": "https://docs.nopadvance.com/extendedproductfilters-nopcommer.html"
+}

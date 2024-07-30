@@ -6,7 +6,6 @@
         <div class="header-inner--actions">
             @await Component.InvokeAsync("TopMenu")
             @await Component.InvokeAsync("HeaderLinks")
-            @*@await Component.InvokeAsync("FlyoutShoppingCart")*@
         </div>
     </div>
 
@@ -15,9 +14,6 @@
 
     <div class="header-lower">
         @await Component.InvokeAsync("AdminHeaderLinks")
-        @*<div class="search-box">
-        @await Component.InvokeAsync("SearchBox")
-        </div>*@
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderAfter })
 </div>

@@ -17,6 +17,7 @@ namespace Nop.Web.Models.Catalog
         {
             DefaultPictureModel = new PictureModel();
             PictureModels = new List<PictureModel>();
+            VideoModels = new List<VideoModel>();
             GiftCard = new GiftCardModel();
             ProductPrice = new ProductPriceModel();
             AddToCart = new AddToCartModel();
@@ -36,6 +37,9 @@ namespace Nop.Web.Models.Catalog
         public bool DefaultPictureZoomEnabled { get; set; }
         public PictureModel DefaultPictureModel { get; set; }
         public IList<PictureModel> PictureModels { get; set; }
+
+        //videos
+        public IList<VideoModel> VideoModels { get; set; }
 
         public string Name { get; set; }
         public string ShortDescription { get; set; }
@@ -178,10 +182,12 @@ namespace Nop.Web.Models.Catalog
             public string CurrencyCode { get; set; }
 
             public string OldPrice { get; set; }
+            public decimal? OldPriceValue { get; set; }
 
             public string Price { get; set; }
-            public string PriceWithDiscount { get; set; }
             public decimal PriceValue { get; set; }
+            public string PriceWithDiscount { get; set; }
+            public decimal? PriceWithDiscountValue { get; set; }
 
             public bool CustomerEntersPrice { get; set; }
 
@@ -194,6 +200,7 @@ namespace Nop.Web.Models.Catalog
             //rental
             public bool IsRental { get; set; }
             public string RentalPrice { get; set; }
+            public decimal? RentalPriceValue { get; set; }
 
             /// <summary>
             /// A value indicating whether we should display tax/shipping info (used in Germany)
@@ -203,6 +210,7 @@ namespace Nop.Web.Models.Catalog
             /// PAngV baseprice (used in Germany)
             /// </summary>
             public string BasePricePAngV { get; set; }
+            public decimal? BasePricePAngVValue { get; set; }
         }
 
         public partial record GiftCardModel : BaseNopModel
@@ -232,6 +240,7 @@ namespace Nop.Web.Models.Catalog
         public partial record TierPriceModel : BaseNopModel
         {
             public string Price { get; set; }
+            public decimal PriceValue { get; set; }
 
             public int Quantity { get; set; }
         }
@@ -303,7 +312,7 @@ namespace Nop.Web.Models.Catalog
             public PictureModel ImageSquaresPictureModel { get; set; }
 
             public string PriceAdjustment { get; set; }
-            
+
             public bool PriceAdjustmentUsePercentage { get; set; }
 
             public decimal PriceAdjustmentValue { get; set; }

@@ -1,0 +1,97 @@
+﻿@model Nop.Ithoot.Plugin.Misc.PDF.Models.ConfigurationModel
+@using Nop.Web.Framework.Models.AdminAreaTour
+
+@{
+    Layout = "_ConfigurePlugin";
+
+    //tour step
+    ViewBag.TourStep = TourStep.ShippingManual;
+}
+
+@await Html.PartialAsync("_AdminTour")
+
+<form asp-controller="PDFAdmin" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card card-default">
+                <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="Title" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="Title" />
+                            <span asp-validation-for="Title"></span>
+                        </div>
+                    </div>
+
+                     <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="FopName" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="FopName" />
+                            <span asp-validation-for="FopName"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="FopPhone" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="FopPhone" />
+                            <span asp-validation-for="FopPhone"></span>
+                        </div>
+                    </div>
+
+                     <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="FopBankName" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="FopBankName" />
+                            <span asp-validation-for="FopBankName"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="FopIBAN" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="FopIBAN" />
+                            <span asp-validation-for="FopIBAN"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="FopEDRPOU" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="FopEDRPOU" />
+                            <span asp-validation-for="FopEDRPOU"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="FopCardNumber" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="FopCardNumber" />
+                            <span asp-validation-for="FopCardNumber"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-9 offset-md-3">
+                            <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+<nop-alert asp-alert-id="saveModeAlert" asp-alert-message="@T("Admin.Common.Alert.Save.Error")" />
