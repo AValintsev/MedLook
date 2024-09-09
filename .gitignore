@@ -270,3 +270,11 @@ src/packages/*
 /Plugins/Nop.Plugin.Widgets.GoogleAnalytics/obj
 /Plugins/Nop.Plugin.Widgets.NivoSlider/obj
 /Plugins/Nop.Plugin.Widgets.What3words/obj
+/Presentation/Nop.Web/Plugins/ExternalAuth.Facebook/runtimes
+/Presentation/Nop.Web/Plugins/Misc.SendinBlue/runtimes
+/Presentation/Nop.Web/Plugins/MultiFactorAuth.GoogleAuthenticator/runtimes
+/Presentation/Nop.Web/Plugins/NopAdvance.Core/refs
+/Presentation/Nop.Web/Plugins/Payments.CyberSource/runtimes
+/Presentation/Nop.Web/Plugins/Payments.Monobank/runtimes
+/Presentation/Nop.Web/Plugins/Payments.PayPalCommerce/runtimes
+/Presentation/Nop.Web/Plugins/Tax.Avalara/runtimes
