@@ -75,16 +75,6 @@
     @NopHtml.GenerateScripts(ResourceLocation.Head)
     @NopHtml.GenerateInlineScripts(ResourceLocation.Head)
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5RLYPC1MT2"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-5RLYPC1MT2');
-    </script>
-
     <!-- Google Tag Manager -->
     <script>
         (function (w, d, s, l, i) {
@@ -94,20 +84,22 @@
             }); var f = d.getElementsByTagName(s)[0],
                 j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
                     'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-5V3FFV7');</script>
+        })(window, document, 'script', 'dataLayer', 'GTM-555LDTLT');</script>
     <!-- End Google Tag Manager -->
-    <meta name="google-site-verification" content="h7QB4C9cVLW5fgJcnAC6AxTXwThSkIup8pAdRE0_3I0" />
+
 
     @Html.Raw(commonSettings.HeaderCustomHtml)
 </head>
 <body>
-    <nop-antiforgery-token />
-
+    <!-- Google Tag Manager (noscript) -->
     <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5V3FFV7"
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-555LDTLT"
                 height="0" width="0" style="display:none;visibility:hidden"></iframe>
     </noscript>
 
+    <nop-antiforgery-token />
+    
+    <!-- End Google Tag Manager (noscript) -->
     @RenderBody()
     @*<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-element-bundle.min.js"></script>*@
 
