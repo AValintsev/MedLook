@@ -278,3 +278,13 @@ src/packages/*
 /Presentation/Nop.Web/Plugins/Payments.Monobank/runtimes
 /Presentation/Nop.Web/Plugins/Payments.PayPalCommerce/runtimes
 /Presentation/Nop.Web/Plugins/Tax.Avalara/runtimes
+/Presentation/Nop.Web/Plugins/Feed.GoogleShopping/Nop.Plugin.Feed.GoogleShopping.deps.json
+/Presentation/Nop.Web/Plugins/Misc.FopPdf/Nop.Ithoot.Plugin.Misc.PDF.deps.json
+/Presentation/Nop.Web/Plugins/Misc.SendinBlue/Nop.Plugin.Misc.Sendinblue.deps.json
+/Presentation/Nop.Web/Plugins/Payments.CashOnDelivery/Nop.Plugin.Payments.CashOnDelivery.deps.json
+/Presentation/Nop.Web/Plugins/Payments.CheckMoneyOrder/Nop.Plugin.Payments.CheckMoneyOrder.deps.json
+/Presentation/Nop.Web/Plugins/Payments.Monobank/Nop.Ithoot.Plugin.Payments.Monobank.deps.json
+/Presentation/Nop.Web/Plugins/Pickup.PickupInStore/Nop.Plugin.Pickup.PickupInStore.deps.json
+/Presentation/Nop.Web/Plugins/Shipping.FixedByWeightByTotal/Nop.Plugin.Shipping.FixedByWeightByTotal.deps.json
+/Presentation/Nop.Web/Plugins/Shipping.NovaPoshta/Nop.Ithoot.Plugin.Shipping.NovaPoshta.deps.json
+/Presentation/Nop.Web/Plugins/Widgets.NivoSlider/Nop.Plugin.Widgets.NivoSlider.deps.json
