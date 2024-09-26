@@ -2253,10 +2253,10 @@ label, label + * {
     }
 
     .item-box .product-box-add-to-cart-button {
-        width: 60%;
+        width: 70%;
         background-color: #71C5EE;
         text-align: center;
-        font-size: 15px;
+        font-size: 14px;
         color: #feffff;
         text-transform: uppercase;
     }
