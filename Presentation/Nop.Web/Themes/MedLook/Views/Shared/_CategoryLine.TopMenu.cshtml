@@ -1,45 +1,40 @@
 ﻿@model TopMenuModel.CategoryLineModel
 @{
     var subCategories = Model.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
-    var sublistClass = subCategories.Count > 0 ? "sublist-toggle" : "";
+    var sublistClass = subCategories.Count > 0 ? "nav-expand" : "";
+    var sublistLinkClass = subCategories.Count > 0 ? "nav-expand-link" : "";
 }
-<li class="mobile-nav--item js-mobile-nav-item @sublistClass">
-    <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
-        @Model.Category.Name
-        @if (Model.Category.NumberOfProducts.HasValue)
-        {
-            <text> </text>
 
-            @T("Categories.TotalProducts", Model.Category.NumberOfProducts.Value)
-        }
-    </a>
-    @{
-        var levelClass = "";
-        if (Model.Level == 0)
-        {
-            levelClass = "first-level";
-        }
-        if (subCategories.Count > 0)
-        {
-            <div class="nav--dropdown sublist">
-                <div class="nav--dropdown-inner">
-                    <nav>
-                        <div class="nav--child-item @levelClass">
+<li class="nav-item @sublistClass">
 
-                            @foreach (var subCategory in subCategories)
-                            {
-                                var categoryLineModel = new TopMenuModel.CategoryLineModel
+    @if (subCategories.Count > 0)
+    {
+        <a class="nav-link @sublistLinkClass" href="#">
+            @Model.Category.Name
+        </a>
+
+        <ul class="nav-items @sublistClass-content">
+            <li class="nav-item">
+                <a class="nav-link" href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+                    @Model.Category.Name
+                </a>
+            </li>
+            @foreach (var subCategory in subCategories)
+            {
+                var categoryLineModel = new TopMenuModel.CategoryLineModel
                     {
                         Category = subCategory,
                         Level = Model.Level + 1,
                         ResponsiveMobileMenu = Model.ResponsiveMobileMenu
                     };
-                                @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
-                            }
-                        </div>
-                    </nav>
-                </div>
-            </div>
-        }
+                @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
+            }
+        </ul>
+    }
+    else
+    {
+        <a class="nav-link @sublistLinkClass" href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
+            @Model.Category.Name
+        </a>
     }
 </li>

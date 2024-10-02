@@ -13,96 +13,95 @@
     var isRegisterCustomer = await customerService.IsRegisteredAsync(await workContext.GetCurrentCustomerAsync());
     var rootCategoriesResponsive = Model.Categories.ToList();
 
-    <input id="menu__toggle" type="checkbox" />
-    <label class="hamburger-box menu__btn hamburger hamburger--slider" for="menu__toggle">
-        <span class="hamburger-inner"></span>
-    </label>
+    <header class="nav-top">
+        <span class="hamburger material-icons" id="ham">menu</span>
+    </header>
+
+    <nav class="nav-drill">
+        <ul class="nav-items nav-level-1">
+            @if (Model.DisplayHomepageMenuItem)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.RouteUrl("Homepage")">@T("Homepage")</a>
+                </li>
+            }
+
+            @foreach (var category in rootCategoriesResponsive)
+            {
+                var categoryLineModel = new TopMenuModel.CategoryLineModel
+                {
+                    Category = category,
+                    ResponsiveMobileMenu = true
+                };
+                @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
+            }
+
+            @foreach (var topic in Model.Topics)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a>
+                </li>
+            }
+
+            @if (Model.DisplayContactUsMenuItem)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a>
+                </li>
+            }
+
+            @if (isRegisterCustomer)
+            {
+                @if (Model.DisplayCustomerInfoMenuItem)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.RouteUrl("CustomerInfo")">@T("Account.MyAccount")</a>
+                    </li>
+                }
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.RouteUrl("Logout")">@T("Account.Logout")</a>
+                </li>
+            }
+            else
+            {
+                var returnUrl = Context.Request.Query.TryGetValue("returnUrl", out var url) && !StringValues.IsNullOrEmpty(url)
+                ? url.ToString()
+                : webHelper.GetRawUrl(Context.Request);
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.RouteUrl("Login", new { returnUrl })">@T("Account.Login")</a>
+                </li>
+            }
+
+        </ul>
+    </nav>
 
 
-    <div class="mobile-menu js-mobile-menu">
-
-        <div class="mobile-menu-inner">
-            <div class="mobile-menu--body">
-                @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.MobHeaderMenuBefore })
-
-                <nav>
-                    <ul>
-                        @if (Model.DisplayHomepageMenuItem)
-                        {
-                            <li class="mobile-nav--item js-mobile-nav-item ">
-                                <a href="@Url.RouteUrl("Homepage")">@T("Homepage")</a>
-                            </li>
-                        }
-                        
-                        @foreach (var category in rootCategoriesResponsive)
-                        {
-                            var categoryLineModel = new TopMenuModel.CategoryLineModel
-                            {
-                                Category = category,
-                                ResponsiveMobileMenu = true
-                            };
-                            @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
-                        }
-                        @foreach (var topic in Model.Topics)
-                        {
-                            <li class="mobile-nav--item js-mobile-nav-item ">
-                                <a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a>
-                            </li>
-                        }
-
-                        @if (Model.DisplayProductSearchMenuItem)
-                        {
-                            <li class="mobile-nav--item js-mobile-nav-item ">
-                                <a href="@Url.RouteUrl("ProductSearch")">@T("Search")</a>
-                            </li>
-                        }
-                        @if (Model.DisplayContactUsMenuItem)
-                        {
-                            <li class="mobile-nav--item js-mobile-nav-item ">
-                                <a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a>
-                            </li>
-                        }
-
-                        @if (isRegisterCustomer)
-                        {
-                            @if (Model.DisplayCustomerInfoMenuItem)
-                            {
-                                <li class="mobile-nav--item js-mobile-nav-item ">
-                                    <a href="@Url.RouteUrl("CustomerInfo")">@T("Account.MyAccount")</a>
-                                </li>
-                            }
-                            <li class="mobile-nav--item js-mobile-nav-item ">
-                                <a href="@Url.RouteUrl("Logout")">@T("Account.Logout")</a>
-                            </li>
-                        }
-                        else
-                        {
-                            var returnUrl = Context.Request.Query.TryGetValue("returnUrl", out var url) && !StringValues.IsNullOrEmpty(url)
-                            ? url.ToString()
-                            : webHelper.GetRawUrl(Context.Request);
-                            <li class="mobile-nav--item js-mobile-nav-item ">
-                                <a href="@Url.RouteUrl("Login", new { returnUrl })">@T("Account.Login")</a>
-                            </li>
-                        }
-                        <li class="sublist-toggle mobile-nav--item js-mobile-nav-item ">
-                            <p>@T("Languages.Selector.Label"):</p>
-
-                            @await Component.InvokeAsync("LanguageSelector")
-                        </li>
-                    </ul>
-                </nav>
-
-            </div>
-            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.MobHeaderMenuAfter })
-        </div>
-    </div>
 
     <script asp-location="Footer">
         $(document).ready(function () {
-            $('.mobile-menu .sublist-toggle').on('click', function () {
-                $(this).toggleClass('expanded');
-                $(this).find('.sublist').slideToggle('fast');
-            });            
+            const navExpand = [].slice.call(document.querySelectorAll('.nav-expand'));
+            const backLink = `<li class="nav-item"><a class="nav-link nav-back-link" href="javascript:;">Back</a></li>`;
+
+            navExpand.forEach(item => {
+                const navExpandContent = item.querySelector('.nav-expand-content');
+                if (navExpandContent)
+                    navExpandContent.insertAdjacentHTML('afterbegin', backLink);
+                const navLink = item.querySelector('.nav-link');
+                if (navLink)
+                    navLink.addEventListener('click', () => item.classList.add('active'));
+                const navBackLink = item.querySelector('.nav-back-link');
+                if (navBackLink)
+                    navBackLink.addEventListener('click', () => item.classList.remove('active'));
+            })
+
+
+            // ---------------------------------------
+            // not-so-important stuff starts here
+
+            const ham = document.getElementById('ham');
+            ham.addEventListener('click', function () {
+                document.body.classList.toggle('nav-is-toggled');
+            })
         });
     </script>
 }

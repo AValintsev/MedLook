@@ -1,0 +1,27 @@
+﻿@model LanguageSelectorModel
+
+@inject Nop.Core.IWebHelper webHelper
+
+@if (Model.AvailableLanguages.Count > 1)
+{
+    <div class="sublist language-selector">
+        @{
+            var returnUrl = webHelper.GetRawUrl(Context.Request);
+
+            var languages = Model.AvailableLanguages.Select(lang => new SelectListItem
+                {
+                    Text = lang.Name,
+                    Value = Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnUrl }, webHelper.GetCurrentRequestProtocol()),
+                    Selected = lang.Id.Equals(Model.CurrentLanguageId)
+                });
+            <div class="language-selector-items">
+                @foreach (var lang in languages)
+                {
+                    <a href="@lang.Value" class="@(@lang.Selected ? "selected" : "")">@lang.Text</a>
+                }
+            </div>
+
+            @*<select id="customerlanguage" name="customerlanguage" asp-items="@languages" onchange="setLocation(this.value);" aria-label="@T("Languages.Selector.Label")"></select>*@
+        }
+    </div>
+}

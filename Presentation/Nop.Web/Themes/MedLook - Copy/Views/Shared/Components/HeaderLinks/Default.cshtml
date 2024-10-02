@@ -1,0 +1,77 @@
+﻿@model HeaderLinksModel
+@inject Nop.Core.IWebHelper webHelper
+@using Nop.Core
+@using Nop.Core.Infrastructure
+
+@{
+    var storeContext = EngineContext.Current.Resolve<IStoreContext>();
+    var storeName = storeContext.GetCurrentStore().Name;
+}
+
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksBefore })
+
+@if (Model.AllowPrivateMessages)
+{
+    <div>
+        <a href="@Url.RouteUrl("PrivateMessages", new { tab = "" })" class="main_menu_item ico-inbox">
+            <span class="inbox-label">@T("PrivateMessages.Inbox")</span>
+            <span class="inbox-unread">@Model.UnreadPrivateMessages</span>
+        </a>
+    </div>
+}
+
+@*<div class="search-box">
+    @await Component.InvokeAsync("SearchBox")
+</div>*@
+
+
+@if (Model.ShoppingCartEnabled)
+{
+    <div id="topcartlink">
+        <a href="@Url.RouteUrl("ShoppingCart")" class="main_menu_item ico-cart">
+            <span class="cart-qty">@Model.ShoppingCartItems</span>
+        </a>
+    </div>
+}
+
+@if (Model.WishlistEnabled)
+{
+    <div id="wishlistlink">
+        <a href="@Url.RouteUrl("Wishlist")" class="main_menu_item ico-wishlist">
+            <span class="wishlist-qty">@Model.WishlistItems</span>
+        </a>
+    </div>
+}
+
+@await Component.InvokeAsync(typeof(SearchBoxViewComponent))
+
+
+@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksAfter })
+@if (Model.AllowPrivateMessages && !string.IsNullOrEmpty(Model.AlertMessage))
+{
+    //new private message notification
+    <script asp-location="Footer">
+        $(document).ready(function () {
+            displayPopupNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(Model.AlertMessage))', 'success', false);
+        });
+    </script>
+}
+@if (Model.ShoppingCartEnabled)
+{
+    <script asp-location="Footer">
+        $(document).ready(function () {
+            $('.header').on('mouseenter', '#topcartlink', function () {
+                $('#flyout-cart').addClass('active');
+            });
+            $('.header').on('mouseleave', '#topcartlink', function () {
+                $('#flyout-cart').removeClass('active');
+            });
+            $('.header').on('mouseenter', '#flyout-cart', function () {
+                $('#flyout-cart').addClass('active');
+            });
+            $('.header').on('mouseleave', '#flyout-cart', function () {
+                $('#flyout-cart').removeClass('active');
+            });
+        });
+    </script>
+}

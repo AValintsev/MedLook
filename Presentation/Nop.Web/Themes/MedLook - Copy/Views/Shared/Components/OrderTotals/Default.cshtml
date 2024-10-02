@@ -1,0 +1,69 @@
+﻿@model OrderTotalsModel
+<div class="total-info">
+    <div class="cart-total">
+        @if (!string.IsNullOrEmpty(Model.SubTotalDiscount))
+        {
+            <div class="order-subtotal-discount">
+                <div class="cart-total-left">
+                    <label>@T("ShoppingCart.Totals.SubTotalDiscount"):</label>
+                </div>
+                <div class="cart-total-right">
+                    <span class="value-summary">@Model.SubTotalDiscount</span>
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.PaymentMethodAdditionalFee))
+        {
+            <div class="additional-fees">
+                <div class="cart-total-left">
+                    <label>@T("ShoppingCart.Totals.PaymentMethodAdditionalFee"):</label>
+                </div>
+                <div class="cart-total-right">
+                    <span class="value-summary">@Model.PaymentMethodAdditionalFee</span>
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.OrderTotalDiscount))
+        {
+            <div class="discount-total">
+                <div class="cart-total-left">
+                    <label>@T("ShoppingCart.Totals.OrderTotalDiscount"):</label>
+                </div>
+                <div class="cart-total-right">
+                    <span class="value-summary">@Model.OrderTotalDiscount</span>
+                </div>
+            </div>
+        }
+        @if (Model.GiftCards.Count > 0)
+        {
+            foreach (var gc in Model.GiftCards)
+            {
+                <div class="giftcard-summary">
+                    <div class="cart-total-left">
+                        <label>@T("ShoppingCart.Totals.GiftCardInfo"):</label>
+                        <span>@T("ShoppingCart.Totals.GiftCardInfo.Code", gc.CouponCode)</span>
+                        @if (Model.IsEditable)
+                        {
+                            //little hack here with empty "value" element
+                            <button type="submit" name="removegiftcard-@gc.Id" class="remove-gift-card-button"></button>
+                        }
+                        <span class="giftcard-remaining">@string.Format(T("ShoppingCart.Totals.GiftCardInfo.Remaining").Text, gc.Remaining)</span>
+                    </div>
+                    <div class="cart-total-right">
+                        <span class="value-summary">@gc.Amount</span>
+                    </div>
+                </div>
+            }
+        }
+
+        <div class="order-total">
+            <div class="cart-total-left">
+                <label>@T("ShoppingCart.Totals.OrderTotal"):</label>
+            </div>
+            <div class="cart-total-right">
+                <span class="value-summary"><b>@Model.SubTotal</b></span>
+            </div>
+        </div>
+
+    </div>
+</div>
