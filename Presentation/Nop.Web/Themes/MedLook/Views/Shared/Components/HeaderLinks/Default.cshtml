@@ -25,20 +25,22 @@
 </div>*@
 
 
-@if (Model.ShoppingCartEnabled)
-{
-    <div id="topcartlink">
-        <a href="@Url.RouteUrl("ShoppingCart")" class="main_menu_item ico-cart">
-            <span class="cart-qty">@Model.ShoppingCartItems</span>
-        </a>
-    </div>
-}
+
 
 @if (Model.WishlistEnabled)
 {
     <div id="wishlistlink">
         <a href="@Url.RouteUrl("Wishlist")" class="main_menu_item ico-wishlist">
             <span class="wishlist-qty">@Model.WishlistItems</span>
+        </a>
+    </div>
+}
+
+@if (Model.ShoppingCartEnabled)
+{
+    <div id="topcartlink">
+        <a href="@Url.RouteUrl("ShoppingCart")" class="main_menu_item ico-cart">
+            <span class="cart-qty">@Model.ShoppingCartItems</span>
         </a>
     </div>
 }

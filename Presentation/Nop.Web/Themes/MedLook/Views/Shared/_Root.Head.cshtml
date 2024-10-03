@@ -13,8 +13,6 @@
 @inject AppSettings appSettings
 
 @{
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/lib_npm/swiper/swiper-bundle.min.js");
-
     NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/js/public.countryselect.js");
     NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/js/public.ajaxcart.js");
     NopHtml.AppendScriptParts(ResourceLocation.Footer, "~/js/public.common.js");
@@ -101,7 +99,6 @@
     
     <!-- End Google Tag Manager (noscript) -->
     @RenderBody()
-    @*<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-element-bundle.min.js"></script>*@
 
     @NopHtml.GenerateScripts(ResourceLocation.Footer)
     @NopHtml.GenerateInlineScripts(ResourceLocation.Footer)

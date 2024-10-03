@@ -13,9 +13,6 @@
     var isRegisterCustomer = await customerService.IsRegisteredAsync(await workContext.GetCurrentCustomerAsync());
     var rootCategoriesResponsive = Model.Categories.ToList();
 
-    <header class="nav-top">
-        <span class="hamburger material-icons" id="ham">menu</span>
-    </header>
 
     <nav class="nav-drill">
         <ul class="nav-items nav-level-1">
@@ -61,6 +58,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="@Url.RouteUrl("Logout")">@T("Account.Logout")</a>
                 </li>
+
             }
             else
             {
@@ -72,15 +70,19 @@
                 </li>
             }
 
+            <li class="nav-item nav-expand">
+                <a class="nav-link nav-expand-link" href="#">
+                    @T("Languages.Selector.Label")
+                </a>
+                @await Component.InvokeAsync("LanguageSelector")
+            </li>
         </ul>
     </nav>
-
-
 
     <script asp-location="Footer">
         $(document).ready(function () {
             const navExpand = [].slice.call(document.querySelectorAll('.nav-expand'));
-            const backLink = `<li class="nav-item"><a class="nav-link nav-back-link" href="javascript:;">Back</a></li>`;
+            const backLink = `<li class="nav-item"><a class="nav-link nav-back-link" href="javascript:;">@T("common.back")</a></li>`;
 
             navExpand.forEach(item => {
                 const navExpandContent = item.querySelector('.nav-expand-content');

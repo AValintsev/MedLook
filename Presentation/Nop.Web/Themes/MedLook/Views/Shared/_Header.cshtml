@@ -2,11 +2,20 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderBefore })
 
     <div class="header-inner">
-        @await Component.InvokeAsync("Logo")
-        <div class="header-inner--actions">
-            @await Component.InvokeAsync("TopMenu")
+        <nav-header class="nav-top">
+            <svg id="ham" class="hamburger nav-top__toggle-svg" viewbox="0 0 60 40">
+                <g stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path id="top-line" d="M16,10 L50,10 Z"></path>
+                    <path id="middle-line" d="M16,20 L50,20 Z"></path>
+                    <path id="bottom-line" d="M16,30 L50,30 Z"></path>
+                </g>
+            </svg>
+            @await Component.InvokeAsync("Logo")
             @await Component.InvokeAsync("HeaderLinks")
-        </div>
+
+        </nav-header>
+        @await Component.InvokeAsync("TopMenu")
+
     </div>
 
     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderSelectors })

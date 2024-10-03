@@ -14,14 +14,15 @@
 
     //add main CSS file
     NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/styles{(supportRtl ? ".rtl" : "")}.css");
-    // NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/menu.css");
-    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/menuHamb.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/menu.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/hamburger.css");
     NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/print.css");
-
-    //add swiper css file
-    NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/swiper.min.css");
 
     //add jQuery UI css file
     NopHtml.AppendCssFileParts("~/lib_npm/jquery-ui-dist/jquery-ui.min.css");
+
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/swiper.min.js");
+
 }
 

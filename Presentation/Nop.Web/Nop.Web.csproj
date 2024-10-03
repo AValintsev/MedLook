@@ -155,10 +155,10 @@
     <Content Update="Themes\MedLook\Views\Shared\Components\OrderSummary\Default.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
-    <Content Update="Themes\MedLook\Views\Shared\Components\SearchBox\Default - Copy.cshtml">
+    <Content Update="Themes\MedLook\Views\Shared\Components\SearchBox\Default.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
-    <Content Update="Themes\MedLook\Views\Shared\Components\SearchBox\Default.cshtml">
+    <Content Update="Themes\MedLook\Views\Shared\_ProductBoxSimple.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Update="Themes\MedLook\Views\Shared\_ProductBox.cshtml">

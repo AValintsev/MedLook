@@ -181,7 +181,7 @@ label, label + * {
     /*top: 60px;*/
     z-index: 0;
     /*width: 90%;*/
-    margin: 20px 10px 10px 10px;
+    margin: 10px;
     /*padding-top: 80px;*/
 }
 
@@ -1238,14 +1238,7 @@ label, label + * {
                 background-color: #666;
             }
 
-.header-lower {
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
+
 
 .header-selectors-wrapper {
     border-bottom: 1px solid #ddd;
@@ -1349,7 +1342,7 @@ label, label + * {
 
 .ui-autocomplete {
     display: block;
-    width: 100%;
+    width: 90%;
     z-index: 3;
     border: 1px solid #ddd;
     border-top: none;
@@ -2113,10 +2106,6 @@ label, label + * {
 }
 
 .item-box {
-    position: relative;
-    width: 100%;
-    float: left;
-    margin: 16px 0;
 }
 
 
@@ -2130,7 +2119,7 @@ label, label + * {
         .item-box .picture a {
             display: block;
             position: relative;
-            min-height: 350px;
+            min-height: 150px;
         }
 
             .item-box .picture a:before {
@@ -2167,21 +2156,25 @@ label, label + * {
     .item-box .product-title {
         margin: 0 0 10px;
         overflow: hidden;
-        text-align: center;
-        font-size: 18px;
+        text-align: left;
+        font-size: 14px;
         line-height: 1.2;
         font-weight: normal;
         /*color: #71C5EE;*/
     }
 
-        .item-box .product-title a {
-            display: block;
-            min-height: 44px;
-        }
+    .item-box .add-info {
+        padding-top: 12px;
+    }
 
-            .item-box .product-title a:hover {
-                color: #248ece;
-            }
+    .item-box .product-title a {
+        display: block;
+        min-height: 44px;
+    }
+
+        .item-box .product-title a:hover {
+            color: #248ece;
+        }
 
     .item-box .sku {
         margin: 0 0 15px;
@@ -2215,7 +2208,7 @@ label, label + * {
     .item-box .prices {
         margin: 0 0 10px;
         overflow: hidden;
-        text-align: center;
+        text-align: left;
     }
 
     .item-box .old-price {
@@ -2227,8 +2220,9 @@ label, label + * {
 
     .item-box .actual-price {
         margin: 0 5px 0 0;
-        font-size: 18px;
+        font-size: 14px;
         color: #666;
+        font-weight: 600;
     }
 
     .item-box .tax-shipping-info a {
@@ -2241,7 +2235,7 @@ label, label + * {
 
     .item-box .buttons {
         font-size: 0;
-        text-align: center;
+        text-align: left;
     }
 
     .item-box input[type="button"],
@@ -2337,16 +2331,38 @@ label, label + * {
             padding-top: 65%;
         }
 
-.home-page-product-grid .title {
-    line-height: 60px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: 300;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    color: #00659C;
-    margin: 42px 0;
+.home-page-product-grid h2.title {
+    text-align: left;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 26px 18px;
 }
+
+.home-page-product-grid h3.title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 300;
+    margin-top: 6px;
+}
+
+.home-page-product-grid .category-item {
+    height: 232px;
+    /* height: 100px;
+    width: 100px;
+    margin-right: 10px;*/
+}
+
+    .home-page-product-grid .category-item a {
+        /*height: 100px;
+    width: 100px;
+    padding: 10px;*/
+    }
+
+        .home-page-product-grid .category-item a img {
+            height: 140px;
+            width: 100px;
+            padding: 10px;
+        }
 
 .product-grid,
 .product-list {
@@ -7185,12 +7201,10 @@ pre {
         }
 
     .item-box {
-        width: 32%;
-        margin: 0 0.5% 50px;
     }
 
         .item-box .picture a {
-            min-height: 232px;
+            /*min-height: 232px;*/
         }
 
         .item-box:nth-child(2n+1) {
@@ -7201,13 +7215,11 @@ pre {
         }
 
         .item-box .prices {
-            min-height: 40px;
-            text-align: center;
         }
 
         .item-box .product-title {
-            min-height: 66px;
-            margin: 0 0 5px;
+            /*min-height: 66px;
+            margin: 0 0 5px;*/
         }
 
 
@@ -7432,12 +7444,12 @@ pre {
                 }
 
     .item-box {
-        width: 32.33333%;
-        margin: 0 0.5% 50px;
+        /*width: 32.33333%;
+        margin: 0 0.5% 50px;*/
     }
 
         .item-box .picture a {
-            min-height: 350px;
+            /*min-height: 350px;*/
         }
 
     .product-list .item-box {
@@ -8027,10 +8039,6 @@ pre {
         .inputs .option-list li {
             margin: 0 10px 0 0;
         }
-
-    .center-1 .buttons {
-        text-align: center;
-    }
 
     .center-2 .inputs label {
         width: 136px;
@@ -8869,15 +8877,55 @@ pre {
     height: 100%;
 }
 
-
-
-
-.swiper-slide .item-box {
-    width: 100%;
-    text-align: center;
-    margin: 0;
+.swiper-products, .swiper-bestsellers {
+    margin-top: 26px;
 }
 
+.swiper .swiper-button-prev-custom {
+}
+
+    .swiper .swiper-button-prev-custom::after {
+        content: '';
+        border: solid #000;
+        border-width: 0 1px 1px 0;
+        display: flex;
+        width: 8px;
+        height: 8px;
+        margin-top: 8px;
+        transform: rotate(135deg);
+        -webkit-transform: rotate(135deg);
+    }
+
+:root {
+    --swiper-navigation-size: 24px !important;
+    /*--swiper-navigation-color: #00659c !important;*/
+    --swiper-theme-color: #00659c !important;
+}
+
+.swiper-buttons {
+    position: absolute;
+    top: 37px;
+    right: 0;
+    width: 80px;
+}
+
+.swiper-button-next {
+}
+
+.swiper .swiper-button-next-custom {
+}
+
+    .swiper .swiper-button-next-custom::after {
+        content: '';
+        border: solid #000;
+        border-width: 0 1px 1px 0;
+        display: flex;
+        width: 8px;
+        height: 8px;
+        margin-top: 8px;
+        transform: rotate(-45deg);
+        -webkit-transform: rotate(-45deg);
+    }
 /*.swiper-slide .item-box .picture a img {
         position: absolute;
         top: 0;
@@ -8891,7 +8939,6 @@ pre {
         transition: all 0.3s ease;
         -webkit-transform: translateZ(0) scale(1.0, 1.0);
     }*/
-
 .picture-gallery img:hover {
     opacity: 0.85;
 }
