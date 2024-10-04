@@ -14,6 +14,7 @@
 }
 
 <div class="page recently-viewed-products-page">
+    Pidor
     <div class="page-title">
         <h1>@T("Products.RecentlyViewedProducts")</h1>
     </div>
@@ -23,6 +24,7 @@
             var catalogProductsViewData = new ViewDataDictionary(ViewData);
             catalogProductsViewData["fetchUrl"] = Html.Raw(Url.Action("GetRecentlyViewedProducts", "NopAdvancePublicExtendedProductFilters"));
         }
+        Pidor
         @await Html.PartialAsync("_CatalogProducts", Model, catalogProductsViewData)
     </div>
 </div>

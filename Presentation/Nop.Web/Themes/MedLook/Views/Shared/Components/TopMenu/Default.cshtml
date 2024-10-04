@@ -19,6 +19,8 @@
             @if (Model.DisplayHomepageMenuItem)
             {
                 <li class="nav-item">
+                    <svg class="home"></svg>
+
                     <a class="nav-link" href="@Url.RouteUrl("Homepage")">@T("Homepage")</a>
                 </li>
             }
@@ -36,6 +38,7 @@
             @foreach (var topic in Model.Topics)
             {
                 <li class="nav-item">
+                    <svg></svg>
                     <a class="nav-link" href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a>
                 </li>
             }
@@ -52,10 +55,12 @@
                 @if (Model.DisplayCustomerInfoMenuItem)
                 {
                     <li class="nav-item">
+                        <svg class="user"></svg>
                         <a class="nav-link" href="@Url.RouteUrl("CustomerInfo")">@T("Account.MyAccount")</a>
                     </li>
                 }
                 <li class="nav-item">
+                    <svg class="exit"></svg>
                     <a class="nav-link" href="@Url.RouteUrl("Logout")">@T("Account.Logout")</a>
                 </li>
 
@@ -66,11 +71,13 @@
                 ? url.ToString()
                 : webHelper.GetRawUrl(Context.Request);
                 <li class="nav-item">
+                    <svg class="user"></svg>
                     <a class="nav-link" href="@Url.RouteUrl("Login", new { returnUrl })">@T("Account.Login")</a>
                 </li>
             }
 
             <li class="nav-item nav-expand">
+                <svg class="language"></svg>
                 <a class="nav-link nav-expand-link" href="#">
                     @T("Languages.Selector.Label")
                 </a>

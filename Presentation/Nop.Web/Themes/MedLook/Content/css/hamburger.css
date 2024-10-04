@@ -76,6 +76,8 @@
 
 .nav-item {
     padding-left: 2%;
+    display: flex;
+    align-items: center;
 }
 
     .nav-item:not(:last-child) {
@@ -145,6 +147,7 @@
         width: 8px;
         height: 8px;
         margin-top: 8px;
+        margin-left: 16px;
         transform: rotate(-45deg);
         -webkit-transform: rotate(-45deg);
     }
@@ -153,6 +156,7 @@
     transform: translateX(0);
     visibility: visible;
     background-color: #fff;
+    z-index: 3;
 }
 
 .nav-expand .nav-expand-content {
@@ -178,3 +182,29 @@
 
                 .nav-expand .nav-expand-content .nav-expand-content .nav-expand-content .nav-expand-content .nav-link {
                 }
+
+
+.nav-drill svg {
+    height: 26px;
+    width: 26px;
+    display: flex;
+    background-size: cover;
+    position: relative;
+}
+
+    .nav-drill svg.home {
+        background-image: url(../images/home.svg);
+    }
+
+    .nav-drill svg.user {
+        background-image: url(../images/user.svg);
+    }
+
+
+    .nav-drill svg.language {
+        background-image: url(../images/lang.svg);
+    }
+
+    .nav-drill svg.exit {
+        background-image: url(../images/exit.svg);
+    }
