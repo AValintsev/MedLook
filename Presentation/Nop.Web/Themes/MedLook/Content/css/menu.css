@@ -23,10 +23,13 @@
 
 .header-inner--logo {
     padding: 0 8px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
     .header-inner--logo .medlook {
-        background: url('../images/medlook-logo-text.svg') left center no-repeat;
+        background: url('../images/medlook-logo-text.svg') center center no-repeat;
         height: 36px;
         width: 100%;
     }
@@ -46,8 +49,6 @@
 #searchbox {
     display: flex;
     align-items: center;
-    position: fixed;
-    right: 3vh;
 }
 
     #searchbox a {
@@ -158,8 +159,6 @@
 #wishlistlink {
     display: flex;
     align-items: center;
-    position: fixed;
-    right: 100px;
 }
 
     #wishlistlink a {
@@ -187,8 +186,7 @@
 #topcartlink {
     display: flex;
     align-items: center;
-    position: fixed;
-    right: 62px;
+    margin-right: 8px;
 }
 
     #topcartlink a {

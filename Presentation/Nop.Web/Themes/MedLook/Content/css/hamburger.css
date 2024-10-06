@@ -184,27 +184,21 @@
                 }
 
 
-.nav-drill svg {
-    height: 26px;
-    width: 26px;
-    display: flex;
-    background-size: cover;
-    position: relative;
+
+
+.nav-drill svg.home {
+    background-image: url(../images/home.svg);
 }
 
-    .nav-drill svg.home {
-        background-image: url(../images/home.svg);
-    }
-
-    .nav-drill svg.user {
-        background-image: url(../images/user.svg);
-    }
+.nav-drill svg.user {
+    background-image: url(../images/user.svg);
+}
 
 
-    .nav-drill svg.language {
-        background-image: url(../images/lang.svg);
-    }
+.nav-drill svg.language {
+    background-image: url(../images/lang.svg);
+}
 
-    .nav-drill svg.exit {
-        background-image: url(../images/exit.svg);
-    }
+.nav-drill svg.exit {
+    background-image: url(../images/exit.svg);
+}

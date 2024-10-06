@@ -10,6 +10,8 @@
                     <path id="bottom-line" d="M16,30 L50,30 Z"></path>
                 </g>
             </svg>
+            @await Component.InvokeAsync(typeof(SearchBoxViewComponent))
+
             @await Component.InvokeAsync("Logo")
             @await Component.InvokeAsync("HeaderLinks")
 
