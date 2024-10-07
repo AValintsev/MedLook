@@ -86,7 +86,6 @@ var AjaxCart = {
     },
 
     success_process: function (response) {
-        console.log(response);
         if (response.updatetopcartsectionhtml) {
             $(AjaxCart.topcartselector).html(response.updatetopcartsectionhtml);
         }
