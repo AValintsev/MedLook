@@ -127,6 +127,9 @@
     <Content Update="Themes\MedLook - Copy\Views\ShoppingCart\_GiftCardBox.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Themes\MedLook\Content\js\public.onepagecheckout.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Themes\MedLook\Views\Checkout\Confirm.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
@@ -136,7 +139,13 @@
     <Content Update="Themes\MedLook\Views\Checkout\OpcBillingAddress.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Themes\MedLook\Views\Checkout\OpcPaymentMethods.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Themes\MedLook\Views\Checkout\OpcShippingAddress.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Themes\MedLook\Views\Checkout\PaymentInfo.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
     <Content Update="Themes\MedLook\Views\Product\ProductTemplate.Grouped.cshtml">

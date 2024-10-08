@@ -67,6 +67,12 @@
 }
 
 <div class="page category-page">
+    @if (Model.SubCategories.Count == 0)
+    {
+        <div class="page-title">
+            <h1>@Model.Name</h1>
+        </div>
+    }
     <div class="page-body">
 
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsTop, additionalData = Model })

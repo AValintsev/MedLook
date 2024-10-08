@@ -210,6 +210,11 @@ label, label + * {
         clear: both;
     }
 
+.page.checkout-page,
+.page-body.checkout-data {
+    margin-top: 22px;
+}
+
 .page-body h1 {
     line-height: 22px;
     text-align: center;
@@ -264,12 +269,11 @@ label, label + * {
 }
 
 .page-title {
-    border-bottom: 1px solid #ddd;
     padding: 6px 10px;
 }
 
     .page-title h1 {
-        font-size: 30px;
+        font-size: 18px;
         font-weight: normal;
         margin-top: 0;
     }
@@ -284,7 +288,7 @@ label, label + * {
 
 .center-1 .page-title,
 .center-1 .title {
-    text-align: center;
+    text-align: left;
 }
 
 .buttons {
@@ -308,7 +312,17 @@ label, label + * {
     margin: 12px 0;
     padding: 0 0 0 36px;
     list-style: disc;
+    text-align: left;
 }
+
+    .category-description ul li,
+    .manufacturer-description ul li,
+    .full-description ul li,
+    .topic-block ul li,
+    .topic-page ul li,
+    .post-body ul li {
+        list-style: disc;
+    }
 
 .category-description ol,
 .manufacturer-description ol,
@@ -497,7 +511,7 @@ label, label + * {
         display: block;
         width: 100%;
         margin: 0 0 10px;
-        text-align: center;
+        text-align: left;
         font-size: 14px; /*reset zeroing*/
         color: #00659C;
     }
@@ -542,22 +556,31 @@ label, label + * {
     }
 
 .required {
-    margin: 0 -8px 0 3px; /*siblings offset*/
+    /*margin: 0 -8px 0 3px;*/ /*siblings offset*/
+    float: left;
     vertical-align: top;
     font-size: 20px;
     font-weight: normal;
     color: #e4434b;
 }
 
+.inputs.custom-attributes .required {
+    margin-left: 6px;
+}
+
+.message-error.validation-summary-errors {
+    position: relative;
+}
+
 .message-error,
 .field-validation-error,
 .username-not-available-status,
 .poll-vote-error, .password-error {
-    display: block;
-    text-align: center;
     font-size: 13px;
     color: #e4434b;
-    margin-top: 5px;
+    position: absolute;
+    bottom: -12px;
+    left: 0;
 }
 
 .field-validation-valid,
@@ -1114,8 +1137,8 @@ label, label + * {
     }
 
         .ui-dialog-content .page-title h1 {
-            font-size: 24px;
-            line-height: 30px;
+            font-size: 18px;
+            line-height: 20px;
         }
 
     .ui-dialog-content .back-in-stock-subscription-page {
@@ -1859,7 +1882,7 @@ nav.breadcrumb {
 .category-description,
 .manufacturer-description,
 .vendor-description {
-    margin: 0 0 25px;
+    margin: 32px 0 24px;
     line-height: 22px;
 }
 
@@ -2470,34 +2493,51 @@ svg {
 }
 
     .pager ul {
-        text-align: right;
-        font-size: 0;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
     }
 
-    .pager li {
-        display: inline-block;
-        margin: 0 5px;
-        vertical-align: top;
+@media (min-width: 480px) {
+    .pager ul {
+        justify-content: center;
+        gap: 10px;
+    }
+}
+
+.pager li {
+    width: 30px;
+}
+
+    .pager li.total-summary {
+        display: none;
     }
 
-        .pager li a,
-        .pager li span {
-            display: block;
-            min-width: 35px;
-            height: 35px;
-            border: 1px solid #ddd;
-            background-color: #eee;
-            padding: 8px;
-            text-align: center;
-            font-size: 14px; /*reset zeroing*/
-            cursor: pointer;
-        }
+    .pager li a,
+    .pager li span {
+        display: block;
+        min-width: 35px;
+        height: 35px;
+        border: 1px solid #ddd;
+        background-color: #eee;
+        padding: 8px;
+        text-align: center;
+        font-size: 14px; /*reset zeroing*/
+        cursor: pointer;
+    }
 
-        .pager li span {
-            border-color: transparent;
-            background-color: #71C5EE;
-            color: #feffff;
-        }
+    .pager li span {
+        border-color: transparent;
+        background-color: #71C5EE;
+        color: #feffff;
+    }
+
+    .pager li.previous-page,
+    .pager li.next-page,
+    .pager li.first-page,
+    .pager li.last-page {
+        width: 40px;
+    }
 
         .pager li.previous-page *,
         .pager li.next-page *,
@@ -2507,28 +2547,33 @@ svg {
             background-repeat: no-repeat;
             font-size: 0;
             color: #feffff;
+            width: 40px;
         }
 
-        .pager li.previous-page * {
-            background-image: url('../images/prev.png');
-        }
+    .pager li.next-page {
+        /*width: 40px;*/
+    }
 
-        .pager li.next-page * {
-            background-image: url('../images/next.png');
-        }
+    .pager li.previous-page * {
+        background-image: url('../images/prev.png');
+    }
 
-        .pager li.first-page * {
-            background-image: url('../images/first.png');
-        }
+    .pager li.next-page * {
+        background-image: url('../images/next.png');
+    }
 
-        .pager li.last-page * {
-            background-image: url('../images/last.png');
-        }
+    .pager li.first-page * {
+        background-image: url('../images/first.png');
+    }
 
-        .pager li a:hover {
-            border-color: transparent;
-            background-color: #ddd;
-        }
+    .pager li.last-page * {
+        background-image: url('../images/last.png');
+    }
+
+    .pager li a:hover {
+        border-color: transparent;
+        background-color: #ddd;
+    }
 
 
 /********** PRODUCT PAGE **********/
@@ -5217,7 +5262,7 @@ svg {
 .payment-method .method-list {
     margin: 0 auto 30px;
     overflow: hidden;
-    text-align: center;
+    text-align: left;
     font-size: 0;
 }
 
@@ -5229,7 +5274,7 @@ svg {
 
         .shipping-method .method-list li label,
         .payment-method .method-list li label {
-            font-size: 13px;
+            font-size: 16px;
             font-weight: bold;
             color: #00659C;
         }
@@ -5262,10 +5307,22 @@ svg {
 .payment-method .payment-details {
     min-width: 180px;
     display: inline-block;
-    margin: 0 0 0 10px;
+    margin: 8px 0 0 10px;
     text-align: left;
     vertical-align: middle;
 }
+
+    .payment-method .payment-details .payment-description {
+        padding-top: 8px;
+        line-height: 18px;
+    }
+
+    .payment-method .payment-details input[type='radio'] {
+        height: 30px;
+        width: 28px;
+        margin-right: 12px;
+        accent-color: #00659C;
+    }
 
 .payment-info .info {
     padding: 30px 15px;
@@ -5420,8 +5477,7 @@ svg {
 }
 
 .opc .step {
-    margin: 10px 0;
-    padding: 30px 15px;
+    padding: 12px;
     text-align: center;
 }
 
@@ -5434,10 +5490,15 @@ svg {
         margin: 0 0 10px;
     }
 
-.opc input[type="text"],
-.opc select {
-    max-width: 100%;
+.opc input {
+    float: left;
+    max-width: 95% !important;
 }
+
+    .opc input[type="text"],
+    .opc select {
+        max-width: 100%;
+    }
 
 .opc .buttons {
     margin-bottom: 0;
@@ -5470,8 +5531,7 @@ svg {
 }
 
 .opc .section.ship-to-same-address {
-    margin: 0 0 30px;
-    padding: 0;
+    display: none;
 }
 
 .opc .section.pickup-in-store {
@@ -5485,6 +5545,7 @@ svg {
 
 .opc .section.order-summary {
     margin: 0;
+    text-align: left
 }
 
 
@@ -7705,7 +7766,7 @@ pre {
         width: auto;
         min-width: 0;
         margin: 10px 0 0;
-        text-align: center;
+        text-align: left;
     }
 
     .payment-info .info {
@@ -8054,10 +8115,6 @@ pre {
     }
 
         .inputs label {
-            display: inline-block;
-            width: 265px;
-            margin: 0 10px 0 0;
-            text-align: right;
         }
 
         .inputs input[type="text"],
