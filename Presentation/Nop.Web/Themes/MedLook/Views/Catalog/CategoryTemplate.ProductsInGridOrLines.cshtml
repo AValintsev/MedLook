@@ -133,6 +133,14 @@
             </div>
         }
 
+        @*description*@
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="category-description">
+                @Html.Raw(Model.Description)
+            </div>
+        }
+
         <div class="filters-container">
             @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFilters, additionalData = Model })
             @await Html.PartialAsync("_CatalogFilters", Model.CatalogProductsModel)
@@ -146,13 +154,7 @@
         }
         @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel, catalogProductsViewData)
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBottom, additionalData = Model })
-        @*description*@
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
-        {
-            <div class="category-description">
-                @Html.Raw(Model.Description)
-            </div>
-        }
+        
     </div>
 </div>
 <script>

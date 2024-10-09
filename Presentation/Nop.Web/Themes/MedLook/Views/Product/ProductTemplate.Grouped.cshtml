@@ -56,7 +56,7 @@
 }
 <!--product breadcrumb-->
 @section Breadcrumb
-    {
+{
     @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
 }
 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsAfterBreadcrumb, additionalData = Model })
@@ -119,26 +119,26 @@
                             var firstProductPrice = Model.AssociatedProducts.First().ProductPrice;
                             var totalPrice = Model.AssociatedProducts.Sum(x => x.ProductPrice.PriceValue);
                             var pm = new Nop.Web.Models.Catalog.ProductDetailsModel.ProductPriceModel
-                            {
-                                BasePricePAngV = firstProductPrice.BasePricePAngV,
-                                BasePricePAngVValue = firstProductPrice.BasePricePAngVValue,
-                                CallForPrice = firstProductPrice.CallForPrice,
-                                CurrencyCode = firstProductPrice.CurrencyCode,
-                                CustomerEntersPrice = firstProductPrice.CustomerEntersPrice,
-                                CustomProperties = firstProductPrice.CustomProperties,
-                                DisplayTaxShippingInfo = firstProductPrice.DisplayTaxShippingInfo,
-                                HidePrices = firstProductPrice.HidePrices,
-                                IsRental = firstProductPrice.IsRental,
-                                OldPrice = null,
-                                OldPriceValue = null,
+                {
+                    BasePricePAngV = firstProductPrice.BasePricePAngV,
+                    BasePricePAngVValue = firstProductPrice.BasePricePAngVValue,
+                    CallForPrice = firstProductPrice.CallForPrice,
+                    CurrencyCode = firstProductPrice.CurrencyCode,
+                    CustomerEntersPrice = firstProductPrice.CustomerEntersPrice,
+                    CustomProperties = firstProductPrice.CustomProperties,
+                    DisplayTaxShippingInfo = firstProductPrice.DisplayTaxShippingInfo,
+                    HidePrices = firstProductPrice.HidePrices,
+                    IsRental = firstProductPrice.IsRental,
+                    OldPrice = null,
+                    OldPriceValue = null,
                     Price = string.Format(await localizationService.GetResourceAsync("Products.PriceRangeFrom"), await priceFormatter.FormatPriceAsync(totalPrice)),
-                                PriceValue = totalPrice,
-                                PriceWithDiscount = null,
-                                PriceWithDiscountValue = null,
-                                ProductId = Model.Id,
-                                RentalPrice = firstProductPrice.RentalPrice,
-                                RentalPriceValue = firstProductPrice.RentalPriceValue
-                            };
+                    PriceValue = totalPrice,
+                    PriceWithDiscount = null,
+                    PriceWithDiscountValue = null,
+                    ProductId = Model.Id,
+                    RentalPrice = firstProductPrice.RentalPrice,
+                    RentalPriceValue = firstProductPrice.RentalPriceValue
+                };
                             var dataDictPrice = new ViewDataDictionary(ViewData);
                             dataDictPrice.TemplateInfo.HtmlFieldPrefix = $"price_total";
                             @await Html.PartialAsync("_ProductPrice", pm, dataDictPrice)
@@ -146,13 +146,14 @@
                     </div>
                     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsEssentialBottom, additionalData = Model })
                 </div>
+
+                @await Component.InvokeAsync("TopicBlock", new { systemName = "GroupedProductInfo" })
+                <br /><br />
+
                 @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBeforeCollateral, additionalData = Model })
                 <div class="product-collateral">
                     <!--associated products-->
                     <div class="product-variant-list">
-
-                        
-
                         @foreach (var variant in Model.AssociatedProducts)
                         {
                             <div class="product-variant-line" data-productid="@variant.Id">
@@ -177,13 +178,13 @@
                                         </div>
                                     }
                                     <!--availability-->
-                                @await Html.PartialAsync("_Availability", variant)
+                                    @await Html.PartialAsync("_Availability", variant)
                                     <!--SKU, MAN, GTIN, vendor-->
-                                @await Html.PartialAsync("_SKU_Man_GTIN_Ven", variant)
+                                    @await Html.PartialAsync("_SKU_Man_GTIN_Ven", variant)
                                     <!--delivery-->
-                                @await Html.PartialAsync("_DeliveryInfo", variant)
+                                    @await Html.PartialAsync("_DeliveryInfo", variant)
                                     <!--sample download-->
-                                @await Html.PartialAsync("_DownloadSample", variant)
+                                    @await Html.PartialAsync("_DownloadSample", variant)
                                     <!--attributes-->
                                     @{
                                         var dataDictAttributes = new ViewDataDictionary(ViewData);
@@ -209,7 +210,7 @@
                                         @await Html.PartialAsync("_ProductPrice", variant.ProductPrice, dataDictPrice)
                                     }
                                     <!--price breaks-->
-                                @await Html.PartialAsync("_ProductTierPrices", variant.TierPrices)
+                                    @await Html.PartialAsync("_ProductTierPrices", variant.TierPrices)
                                     @{
                                         var dataDictAddToCart = new ViewDataDictionary(ViewData);
                                         dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{variant.Id}";

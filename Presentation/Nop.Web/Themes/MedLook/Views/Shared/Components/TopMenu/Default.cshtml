@@ -13,7 +13,7 @@
     var isRegisterCustomer = await customerService.IsRegisteredAsync(await workContext.GetCurrentCustomerAsync());
     var rootCategoriesResponsive = Model.Categories.ToList();
 
-
+    <div class="w-nav-overlay" id="w-nav-overlay-0"></div>
     <nav class="nav-drill">
         <ul class="nav-items nav-level-1">
             @if (Model.DisplayHomepageMenuItem)
@@ -103,6 +103,12 @@
                     navBackLink.addEventListener('click', () => item.classList.remove('active'));
             })
 
+            debugger;
+
+            const no = document.querySelector('.w-nav-overlay');
+            no.addEventListener('click', function () {
+                document.body.classList.toggle('nav-is-toggled');
+            });
 
             // ---------------------------------------
             // not-so-important stuff starts here

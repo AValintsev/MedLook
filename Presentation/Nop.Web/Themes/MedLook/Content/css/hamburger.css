@@ -33,6 +33,27 @@
     transform: translateX(-101%);
 }
 
+.w-nav-overlay::before {
+    content: "";
+    background: rgba(0,0,0,0.65);
+    position: fixed;
+    z-index: 4;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    transition: width 0.3s ease-in-out;
+    width: 0;
+}
+
+.w-nav-overlay {
+}
+
+.nav-is-toggled .w-nav-overlay::before {
+    width: 100%;
+    transition: width 0.15s ease-in-out;
+}
+
 .nav-is-toggled .nav-drill {
     transform: translateX(0);
 }
