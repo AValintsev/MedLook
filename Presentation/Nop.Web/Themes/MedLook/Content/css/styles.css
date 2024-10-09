@@ -1968,7 +1968,7 @@ svg {
         max-height: 0px;
         overflow: hidden;
         position: absolute;
-        top: 36px;
+        top: 5rem;
         z-index: 3;
         transition: max-height .25s ease-in-out;
         background-color: #fff;
