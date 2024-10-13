@@ -1366,15 +1366,14 @@ label, label + * {
         }
 
     .ui-autocomplete a {
-        display: block;
-        padding: 15px;
+        display: flex;
+        align-items: center;
         font-size: 14px;
         /*override jQuery UI styles, do not delete doubled properties*/
         margin: 0 !important;
         border: none !important;
         border-radius: 0 !important;
         background: none !important;
-        padding: 15px !important;
         line-height: normal !important;
         color: #00659c !important;
     }
@@ -1385,8 +1384,9 @@ label, label + * {
         }
 
     .ui-autocomplete img {
-        display: none;
-        margin: 20px;
+        height: 60px;
+        margin: 6px;
+        padding-right: 8px;
         vertical-align: middle;
     }
 
@@ -5734,7 +5734,9 @@ svg {
 
 /****** SEARCH & SITEMAP ******/
 
-
+.search-input .inputs {
+    text-align: left;
+}
 
 .search-page .page-title {
     margin: 0 0 -1px;
