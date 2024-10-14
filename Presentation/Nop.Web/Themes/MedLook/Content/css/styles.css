@@ -8975,6 +8975,10 @@ pre {
     margin-top: 26px;
 }
 
+.swiper-recently-viewed-products {
+    width: 100%;
+}
+
 .swiper-sub-categories {
     padding-bottom: 26px;
 }

@@ -1,16 +1,11 @@
 ﻿{
   "Group": "Payment methods",
-  "FriendlyName": "Plata by mono",
-  "SupportedVersions": [
-    "4.60"
-  ],
+  "FriendlyName": "plata by mono",
+  "SystemName": "Payments.Monobank",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.60" ],
   "Author": "Ithoot team",
   "DisplayOrder": 1,
   "FileName": "Nop.Ithoot.Plugin.Payments.Monobank.dll",
-  "Description": "Allow to pay via Monobank payment gateway",
-  "LimitedToStores": [],
-  "LimitedToCustomerRoles": [],
-  "DependsOnSystemNames": [],
-  "SystemName": "Payments.Monobank",
-  "Version": "1.0"
+  "Description": "Allow to pay via Monobank payment gateway"
 }
