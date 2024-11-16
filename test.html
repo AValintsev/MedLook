@@ -1,0 +1,44 @@
+<html>
+	<body>
+		<style>
+			.edit-area {
+	display: flex;
+	flex-direction: column;
+}
+
+.inputs {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 15px;
+}
+
+.inputs label {
+	display: flex;
+	align-items: center;
+}
+
+.inputs .required {
+	margin-left: 5px;
+	color: red;
+}
+
+/* Align the input on a new line */
+.inputs input {
+	margin-top: 5px;
+}
+
+		</style>
+		<div class="edit-area">
+			<div class="inputs">
+				<label>Name:</label>
+				<span class="required">*</span>
+				<input type="text" name="name"/>
+			</div>
+			<div class="inputs">
+				<label>Email:</label>
+				<span class="required">*</span>
+				<input type="text" name="email"/>
+			</div>
+		</div>
+	</body>
+</html>

@@ -9016,3 +9016,7 @@ pre {
 
     .swiper-scrollbar-drag:after {
     }
+
+.customer-info-page .inputs {
+    text-align: left
+}
