@@ -260,9 +260,10 @@
                 </div>
             </div>
 
+            @await Component.InvokeAsync(typeof(CrossSellProductsViewComponent))
+
             @if (Model.IsEditable)
             {
-                @await Component.InvokeAsync(typeof(CrossSellProductsViewComponent))
             }
         </form>
     }

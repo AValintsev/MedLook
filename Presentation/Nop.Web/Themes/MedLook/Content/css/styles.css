@@ -2379,8 +2379,14 @@ svg {
     width: 100%;
 }
 
+.also-purchased-products-grid {
+    margin-top: 20px;
+}
+
     .home-page-product-grid h2.title,
     .also-purchased-products-grid h2.title,
+    .cross-sells-products-grid h2.title,
+    .related-products-grid h2.title,
     .recently-viewed-products h2.title {
         text-align: left;
         font-size: 18px;

@@ -31,7 +31,6 @@ var Checkout = {
     },
 
     setLoadWaiting: function (step, keepDisabled) {
-        debugger;
         var container;
         if (step) {
             if (this.loadWaiting) {
