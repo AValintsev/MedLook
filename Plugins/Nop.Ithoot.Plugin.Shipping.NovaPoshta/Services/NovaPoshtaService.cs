@@ -6,6 +6,7 @@ using Baroque.NovaPoshta.Client.Domain.Documents;
 using Baroque.NovaPoshta.Client.Services.Common;
 using Baroque.NovaPoshta.Client.Services.Counterparties;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using FluentMigrator.Runner.Generators.Redshift;
 using Nop.Core;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Orders;
@@ -142,12 +143,13 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             if (order.PaymentMethodSystemName.Equals("Payments.CashOnDelivery"))
             {
                 request.Cost = (int)order.OrderTotal - _novaPoshtaSettings.PrepaymentValue;
-                request.BackwardDeliveryData.Add(new NovaPoshtaCreateDocumentRequest.BackwardDelivery
-                {
-                    CargoType = "Money",
-                    PayerType = "Recipient",
-                    RedeliveryString = request.Cost.ToString()
-                });
+                request.AfterpaymentOnGoodsCost = request.Cost;
+                //request.BackwardDeliveryData.Add(new NovaPoshtaCreateDocumentRequest.BackwardDelivery
+                //{
+                //    CargoType = "Money",
+                //    PayerType = "Recipient",
+                //    RedeliveryString = request.Cost.ToString()
+                //});
             }
 
             request.OptionsSeat.Add(new Seat

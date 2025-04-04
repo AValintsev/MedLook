@@ -7,6 +7,9 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Domain
     public class NovaPoshtaCreateDocumentRequest : Baroque.NovaPoshta.Client.Domain.Documents.CreateDocumentRequest
     {
         [DataMember]
+        public int AfterpaymentOnGoodsCost { get; set; }
+
+        [DataMember]
         public IList<BackwardDelivery> BackwardDeliveryData { get; set; } = new List<BackwardDelivery>();
 
         [DataContract]

@@ -4063,7 +4063,10 @@
           "System.Linq.Async": "6.0.1"
         },
         "runtime": {
-          "Nop.Core.dll": {}
+          "Nop.Core.dll": {
+            "assemblyVersion": "4.5.0.0",
+            "fileVersion": "4.5.0.0"
+          }
         },
         "compile": {
           "Nop.Core.dll": {}
@@ -4082,7 +4085,10 @@
           "linq2db": "4.3.0"
         },
         "runtime": {
-          "Nop.Data.dll": {}
+          "Nop.Data.dll": {
+            "assemblyVersion": "4.5.0.0",
+            "fileVersion": "4.5.0.0"
+          }
         },
         "compile": {
           "Nop.Data.dll": {}
@@ -4105,7 +4111,10 @@
           "System.ServiceModel.Http": "4.10.0"
         },
         "runtime": {
-          "Nop.Services.dll": {}
+          "Nop.Services.dll": {
+            "assemblyVersion": "4.5.0.0",
+            "fileVersion": "4.5.0.0"
+          }
         },
         "compile": {
           "Nop.Services.dll": {}
@@ -4120,7 +4129,10 @@
           "Nop.Web.Framework": "4.5.0"
         },
         "runtime": {
-          "Nop.Web.dll": {}
+          "Nop.Web.dll": {
+            "assemblyVersion": "4.5.0.0",
+            "fileVersion": "4.5.0.0"
+          }
         },
         "compile": {
           "Nop.Web.dll": {}
@@ -4137,7 +4149,10 @@
           "WebMarkupMin.NUglify": "2.13.5"
         },
         "runtime": {
-          "Nop.Web.Framework.dll": {}
+          "Nop.Web.Framework.dll": {
+            "assemblyVersion": "4.5.0.0",
+            "fileVersion": "4.5.0.0"
+          }
         },
         "compile": {
           "Nop.Web.Framework.dll": {}

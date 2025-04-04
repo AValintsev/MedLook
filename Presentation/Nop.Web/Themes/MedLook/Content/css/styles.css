@@ -4144,13 +4144,22 @@ svg {
     white-space: normal;
 }
 
+.registration-page .page-title, .login-page .page-title {
+    margin-top: 24px;
+}
+
+.registration-page .page-body, .login-page .page-body {
+    margin-top: 16px;
+    padding: 0 10px;
+}
+
 .login-page .customer-blocks {
     margin: 0 0 30px;
 }
 
-.login-page .title {
-    margin: 0 0 15px;
-    font-size: 20px;
+.registration-page .title, .login-page .title {
+    margin: 0 0 16px;
+    font-size: 16px;
     color: #00659C;
 }
 
@@ -4193,6 +4202,7 @@ svg {
 
     .login-page .returning-wrapper .inputs.reversed {
         white-space: normal;
+        text-align: left;
     }
 
         .login-page .returning-wrapper .inputs.reversed * {
@@ -8585,7 +8595,7 @@ pre {
 
         .login-page .returning-wrapper .form-fields {
             min-height: 200px;
-            padding: 30px 0 0;
+            padding: 30px 16px 0;
         }
 
         .login-page .returning-wrapper .inputs label {
