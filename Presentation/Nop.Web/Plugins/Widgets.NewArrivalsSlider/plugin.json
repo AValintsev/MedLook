@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "New arrivals slider",
+  "SystemName": "Widgets.NewArrivalsSlider",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "It Hoot team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Ithoot.Plugin.Widgets.NewArrivalsSlider.dll",
+  "Description": "This plugin allows to have slider with new arrivals. New arrivals are products marked as new and show on home page."
+}

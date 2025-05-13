@@ -15,6 +15,7 @@ namespace Nop.Plugin.Widgets.CategorySlider
     /// </summary>
     public class CategorySliderPlugin : BasePlugin, IWidgetPlugin
     {
+        public static string CacheKeyBase = "CategorySlider.";
         public static string BlockNameKey = "Plugins.Widgets.CategorySlider.Name.Locale";
 
         private readonly ILocalizationService _localizationService;

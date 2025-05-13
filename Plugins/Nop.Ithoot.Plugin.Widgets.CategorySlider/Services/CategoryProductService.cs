@@ -2,6 +2,7 @@
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Data;
+using Nop.Plugin.Widgets.CategorySlider;
 using Nop.Services.Security;
 using Nop.Services.Stores;
 using System;
@@ -41,7 +42,7 @@ namespace Nop.Ithoot.Plugin.Widgets.CategorySlider.Services
 
         public async Task<IList<Product>> GetCategoryProductsMarkedAsNewAsync(int categoryId, int storeId = 0)
         {
-            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(new CacheKey("ByCategory", "Products"), storeId, categoryId);
+            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(new CacheKey(CategorySliderPlugin.CacheKeyBase, "Products"), storeId, categoryId);
 
             var productsTask = _staticCacheManager.GetAsync(
                cacheKey,

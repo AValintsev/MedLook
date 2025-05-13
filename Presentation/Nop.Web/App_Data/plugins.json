@@ -58,6 +58,10 @@
     {
       "SystemName": "Widgets.CategorySlider",
       "Version": "1.0"
+    },
+    {
+      "SystemName": "Widgets.NewArrivalsSlider",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

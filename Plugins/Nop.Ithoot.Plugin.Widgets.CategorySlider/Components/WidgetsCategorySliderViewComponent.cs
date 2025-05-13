@@ -47,7 +47,7 @@ namespace Nop.Plugin.Widgets.CategorySlider.Components
                 return Content("");
             }
 
-            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(new CacheKey("ByCategory", "ProductsOverview"), store, settings.CategoryId);
+            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(new CacheKey(CategorySliderPlugin.CacheKeyBase, "ProductsOverview"), store, settings.CategoryId);
 
             var model = await _staticCacheManager.GetAsync(cacheKey,
                  async () =>
