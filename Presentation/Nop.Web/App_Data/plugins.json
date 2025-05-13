@@ -54,6 +54,10 @@
     {
       "SystemName": "ExternalAuth.Google",
       "Version": "1.00"
+    },
+    {
+      "SystemName": "Widgets.CategorySlider",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],
