@@ -1,13 +1,5 @@
 ﻿.header {
-    min-height: 60px;
-    width: 100%;
-    background-color: #71C5EE;
-    color: #00659c;
-    position: sticky;
-    z-index: 11;
-    top: 0;
-    transition: .2s ease-out;
-    transition-delay: 0s;
+    height: 50px;
 }
 
     .header i {
@@ -15,103 +7,43 @@
     }
 
 .header-inner {
+}
+
+.header-lower {
     display: flex;
+    flex-direction: column;
+    align-content: end;
     align-items: center;
-    justify-content: space-between;
-    padding: 1.5vh 2vh;
-    height: 100%;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    z-index: 2;
     width: 100%;
-}
-
-.header .mobile-menu-inner {
-    overflow-y: auto;
-    overflow-x: hidden;
-    z-index: 3;
-    height: 100%;
-    width: 100%;
-    text-align: right;
-    /*margin: 18px 0 0 32px;*/
-}
-
-.header .mobile-menu--body .nav--link,
-.header .mobile-menu--body .mobile-nav--item {
-    list-style: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-start;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding-left: 12px;
-    border-bottom: 1px solid;
-    line-height: 60px;
-    width: 100%;
-}
-
-.header .mobile-menu--body .nav--child-item .mobile-nav--item {
-    border: none;
-}
-
-.header .mobile-menu--body .sublist-toggle.mobile-nav--item.expanded {
-    opacity: 1;
-}
-
-.header .mobile-menu--body .mobile-nav--item:hover {
-    opacity: 0.6;
-}
-
-.header .mobile-menu--body .nav--child-item .nav--link {
-    text-transform: capitalize;
-}
-
-.header .mobile-menu--body .nav--link a {
-    display: flex;
-    flex-direction: row;
 }
 
 .header-inner--logo {
+    padding: 0 8px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
     .header-inner--logo .medlook {
-        background: url('../images/medlook-logo-text.svg') left center no-repeat;
-        height: 50px;
+        background: url('../images/medlook-logo-text.svg') center center no-repeat;
+        height: 36px;
         width: 100%;
     }
 
-.header-inner--actions, .header-inner--logo, .header-inner--nav {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-direction: row-reverse;
-}
-
-    .header-inner--actions .header--mini-basket, .header-inner--actions > a, .header-inner--actions > li, .header-inner--actions button {
-        display: flex;
-        margin-left: 2vh;
-        line-height: 1;
-        height: 100%;
-        align-items: center;
-    }
-
-#menu__toggle, #gtx-trans {
-    opacity: 0;
-    display: none;
-    background: none;
-    border: 0;
-    border-left: 0;
-    border-right: 0;
-}
-
-    #menu__toggle svg {
+@media (max-width: 680px) {
+    .header-inner--logo .medlook {
+        /*background: url('../images/medlook-logo.svg') left center no-repeat;*/
         height: 32px;
-        width: 32px;
-        z-index: 4;
+        /*width: 42px;*/
     }
+}
+
+.header-inner--actions, .header-inner--logo, .header-inner--nav {
+}
 
 /* Search box */
 #searchbox {
@@ -121,7 +53,8 @@
 
     #searchbox a {
         background: url('../images/search.svg') left 1px no-repeat;
-        height: 32px;
+        margin-left: 14px;
+        height: 30px;
         width: 28px;
     }
 
@@ -129,7 +62,9 @@
         display: flex;
         flex-wrap: wrap;
         align-items: stretch;
-        position: relative;
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
         padding: 1rem;
     }
@@ -139,10 +74,10 @@
             position: absolute;
             top: 0;
             right: 0;
-            padding: 3.2rem 1.8rem;
+            padding: 2.1rem 1.8rem;
             width: 20px;
             height: 20px;
-            opacity: 0.7    ;
+            opacity: 0.7;
             background: transparent;
             border: none;
         }
@@ -228,8 +163,9 @@
 
     #wishlistlink a {
         background: url('../images/heart.svg') left 1px no-repeat;
-        height: 32px;
-        width: 30px;
+        margin-left: 6px;
+        height: 30px;
+        width: 26px;
     }
 
     #wishlistlink .wishlist-qty {
@@ -250,13 +186,15 @@
 #topcartlink {
     display: flex;
     align-items: center;
+    margin-right: 8px;
 }
 
     #topcartlink a {
         display: flex;
         background: url('../images/bag.svg') left 1px no-repeat;
+        margin-left: 12px;
         height: 32px;
-        width: 30px;
+        width: 26px;
     }
 
     #topcartlink .cart-qty {
@@ -273,67 +211,6 @@
         font-size: 10px;
         border-radius: 50%;
     }
-
-.hamburger {
-    cursor: pointer;
-    transition-property: opacity, filter;
-    transition-duration: 0.15s;
-    transition-timing-function: linear;
-    font: inherit;
-    color: inherit;
-    text-transform: none;
-    background-color: transparent;
-    border: 0;
-    margin: 0;
-    overflow: visible;
-    margin-left: 4vh;
-    display: flex;
-    width: 26px;
-    height: 26px;
-    cursor: pointer;
-    z-index: 5;
-}
-
-    .hamburger:hover {
-        /*opacity: 0.7;*/
-    }
-
-.hamburger-box {
-    width: 40px;
-    height: 24px;
-    display: inline-block;
-    position: relative;
-}
-
-.hamburger-inner {
-    display: block;
-    top: 50%;
-    margin-top: -2px;
-}
-
-    .hamburger-inner, .hamburger-inner::before, .hamburger-inner::after {
-        width: 40px;
-        height: 4px;
-        background-color: #00659c;
-        border-radius: 4px;
-        position: absolute;
-        transition-property: transform;
-        transition-duration: 0.15s;
-        transition-timing-function: ease;
-    }
-
-        .hamburger-inner::before, .hamburger-inner::after {
-            content: "";
-            display: block;
-        }
-
-        .hamburger-inner::before {
-            top: -10px;
-        }
-
-        .hamburger-inner::after {
-            bottom: -10px;
-        }
 /*
    * Slider
    */
@@ -351,66 +228,6 @@
     .hamburger--slider .hamburger-inner::after {
         top: 20px;
     }
-
-#menu__toggle:checked ~ .hamburger--slider .hamburger-inner {
-    transform: translate3d(0, 10px, 0) rotate(45deg);
-}
-
-    #menu__toggle:checked ~ .hamburger--slider .hamburger-inner::before {
-        transform: rotate(-45deg) translate3d(-5.71429px, -6px, 0);
-        opacity: 0;
-    }
-
-    #menu__toggle:checked ~ .hamburger--slider .hamburger-inner::after {
-        transform: translate3d(0, -20px, 0) rotate(-90deg);
-    }
-
-#menu__toggle:checked ~ .hamburger:hover {
-    /*opacity: 0.7;*/
-}
-
-#menu__toggle:checked ~ .hamburger-inner, #menu__toggle:checked ~ .hamburger-inner::before, #menu__toggle:checked ~ .hamburger-inner::after {
-    background-color: #000;
-}
-
-.mobile-menu {
-    display: none;
-}
-
-#menu__toggle:checked ~ .mobile-menu {
-    display: flex;
-    position: fixed;
-    top: 0;
-    right: 0;
-    background-color: #71C5EE;
-    color: #feffff;
-    transition: all .4s ease-out;
-    overflow: hidden;
-    z-index: 4;
-    height: 100%;
-    width: 400px;
-    border-left: 1px solid #00659c;
-}
-
-.main_menu_item {
-    margin: 0 1.2vh;
-}
-
-.menu__item {
-    display: block;
-    padding: 12px 24px;
-    color: #333;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    text-decoration: none;
-    transition-duration: 0.25s;
-}
-
-
-.menu__item-category {
-    /*margin-bottom: 18px;*/
-}
 
 .language-selector {
     display: flex;
@@ -506,36 +323,3 @@
     .search-box .ui-autocomplete-loading {
         background: #feffff url('../images/ajax-loader-small.gif') right center no-repeat;
     }
-
-
-
-@media (max-width: 581px) {
-    .header-inner--logo .medlook {
-        /*background: url('../images/medlook-logo.svg') left center no-repeat;*/
-        height: 42px;
-        /*width: 42px;*/
-    }
-}
-
-@media (max-width: 1199px) {
-    .header {
-        width: 100vw;
-    }
-
-    .header-inner--logo .logo-wrapper {
-        display: flex;
-        align-items: center;
-    }
-}
-
-@media (max-width: 500px) {
-    .hamburger {
-        margin-left: 2vh;
-    }
-}
-
-@media (max-width: 620px) {
-    #menu__toggle:checked ~ .mobile-menu {
-        width: 100%;
-    }
-}

@@ -6,7 +6,7 @@
     var pluginLicenseStatus = LicenceHelper.GetPluginStatus(PluginLicence.LicenceType, extendedFiltersSettings.PluginInfo);
     var isPluginPaidOrTrial = pluginLicenseStatus == PluginLicenceStatusType.Registered || pluginLicenseStatus == PluginLicenceStatusType.Trial;
 
-    Layout = "_ColumnsTwo";
+    Layout = "_ColumnsOne";
 
     //title
     NopHtml.AddTitleParts(T("PageTitle.Search").Text);
@@ -29,10 +29,6 @@
     }
 </script>
 
-@section CatalogFilters {
-    @await Html.PartialAsync("_CatalogFilters", Model.CatalogProductsModel)
-}
-
 <div class="page search-page">
     <div class="page-title">
         <h1>@T("Search")</h1>
@@ -48,7 +44,7 @@
                                 <input asp-for="q" class="search-text" />
                             </div>
                             @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductSearchPageBasic, additionalData = Model })
-                            
+
                             @if (!(extendedFiltersSettings.Enabled && isPluginPaidOrTrial))
                             {
                                 <div class="inputs reversed">

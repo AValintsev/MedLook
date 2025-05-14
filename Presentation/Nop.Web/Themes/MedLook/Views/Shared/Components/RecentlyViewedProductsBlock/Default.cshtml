@@ -1,0 +1,74 @@
+﻿@model IList<ProductOverviewModel>
+
+@using Nop.Core.Domain.Catalog
+
+@if (Model.Count > 0)
+{
+    <div class="recently-viewed-products">
+        <div class="swiper swiper-recently-viewed-products">
+            <h2 class="title">
+                @T("Products.RecentlyViewedProducts")
+            </h2>
+            <div class="swiper-buttons">
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+            <div class="swiper-wrapper">
+                @foreach (var item in Model)
+                {
+                    <div class="swiper-slide">
+                        <div class="item-box item">
+                            @await Html.PartialAsync("_ProductBoxSimple", item)
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+            <div class="swiper-scrollbar"></div>
+        </div>
+    </div>
+    <script>
+        const swiperRecProds = new Swiper('.swiper-recently-viewed-products', {
+            scrollbar: {
+                el: '.swiper-scrollbar',
+                draggable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            slideToClickedSlide: false,
+            breakpoints: {
+                320: {
+                    slidesPerView: 3,
+                    spaceBetween: 12
+                },
+                480: {
+                    slidesPerView: 4,
+                    spaceBetween: 12
+                },
+                640: {
+                    slidesPerView: 4,
+                    spaceBetween: 20
+                },
+                768: {
+                    slidesPerView: 4,
+                    spaceBetween: 20
+                },
+                1024: {
+                    slidesPerView: 5,
+                    spaceBetween: 22
+                },
+                1280: {
+                    slidesPerView: 6,
+                    spaceBetween: 30
+                },
+                1440: {
+                    slidesPerView: 6,
+                    spaceBetween: 40
+                }
+            },
+        });
+    </script>
+}

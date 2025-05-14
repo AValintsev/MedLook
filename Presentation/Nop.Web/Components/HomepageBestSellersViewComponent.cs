@@ -48,7 +48,7 @@ namespace Nop.Web.Components
         {
             if (!_catalogSettings.ShowBestsellersOnHomepage || _catalogSettings.NumberOfBestsellersOnHomepage == 0)
                 return Content("");
-
+            
             //load and cache report
             var store = await _storeContext.GetCurrentStoreAsync();
             var report = await _staticCacheManager.GetAsync(

@@ -5,136 +5,198 @@
 @inject SeoSettings seoSettings
 @inject CommonSettings commonSettings
 @{
-	Layout = "_ColumnsTwo";
+    Layout = "_ColumnsOne";
 
-	//title
-	NopHtml.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
-	//meta
-	NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
-	NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
-	//page class
-	NopHtml.AppendPageCssClassParts("html-category-page");
+    //title
+    NopHtml.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    //meta
+    NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
+    NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
+    //page class
+    NopHtml.AppendPageCssClassParts("html-category-page");
 
-	if (seoSettings.CanonicalUrlsEnabled)
-	{
-		var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
-		NopHtml.AddCanonicalUrlParts(categoryUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
-	}
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        NopHtml.AddCanonicalUrlParts(categoryUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
 
-	var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
+    var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
 }
 @*category breadcrumb*@
 @section Breadcrumb
 {
-	@if (Model.DisplayCategoryBreadcrumb)
-	{
-		<div class="breadcrumb">
-			<ul itemscope itemtype="http://schema.org/BreadcrumbList">
-				<li>
-					<a href="@Url.RouteUrl("Homepage")" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
-					<span class="delimiter">@breadcrumbDelimiter</span>
-				</li>
-				@{ int position = 1; }
-				@foreach (var cat in Model.CategoryBreadcrumb)
-				{
-					var isLastCategory = cat.Id == Model.Id;
-					<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-						@if (isLastCategory)
-						{
-							<strong class="current-item" itemprop="name">@cat.Name</strong>
-							<span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-										id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
-							</span>
-						}
-						else
-						{
-							<a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
-								<span itemprop="name">@cat.Name</span>
-							</a>
-							<span class="delimiter">@breadcrumbDelimiter</span>
-						}
-						<meta itemprop="position" content="@position" />
-					</li>
-					position++;
-				}
-			</ul>
-		</div>
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterBreadcrumb, additionalData = Model })
-	}
-}
+    @if (Model.DisplayCategoryBreadcrumb)
+    {
+        <nav aria-label="Breadcrumb" class="breadcrumb">
+            <ul itemscope itemtype="http://schema.org/BreadcrumbList">
+                <li>
+                    <a href="@Url.RouteUrl("Homepage")" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+                    <span class="delimiter">@breadcrumbDelimiter</span>
+                </li>
 
-@section CatalogFilters {
-	@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFilters, additionalData = Model })
-	@await Html.PartialAsync("_CatalogFilters", Model.CatalogProductsModel)
+                @{
+                    int position = 1;
+                }
+                @foreach (var cat in Model.CategoryBreadcrumb)
+                {
+                    var isLastCategory = cat.Id == Model.Id;
+                    <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                        @if (isLastCategory)
+                        {
+                            <strong class="current-item" itemprop="name">@cat.Name</strong>
+                            <span aria-current="page" itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
+                            </span>
+                        }
+                        else
+                        {
+                            <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
+                                <span itemprop="name">@cat.Name</span>
+                            </a>
+                            <span class="delimiter">@breadcrumbDelimiter</span>
+                        }
+                        <meta itemprop="position" content="@position" />
+                    </li>
+                    position++;
+                }
+            </ul>
+        </nav>
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterBreadcrumb, additionalData = Model })
+    }
 }
 
 <div class="page category-page">
-	<div class="page-title">
-		<h1>@Model.Name</h1>
-	</div>
-	<div class="page-body">
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsTop, additionalData = Model })
+    @if (Model.SubCategories.Count == 0)
+    {
+        <div class="page-title">
+            <h1>@Model.Name</h1>
+        </div>
+    }
+    <div class="page-body">
 
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeSubcategories, additionalData = Model })
-		@*subcategories*@
-		@if (Model.SubCategories.Count > 0)
-		{
-			<div class="category-grid sub-category-grid">
-				<div class="item-grid">
-					@foreach (var item in Model.SubCategories)
-					{
-						<div class="item-box">
-							<div class="sub-category-item">
-								<h2 class="title">
-									<a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
-										@item.Name
-									</a>
-								</h2>
-								<div class="picture">
-									<a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
-										<img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" />
-									</a>
-								</div>
-							</div>
-						</div>
-					}
-				</div>
-			</div>
-		}
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFeaturedProducts, additionalData = Model })
-		@*featured products*@
-		@if (Model.FeaturedProducts.Count > 0)
-		{
-			<div class="product-grid featured-product-grid">
-				<div class="title">
-					<strong>@T("Products.FeaturedProducts")</strong>
-				</div>
-				<div class="item-grid">
-					@foreach (var item in Model.FeaturedProducts)
-					{
-						<div class="item-box">
-							@await Html.PartialAsync("_ProductBox", item)
-						</div>
-					}
-				</div>
-			</div>
-		}
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterFeaturedProducts, additionalData = Model })
-		@await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeProductList, additionalData = Model })
-		@{
-			var catalogProductsViewData = new ViewDataDictionary(ViewData);
-			catalogProductsViewData["fetchUrl"] = Html.Raw(Url.Action("GetCategoryProducts", "Catalog", new { categoryId = Model.Id }));
-		}
-		@await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel, catalogProductsViewData)
-		@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBottom, additionalData = Model })
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsTop, additionalData = Model })
 
-		@*description*@
-		@if (!string.IsNullOrWhiteSpace(Model.Description))
-		{
-			<div class="category-description">
-				@Html.Raw(Model.Description)
-			</div>
-		}
-	</div>
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeSubcategories, additionalData = Model })
+        @*subcategories*@
+        @if (Model.SubCategories.Count > 0)
+        {
+            <div class="swiper swiper-sub-categories">
+                <h1>@Model.Name</h1>
+                <div class="swiper-buttons">
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                </div>
+                <div class="swiper-wrapper">
+                    @foreach (var item in Model.SubCategories)
+                    {
+                        <div class="swiper-slide">
+                            <div class="item-box">
+                                <div class="category-item">
+                                    <h2 class="title">
+                                        <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                            @item.Name
+                                        </a>
+                                    </h2>
+                                    <div class="picture">
+                                        <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                            <img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" />
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="swiper-scrollbar"></div>
+            </div>
+        }
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFeaturedProducts, additionalData = Model })
+
+        @*featured products*@
+        @if (Model.FeaturedProducts.Count > 0)
+        {
+            <div class="product-grid featured-product-grid">
+                <div class="title">
+                    <strong>@T("Products.FeaturedProducts")</strong>
+                </div>
+                <div class="item-grid">
+                    @foreach (var item in Model.FeaturedProducts)
+                    {
+                        <div class="item-box">
+                            @await Html.PartialAsync("_ProductBox", item)
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @*description*@
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="category-description">
+                @Html.Raw(Model.Description)
+            </div>
+        }
+
+        <div class="filters-container">
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFilters, additionalData = Model })
+            @await Html.PartialAsync("_CatalogFilters", Model.CatalogProductsModel)
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterFeaturedProducts, additionalData = Model })
+            @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
+        </div>
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeProductList, additionalData = Model })
+        @{
+            var catalogProductsViewData = new ViewDataDictionary(ViewData);
+            catalogProductsViewData["fetchUrl"] = Html.Raw(Url.Action("GetCategoryProducts", "Catalog", new { categoryId = Model.Id }));
+        }
+        @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel, catalogProductsViewData)
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBottom, additionalData = Model })
+        
+    </div>
 </div>
+<script>
+    const swiperSubCategories = new Swiper('.swiper-sub-categories', {
+        scrollbar: {
+            el: '.swiper-scrollbar',
+            draggable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        slideToClickedSlide: false,
+        breakpoints: {
+            320: {
+                slidesPerView: 4,
+                spaceBetween: 12
+            },
+            480: {
+                slidesPerView: 5,
+                spaceBetween: 20
+            },
+            640: {
+                slidesPerView: 5,
+                spaceBetween: 20
+            },
+            768: {
+                slidesPerView: 5,
+                spaceBetween: 20
+            },
+            1024: {
+                slidesPerView: 6,
+                spaceBetween: 22
+            },
+            1280: {
+                slidesPerView: 6,
+                spaceBetween: 30
+            },
+            1440: {
+                slidesPerView: 6,
+                spaceBetween: 30
+            }
+        },
+    });
+</script>

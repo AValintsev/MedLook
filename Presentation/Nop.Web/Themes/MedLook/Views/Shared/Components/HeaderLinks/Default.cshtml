@@ -25,14 +25,7 @@
 </div>*@
 
 
-@if (Model.ShoppingCartEnabled)
-{
-    <div id="topcartlink">
-        <a href="@Url.RouteUrl("ShoppingCart")" class="main_menu_item ico-cart">
-            <span class="cart-qty">@Model.ShoppingCartItems</span>
-        </a>
-    </div>
-}
+
 
 @if (Model.WishlistEnabled)
 {
@@ -43,7 +36,15 @@
     </div>
 }
 
-@await Component.InvokeAsync(typeof(SearchBoxViewComponent))
+@if (Model.ShoppingCartEnabled)
+{
+    <div id="topcartlink">
+        <a href="@Url.RouteUrl("ShoppingCart")" class="main_menu_item ico-cart">
+            <span class="cart-qty">@Model.ShoppingCartItems</span>
+        </a>
+    </div>
+}
+
 
 
 @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderLinksAfter })

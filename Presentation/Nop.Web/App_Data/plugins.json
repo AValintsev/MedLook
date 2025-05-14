@@ -32,10 +32,6 @@
       "Version": "1.1"
     },
     {
-      "SystemName": "Widgets.NivoSlider",
-      "Version": "1.50"
-    },
-    {
       "SystemName": "Misc.FopPdf",
       "Version": "1.0"
     },
@@ -50,6 +46,18 @@
     {
       "SystemName": "Misc.Sendinblue",
       "Version": "3.56"
+    },
+    {
+      "SystemName": "ExternalAuth.Google",
+      "Version": "1.00"
+    },
+    {
+      "SystemName": "Widgets.CategorySlider",
+      "Version": "1.0"
+    },
+    {
+      "SystemName": "Widgets.NewArrivalsSlider",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

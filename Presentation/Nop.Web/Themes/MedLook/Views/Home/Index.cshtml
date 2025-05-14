@@ -11,11 +11,16 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeCategories })
         @await Component.InvokeAsync("HomepageCategories")
 
+        @await Component.InvokeAsync("TopicBlock", new { systemName = "HomepageCategoryTextInfo" })
+
+
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeProducts })
-        @await Component.InvokeAsync("HomepageProducts")
+        @* @await Component.InvokeAsync("HomepageProducts") *@
 
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBeforeBestSellers })
         @await Component.InvokeAsync("HomepageBestSellers")
+
+        @await Component.InvokeAsync("Widget", new { widgetZone = "ProductsByCategory" })
 
         @await Component.InvokeAsync("TopicBlock", new { systemName = "HomepageTextInfo" })
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomepageBottom })

@@ -5,6 +5,9 @@ using Baroque.NovaPoshta.Client.Domain.Countrparty;
 using Baroque.NovaPoshta.Client.Domain.Documents;
 using Baroque.NovaPoshta.Client.Services.Common;
 using Baroque.NovaPoshta.Client.Services.Counterparties;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using FluentMigrator.Runner.Generators.Redshift;
+using Nop.Core;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Shipping;
@@ -99,7 +102,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             return Enumerable.Empty<AutocompleteModel>();
         }
 
-        public async Task<string> CreateParcelAsync(Order order, Shipment shipment)
+        public async Task<string> CreateParcelAsync(Core.Domain.Orders.Order order, Shipment shipment)
         {
             var gateway = new DefaultNovaPoshtaGateway(_novaPoshtaSettings.ApiKey);
             var service = new NovaPoshtaDocumentService(gateway);
@@ -140,12 +143,13 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             if (order.PaymentMethodSystemName.Equals("Payments.CashOnDelivery"))
             {
                 request.Cost = (int)order.OrderTotal - _novaPoshtaSettings.PrepaymentValue;
-                request.BackwardDeliveryData.Add(new NovaPoshtaCreateDocumentRequest.BackwardDelivery
-                {
-                    CargoType = "Money",
-                    PayerType = "Recipient",
-                    RedeliveryString = request.Cost.ToString()
-                });
+                request.AfterpaymentOnGoodsCost = request.Cost;
+                //request.BackwardDeliveryData.Add(new NovaPoshtaCreateDocumentRequest.BackwardDelivery
+                //{
+                //    CargoType = "Money",
+                //    PayerType = "Recipient",
+                //    RedeliveryString = request.Cost.ToString()
+                //});
             }
 
             request.OptionsSeat.Add(new Seat
@@ -168,7 +172,7 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
             return null;
         }
 
-        public Task<RecipientModel> GetRecipientAsync(Order order, Shipment shipment, Address address)
+        public Task<RecipientModel> GetRecipientAsync(Core.Domain.Orders.Order order, Shipment shipment, Address address)
         {
             var cityAttr = _addressAttributeParser
                 .ParseValues(address.CustomAttributes, _novaPoshtaSettings.CityAttributeId)
@@ -234,6 +238,13 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 CounterpartyProperty = type
             });
 
+            if (counterPartyCreateResponse.Success == false)
+            {
+                var response = (CreateCounterpartyResponse)counterPartyCreateResponse;
+                var errors = response.Errors.ToList();
+                throw new NopException(string.Join("; ", errors));
+            }
+
             return counterPartyCreateResponse.FirstOrDefault;
         }
 
@@ -270,5 +281,6 @@ namespace Nop.Ithoot.Plugin.Shipping.NovaPoshta.Services
                 SenderPhoneNumber = contactPersonResponse.FirstOrDefault.Phones
             });
         }
+
     }
 }

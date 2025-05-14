@@ -1,5 +1,5 @@
 /* Filter tiltle block */
-.filter-title {
+/*.filter-title {
     display: flex;
 }
 
@@ -8,27 +8,27 @@
         background-repeat: no-repeat;
         background-position: calc(100% - 10px) center;
         cursor: pointer;
-    }
+    }*/
 
     /* 'Clear filters' button */
-    .filter-title
+    /*.filter-title
     a.clear-filters-button {
         color: #888;
         font-size: small;
         margin-left: auto;
         align-self: center;
-    }
+    }*/
 
 /* 'Applied filters' panel */
-.applied-filters-group .option {
+/*.applied-filters-group .option {
     color: #41b2f1;
     cursor: pointer;
     background: url('/Themes/DefaultClean/Content/images/close.png') right center no-repeat;
     padding-right: 20px;
-}
+}*/
 
 /* 'Number of products' element */
-.number-of-products {
+/*.number-of-products {
     margin-left: 40px;
 }
 
@@ -150,4 +150,4 @@ a.clear-filters-button:hover {
     .master-wrapper-content {
         z-index: 4;
     }
-}
+}*/

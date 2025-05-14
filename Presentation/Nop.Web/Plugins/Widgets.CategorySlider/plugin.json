@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "Category Slider",
+  "SystemName": "Widgets.CategorySlider",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "It Hoot team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Ithoot.Plugin.Widgets.CategorySlider.dll",
+  "Description": "This plugin allows to have slider in main page by category"
+}

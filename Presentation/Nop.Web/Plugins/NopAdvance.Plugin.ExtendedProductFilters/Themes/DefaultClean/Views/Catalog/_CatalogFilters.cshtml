@@ -33,100 +33,88 @@
         return;
 }
 
-<div class="filter-title-mob">
-    <button id="filter" type="button" class="filter-btn"><i class="filter-icon"></i>@T("Filter")</button>
-</div>
-<div class="block product-filters">
-    <div class="filter-section">
-        @*@if (showAppliedFiltersPanel)
-        {
-        @await Html.PartialAsync("_FilterAppliedBox")
-        }*@
 
-        @*@if (Model.PriceRangeFilter?.Enabled ?? false)
-        {
-        @await Html.PartialAsync("_FilterPriceBox", Model.PriceRangeFilter)
-        }*@
-
-        @if (Model.SpecificationFilter?.Enabled ?? false)
-        {
-            @await Html.PartialAsync("_FilterSpecsBox", Model.SpecificationFilter)
-        }
-
-        <div class="attributes filter">
-            @if (FilterAttrs?.Enabled ?? false)
+<div class="collapsible-box">
+    <input id="collapsibleFilter" class="toggle" type="checkbox">
+    <label for="collapsibleFilter" class="lbl-toggle filter">
+        @T("Filter")
+    </label>
+    <div class="collapsible-content">
+        <div class="content-inner filter-section">
+            @*@if (showAppliedFiltersPanel)
             {
-                @await Html.PartialAsync("_FilterProductAttributeBox", FilterAttrs)
+            @await Html.PartialAsync("_FilterAppliedBox")
+            }*@
+
+            @*@if (Model.PriceRangeFilter?.Enabled ?? false)
+            {
+            @await Html.PartialAsync("_FilterPriceBox", Model.PriceRangeFilter)
+            }*@
+
+            @if (Model.SpecificationFilter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterSpecsBox", Model.SpecificationFilter)
+            }
+
+            <div class="attributes filter">
+                @if (FilterAttrs?.Enabled ?? false)
+                {
+                    @await Html.PartialAsync("_FilterProductAttributeBox", FilterAttrs)
+                }
+            </div>
+
+            @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_CategoryFilter, out var catobj))
+            {
+                var Filter = JsonSerializer.Deserialize<CategoryFilterModel>(catobj);
+                if (Filter?.Enabled ?? false)
+                {
+                    @await Html.PartialAsync("_FilterCategoryBox", Filter)
+                }
+            }
+
+            @if (Model.ManufacturerFilter?.Enabled ?? false)
+            {
+                @await Html.PartialAsync("_FilterManufacturerBox", Model.ManufacturerFilter)
+            }
+
+            @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_VendorFilter, out var venobj))
+            {
+                var Filter = JsonSerializer.Deserialize<VendorFilterModel>(venobj);
+                if (Filter?.Enabled ?? false)
+                {
+                    @await Html.PartialAsync("_FilterVendorBox", Filter)
+                }
+            }
+
+            @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_RatingFilter, out var ratobj))
+            {
+                var Filter = JsonSerializer.Deserialize<RatingFilterModel>(ratobj);
+                if (Filter?.Enabled ?? false)
+                {
+                    @await Html.PartialAsync("_FilterRatingBox", Filter)
+                }
+            }
+
+            @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_SaleFilter, out var saleobj))
+            {
+                var Filter = JsonSerializer.Deserialize<SaleFilterModel>(saleobj);
+                if (Filter?.Enabled ?? false)
+                {
+                    @await Html.PartialAsync("_FilterSaleBox", Filter)
+                }
+            }
+
+            @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_StockFilter, out var stockobj))
+            {
+                var Filter = JsonSerializer.Deserialize<StockFilterModel>(stockobj);
+                if (Filter?.Enabled ?? false)
+                {
+                    @await Html.PartialAsync("_FilterStockBox", Filter)
+                }
             }
         </div>
-
-        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_CategoryFilter, out var catobj))
-        {
-            var Filter = JsonSerializer.Deserialize<CategoryFilterModel>(catobj);
-            if (Filter?.Enabled ?? false)
-            {
-                @await Html.PartialAsync("_FilterCategoryBox", Filter)
-            }
-        }
-
-        @if (Model.ManufacturerFilter?.Enabled ?? false)
-        {
-            @await Html.PartialAsync("_FilterManufacturerBox", Model.ManufacturerFilter)
-        }
-
-        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_VendorFilter, out var venobj))
-        {
-            var Filter = JsonSerializer.Deserialize<VendorFilterModel>(venobj);
-            if (Filter?.Enabled ?? false)
-            {
-                @await Html.PartialAsync("_FilterVendorBox", Filter)
-            }
-        }
-
-        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_RatingFilter, out var ratobj))
-        {
-            var Filter = JsonSerializer.Deserialize<RatingFilterModel>(ratobj);
-            if (Filter?.Enabled ?? false)
-            {
-                @await Html.PartialAsync("_FilterRatingBox", Filter)
-            }
-        }
-
-        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_SaleFilter, out var saleobj))
-        {
-            var Filter = JsonSerializer.Deserialize<SaleFilterModel>(saleobj);
-            if (Filter?.Enabled ?? false)
-            {
-                @await Html.PartialAsync("_FilterSaleBox", Filter)
-            }
-        }
-
-        @if (Model.CustomProperties.TryGetValue(PluginDefaults.CP_StockFilter, out var stockobj))
-        {
-            var Filter = JsonSerializer.Deserialize<StockFilterModel>(stockobj);
-            if (Filter?.Enabled ?? false)
-            {
-                @await Html.PartialAsync("_FilterStockBox", Filter)
-            }
-        }
     </div>
 </div>
-<script asp-location="Footer">
-    $(document).ready(function () {
-        $("#filter").on('click', function (e) {
-            e.preventDefault();
-            $('.product-filters').slideToggle('d-block');
-            $('body').addClass('ishidden');
-        });
-        $(".close-filter").on('click', function (e) {
-            e.preventDefault();
-            $('.product-filters').slideToggle('d-block');
-            $('body').removeClass('ishidden');
-        });
-    });
-</script>
-
-
 
 @if (extendedFiltersSettings.Enabled && extendedFiltersSettings.UseAccordion)
 {
@@ -161,23 +149,22 @@
 {
     @if (extendedFiltersSettings.EnableLazyLoading && catalogSettings.UseAjaxCatalogProductsLoading)
     {
-        <div>Pdisoso</div>
         <script asp-location="Footer">
             $(document).on('ready', function () {
             @* Lazy Loading *@
-                                                                                var inProgress = false;
+                                                                                                                                                        var inProgress = false;
                 var hasNextPage = ($('.next-page').length > 0);
 
                 $(window).scroll(function () {
                     var $productsWrapper = $('.products-wrapper');
 
             @* When the user reaches the bottom of the page or products list goes above the center of the window *@
-                                                                                    var lim = Math.min(
+                                                                                                                                                            var lim = Math.min(
                         $(document).height() - $(window).height() - 10,
                         $productsWrapper.offset().top + $productsWrapper.height() - $(window).height() / 2);
                     if ($(window).scrollTop() >= lim) {
             @* Load and append next page *@
-                                                                                        if (hasNextPage && !inProgress) {
+                                                                                                                                                                if (hasNextPage && !inProgress) {
                             inProgress = true;
                             CatalogProducts.getProducts($('.next-page a').data('page'), true);
                         }
@@ -241,7 +228,7 @@
                     $appliedFilterPanel.html("");
 
             @* For price range filter *@
-                                                                                    if (($priceRangeSlider.length > 0) && $priceRangeSlider.slider()) {
+                                                                                                                                                            if (($priceRangeSlider.length > 0) && $priceRangeSlider.slider()) {
                         var priceValues = $priceRangeSlider.slider('values');
                         var minPrice = $priceRangeSlider.slider('option', 'min');
                         var maxPrice = $priceRangeSlider.slider('option', 'max');
@@ -290,12 +277,12 @@
                         });
 
             @* Add grouped list of applied filters *@
-                                                                                    for (key in groups) {
+                                                                                                                                                            for (key in groups) {
                         var groupHtml =
                             `<ul class="group applied-filters-group">
-                                                                                                    <li class="name">
-                                                                                                        <strong>` + key + `</strong>
-                                                                                                    </li>`;
+                                                                                                                                                                            <li class="name">
+                                                                                                                                                                                <strong>` + key + `</strong>
+                                                                                                                                                                            </li>`;
 
                         for (filterId in groups[key]) {
                             groupHtml += `<div class="option" name="` + filterId + `">` + groups[key][filterId] + `</div>`;
@@ -318,7 +305,7 @@
                         });
 
             @* Hide panel if no filters are applied *@
-                                                                                    if ($.isEmptyObject(groups)) {
+                                                                                                                                                            if ($.isEmptyObject(groups)) {
                         $appliedFiltersClearButton.hide();
                         hidePanel();
                     }
