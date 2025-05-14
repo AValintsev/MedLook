@@ -40,7 +40,7 @@ namespace Nop.Ithoot.Plugin.Widgets.CategorySlider.Services
             _staticCacheManager = staticCacheManager;
         }
 
-        public async Task<IList<Product>> GetCategoryProductsMarkedAsNewAsync(int categoryId, int storeId = 0)
+        public async Task<IList<Product>> GetCategoryProductsMarkedAsNewAsync(int categoryId, int storeId = 0, int count = 20)
         {
             var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(new CacheKey(CategorySliderPlugin.CacheKeyBase, "Products"), storeId, categoryId);
 
@@ -64,7 +64,7 @@ namespace Nop.Ithoot.Plugin.Widgets.CategorySlider.Services
                    query = await _aclService.ApplyAcl(query, customer);
                    query = query.OrderByDescending(p => p.CreatedOnUtc);
 
-                   return await query.ToPagedListAsync(0, 20);
+                   return await query.ToPagedListAsync(0, count);
                });
             var products = await productsTask;
 

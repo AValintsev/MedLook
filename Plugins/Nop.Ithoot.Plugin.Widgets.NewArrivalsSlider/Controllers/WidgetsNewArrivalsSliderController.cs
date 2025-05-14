@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
+using Nop.Core.Caching;
 using Nop.Plugin.Widgets.NewArrivalsSlider.Models;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -26,6 +27,7 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Controllers
         private readonly ILocalizationService _localizationService;
         private readonly ILocalizedModelFactory _localizedModelFactory;
 
+        private readonly IStaticCacheManager _staticCacheManager;
         private readonly INotificationService _notificationService;
         private readonly IPermissionService _permissionService;
         private readonly IPictureService _pictureService;
@@ -40,7 +42,8 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Controllers
             ISettingService settingService,
             IStoreContext storeContext,
             IBaseAdminModelFactory baseAdminModelFactory,
-            ILocalizedModelFactory localizedModelFactory)
+            ILocalizedModelFactory localizedModelFactory,
+            IStaticCacheManager staticCacheManager)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -50,6 +53,7 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Controllers
             _storeContext = storeContext;
             _baseAdminModelFactory = baseAdminModelFactory;
             _localizedModelFactory = localizedModelFactory;
+            _staticCacheManager = staticCacheManager;
         }
 
         public async Task<IActionResult> Configure()
@@ -63,6 +67,7 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Controllers
 
             var model = new ConfigurationModel
             {
+                Count = settings.Count,
                 Locales = await _localizedModelFactory.PrepareLocalizedModelsAsync<ConfigurationModel.CategorySliderLocalizedModel>(async (locale, languageId) =>
                 {
                     locale.LanguageId = languageId;
@@ -84,6 +89,8 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Controllers
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var settings = await _settingService.LoadSettingAsync<NewArrivalsSliderSliderSettings>(storeScope);
 
+            settings.Count = model.Count;
+
             foreach (var localized in model.Locales)
             {
                 await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
@@ -92,6 +99,9 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Controllers
                 }, localized.LanguageId);
             }
             await _settingService.SaveSettingAsync(settings);
+
+            await _staticCacheManager.RemoveAsync(new CacheKey(NewArrivalsSliderSliderPlugin.CacheKeyBase, "ProductsOverview"));
+            await _staticCacheManager.RemoveAsync(new CacheKey(NewArrivalsSliderSliderPlugin.CacheKeyBase, "Products"));
 
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 

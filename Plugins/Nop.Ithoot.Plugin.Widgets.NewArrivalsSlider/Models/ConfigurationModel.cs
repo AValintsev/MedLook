@@ -10,6 +10,9 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Models
         [NopResourceDisplayName("Plugins.Widgets.NewArrivalsSlider.Name")]
         public string Name { get; set; }
 
+        [NopResourceDisplayName("Plugins.Widgets.NewArrivalsSlider.Count")]
+        public int Count { get; set; }
+
         public IList<CategorySliderLocalizedModel> Locales { get; set; }
 
         public class CategorySliderLocalizedModel : ILocalizedLocaleModel

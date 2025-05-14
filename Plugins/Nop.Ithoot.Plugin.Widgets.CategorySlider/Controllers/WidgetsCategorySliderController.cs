@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
+using Nop.Core.Caching;
 using Nop.Plugin.Widgets.CategorySlider.Models;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -25,6 +26,7 @@ namespace Nop.Plugin.Widgets.CategorySlider.Controllers
         private readonly IBaseAdminModelFactory _baseAdminModelFactory;
         private readonly ILocalizationService _localizationService;
         private readonly ILocalizedModelFactory _localizedModelFactory;
+        private readonly IStaticCacheManager _staticCacheManager;
 
         private readonly INotificationService _notificationService;
         private readonly IPermissionService _permissionService;
@@ -40,7 +42,8 @@ namespace Nop.Plugin.Widgets.CategorySlider.Controllers
             ISettingService settingService,
             IStoreContext storeContext,
             IBaseAdminModelFactory baseAdminModelFactory,
-            ILocalizedModelFactory localizedModelFactory)
+            ILocalizedModelFactory localizedModelFactory,
+            IStaticCacheManager staticCacheManager)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -50,6 +53,7 @@ namespace Nop.Plugin.Widgets.CategorySlider.Controllers
             _storeContext = storeContext;
             _baseAdminModelFactory = baseAdminModelFactory;
             _localizedModelFactory = localizedModelFactory;
+            _staticCacheManager = staticCacheManager;
         }
 
         public async Task<IActionResult> Configure()
@@ -63,6 +67,7 @@ namespace Nop.Plugin.Widgets.CategorySlider.Controllers
 
             var model = new ConfigurationModel
             {
+                Count = settings.Count,
                 CategoryId = settings.CategoryId,
                 AvailableCategories = new List<SelectListItem>(),
                 Locales = await _localizedModelFactory.PrepareLocalizedModelsAsync<ConfigurationModel.CategorySliderLocalizedModel>(async (locale, languageId) =>
@@ -89,6 +94,7 @@ namespace Nop.Plugin.Widgets.CategorySlider.Controllers
             var settings = await _settingService.LoadSettingAsync<CategorySliderSettings>(storeScope);
 
             settings.CategoryId = model.CategoryId;
+            settings.Count = model.Count;
 
             foreach (var localized in model.Locales)
             {
@@ -98,6 +104,9 @@ namespace Nop.Plugin.Widgets.CategorySlider.Controllers
                 }, localized.LanguageId);
             }
             await _settingService.SaveSettingAsync(settings);
+
+            await _staticCacheManager.RemoveAsync(new CacheKey(CategorySliderPlugin.CacheKeyBase, "ProductsOverview"));
+            await _staticCacheManager.RemoveAsync(new CacheKey(CategorySliderPlugin.CacheKeyBase, "Products"));
 
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 

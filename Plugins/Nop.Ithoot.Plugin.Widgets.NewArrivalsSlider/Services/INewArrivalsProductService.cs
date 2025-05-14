@@ -6,6 +6,6 @@ namespace Nop.Ithoot.Plugin.Widgets.NewArrivalsSlider.Services
 {
     public interface INewArrivalsProductService
     {
-        Task<IList<Product>> GetProductsMarkedAsNewAndHomepageAsync(int storeId = 0);
+        Task<IList<Product>> GetProductsMarkedAsNewAndHomepageAsync(int storeId = 0, int count = 20);
     }
 }

@@ -11,6 +11,9 @@ namespace Nop.Plugin.Widgets.CategorySlider.Models
         [NopResourceDisplayName("Plugins.Widgets.CategorySlider.Name")]
         public string Name { get; set; }
 
+        [NopResourceDisplayName("Plugins.Widgets.CategorySlider.Count")]
+        public int Count { get; set; }
+
         [NopResourceDisplayName("Plugins.Widgets.CategorySlider.CategoryId")]
         public int CategoryId { get; set; }
 

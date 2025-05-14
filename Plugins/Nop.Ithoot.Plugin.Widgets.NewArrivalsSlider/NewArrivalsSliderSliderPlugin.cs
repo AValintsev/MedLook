@@ -77,8 +77,9 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider
 
             await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
             {
+                ["Plugins.Widgets.NewArrivalsSlider.Count"] = "Кількість продуктів у слайдері",
                 ["Plugins.Widgets.NewArrivalsSlider.Name"] = "Назва слайдеру (назва блоку)",
-                [BlockNameKey] = ""
+                [BlockNameKey] = "Нові надходження",
             });
 
             await base.InstallAsync();

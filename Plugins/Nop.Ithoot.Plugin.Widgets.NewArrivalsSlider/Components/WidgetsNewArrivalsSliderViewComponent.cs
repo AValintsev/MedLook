@@ -51,7 +51,7 @@ namespace Nop.Plugin.Widgets.NewArrivalsSlider.Components
             var model = await _staticCacheManager.GetAsync(cacheKey,
                  async () =>
                  {
-                     var products = await _categoryProductService.GetProductsMarkedAsNewAndHomepageAsync(store.Id);
+                     var products = await _categoryProductService.GetProductsMarkedAsNewAndHomepageAsync(store.Id, settings.Count);
 
                      if (!products.Any())
                          return Enumerable.Empty<ProductOverviewModel>();

@@ -78,11 +78,12 @@ namespace Nop.Plugin.Widgets.CategorySlider
 
             await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
             {
+                ["Plugins.Widgets.CategorySlider.Count"] = "Кількість продуктів у слайдері",
                 ["Plugins.Widgets.CategorySlider.CategoryId"] = "Категорія",
                 ["Plugins.Widgets.CategorySlider.CategoryId.Hint"] = "Продукти із цієї категорії будуть відображатись в слайдері. ",
                 ["Plugins.Widgets.CategorySlider.Homepage.CategorySliderProducts"] = "Продукти з категорії",
                 ["Plugins.Widgets.CategorySlider.Name"] = "Назва слайдеру (назва блоку)",
-                [BlockNameKey] = ""
+                [BlockNameKey] = $"Змініть назву категорії. Ключ {BlockNameKey}",
             });
 
             await base.InstallAsync();
