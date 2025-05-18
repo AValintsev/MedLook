@@ -1,4 +1,4 @@
-@model OrderModel
+﻿@model OrderModel
 
 @using Nop.Core.Domain.Tax;
 @using Nop.Core.Domain.Orders;
@@ -648,7 +648,7 @@
                     <nop-label asp-for="PaymentMethod" />
                 </div>
                 <div class="col-md-9">
-                    <div class="form-text-row">@Model.PaymentMethod</div>
+                    <div class="form-text-row">@T(Model.PaymentMethod)</div>
                 </div>
             </div>
 
