@@ -22,18 +22,6 @@
                             <option value="@parsedDefaulValue.id">@parsedDefaulValue.value</option>
                         }
                     </select>
-
-                    @*<select name="@(controlId)" id="@(controlId)">
-    @if (!attribute.IsRequired)
-    {
-    <option value="0">---</option>
-    }
-    @foreach (var attributeValue in attribute.Values)
-    {
-    <option selected="@attributeValue.IsPreSelected" value="@attributeValue.Id">@attributeValue.Name</option>
-    }
-    </select>*@
-
                 }
                 break;
             case AttributeControlType.RadioList:

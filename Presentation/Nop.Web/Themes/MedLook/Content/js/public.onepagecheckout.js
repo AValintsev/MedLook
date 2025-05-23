@@ -1,4 +1,4 @@
-var Checkout = {
+﻿var Checkout = {
     loadWaiting: false,
     failureUrl: false,
 
@@ -215,9 +215,10 @@ var Billing = {
                     if (id.indexOf("CustomAddressAttributes") >= 0 && Array.isArray(value)) {
                         $.each(value, function (i, customAttribute) {
                             if (customAttribute.DefaultValue) {
-                                $(`#${customAttribute.ControlId}`).val(
-                                    customAttribute.DefaultValue
-                                );
+                                $(`#${customAttribute.ControlId}`).val(customAttribute.DefaultValue);
+                                const $dd = $(`#${customAttribute.ControlId}`).closest('.inputs').find('select');
+                                const ddValue = JSON.parse(customAttribute.DefaultValue);
+                                $dd.append('<option value="' + ddValue.id + '">' + ddValue.value + '</option>');
                             } else {
                                 $.each(customAttribute.Values, function (j, attributeValue) {
                                     if (attributeValue.IsPreSelected) {
@@ -581,7 +582,6 @@ var PaymentMethod = {
     localized_data: false,
 
     init: function (form, saveUrl, localized_data) {
-        console.log('payment loaded');
         this.form = form;
         this.saveUrl = saveUrl;
         this.localized_data = localized_data;
