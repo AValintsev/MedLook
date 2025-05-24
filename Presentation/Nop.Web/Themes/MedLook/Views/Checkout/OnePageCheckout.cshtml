@@ -26,7 +26,7 @@
     var paymentMethodStepNumber = 2;
     var paymentInfoStepNumber = 3;
     var confirmOrderStepNumber = 4;
-    
+
 }
 
 <script src="~/js/public.accordion.js" asp-location="Footer"></script>
@@ -57,11 +57,13 @@
                         }
                     </script>
                     <div class="buttons" id="billing-buttons-container">
-                        <button id="edit-billing-address-button" type="button" class="button-1" style="display: none" onclick="Billing.editAddress('@(storeLocation)checkout/GetAddressById/'); return false;">@T("Common.Edit")</button>
+                        <div class="address-buttons">
+                            <button id="edit-billing-address-button" type="button" class="button-1" style="display: none" onclick="Billing.editAddress('@(storeLocation)checkout/GetAddressById/'); return false;">@T("Common.Edit")</button>
 
-                        <button id="delete-billing-address-button" type="button" class="button-1" style="display: none" onclick="Billing.deleteAddress('@(storeLocation)checkout/DeleteEditBillingAddress/'); return false;">@T("Common.Delete")</button>
+                            <button id="delete-billing-address-button" type="button" class="button-1" style="display: none" onclick="Billing.deleteAddress('@(storeLocation)checkout/DeleteEditBillingAddress/'); return false;">@T("Common.Delete")</button>
 
-                        <button id="save-billing-address-button" type="button" class="button-1" style="display: none" onclick="Billing.saveEditAddress('@(storeLocation)checkout/SaveEditBillingAddress/'); return false;">@T("Common.Save")</button>
+                            <button id="save-billing-address-button" type="button" class="button-1" style="display: none" onclick="Billing.saveEditAddress('@(storeLocation)checkout/SaveEditBillingAddress/'); return false;">@T("Common.Save")</button>
+                        </div>
 
                         <button type="button" name="save" class="button-1 new-address-next-step-button" onclick="Billing.save()">@T("Common.Continue")</button>
 
@@ -69,7 +71,7 @@
                     </div>
                 </div>
             </li>
-            
+
             <li id="opc-payment_method" class="tab-section">
                 <div class="step-title">
                     <span class="number">@paymentMethodStepNumber</span>

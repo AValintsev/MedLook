@@ -4362,20 +4362,24 @@ svg {
     text-align: center;
 }
 
-.address-edit-page .page-title {
-    margin: 0 0 -1px;
+.address-edit-page, .address-edit-page .inputs {
+    text-align: left;
 }
 
-.address-edit-page .message-error {
-    margin: 20px 0;
-}
+    .address-edit-page .page-title {
+        margin: 0 0 -1px;
+    }
 
-.address-edit-page .edit-address {
-    margin: 0 0 30px;
-    border-top: 1px solid #e6e6e6;
-    background-color: #f9f9f9;
-    padding: 30px 15px;
-}
+    .address-edit-page .message-error {
+        margin: 20px 0;
+    }
+
+    .address-edit-page .edit-address {
+        margin: 0 0 30px;
+        border-top: 1px solid #e6e6e6;
+        background-color: #f9f9f9;
+        padding: 30px 15px;
+    }
 
 .recurring-payments table td {
     white-space: nowrap;
@@ -5493,13 +5497,42 @@ svg {
 }
 
 .opc .step {
-    padding: 12px;
-    text-align: center;
+    padding: 12px 12px 12px 0;
+    margin-left: 42px;
+    text-align: left;
 }
+
+    .opc .step .section.select-billing-address,
+    .opc .step .section.new-billing-address {
+        margin-bottom: 10px;
+    }
+
+    .opc .step .section .enter-address .edit-address {
+        margin: 0;
+    }
+
+
+    .opc .step .address-select {
+        padding: 8px;
+        height: 36px;
+        width: 100%;
+    }
+
+    .opc .step .address-buttons {
+        margin-bottom: 10px;
+    }
+
+        .opc .step .address-buttons .button-1 {
+            font-size: 12px;
+            padding: 8px 12px;
+            min-width: auto;
+        }
 
 .opc .section {
     margin: 0 0 30px;
 }
+
+
 
     .opc .section > label {
         display: block;
@@ -5530,7 +5563,7 @@ svg {
 
     .opc .back-link a {
         display: inline-block;
-        margin: 0 0 0 -15px;
+        /*margin: 0 0 0 -15px;*/
         background: url('../images/back-button.png') left center no-repeat;
         padding: 0 0 0 18px;
         color: #00659C;
