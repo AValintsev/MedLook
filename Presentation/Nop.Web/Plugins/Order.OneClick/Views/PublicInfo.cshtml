@@ -59,7 +59,11 @@
             cache: false,
             url: '@Url.ActionLink("Order", "OrderOneClick")',
             type: "POST",
-            data: {phone:  $('#oneClickOrderDialog input[type="text"]').val()},
+            data: {
+                phone:  $('#oneClickOrderDialog input[type="text"]').val(),
+                productId: $('#productId').val(),
+                productSeName: $('#productSeName').val(),
+            },
             success: function(response){
                 $('#oneClickOrderDialog').dialog('close');
                 displayPopupNotification(response, 'success', true);
@@ -73,6 +77,8 @@
     <button type="button" name="oneClickOrder" id="one-click-button" class="button-2 one-click-button">
         @T("Plugins.Order.OneClick.ButtonName")
     </button>
+    <input id="productId" type="hidden" value="@Model.ProductId" />
+    <input id="productSeName" type="hidden" value="@Model.ProductSeName" />
     <div id="oneClickOrderDialog" title="@T("Plugins.Order.OneClick.ButtonName")">
         <div class="form-group row">
             <nop-label asp-for="Phone" />

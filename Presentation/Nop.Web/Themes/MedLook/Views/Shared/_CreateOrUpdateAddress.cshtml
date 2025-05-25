@@ -14,12 +14,7 @@
 		<nop-required />
 		<span asp-validation-for="LastName"></span>
 	</div>
-	<div class="inputs">
-		<label asp-for="Email" asp-postfix=":"></label>
-		<input asp-for="Email" />
-		<nop-required />
-		<span asp-validation-for="Email"></span>
-	</div>
+	
 	@if (Model.PhoneEnabled)
 	{
 		<div class="inputs">
@@ -32,6 +27,12 @@
 			<span asp-validation-for="PhoneNumber"></span>
 		</div>
 	}
+	<div class="inputs">
+		<label asp-for="Email" asp-postfix=":"></label>
+		<input asp-for="Email" />
+		<nop-required />
+		<span asp-validation-for="Email"></span>
+	</div>
 	@if (Model.CompanyEnabled)
 	{
 		<div class="inputs">

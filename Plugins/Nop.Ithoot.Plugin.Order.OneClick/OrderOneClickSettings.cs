@@ -1,5 +1,4 @@
 ﻿using Nop.Core.Configuration;
-using System;
 
 namespace Nop.Ithoot.Plugin.Order.OneClick
 {
@@ -9,7 +8,5 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
     public class OrderOneClickSettings : ISettings
     {
         public string NotificationEmails { get; set; }
-
-
     }
 }

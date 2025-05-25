@@ -166,7 +166,6 @@
                     </div>
                 }
                 <div class="totals">
-                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryTotals, additionalData = Model })
                     @await Component.InvokeAsync(typeof(OrderTotalsViewComponent), new { isEditable = Model.IsEditable })
                     @if (Model.IsEditable)
                     {
@@ -208,6 +207,7 @@
                                 }
                                 else
                                 {
+                                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.OrderSummaryTotals, additionalData = Model })
                                     <button type="submit" id="checkout" name="checkout" value="checkout" class="button-1 checkout-button">
                                         @T("Checkout.Button")
                                     </button>

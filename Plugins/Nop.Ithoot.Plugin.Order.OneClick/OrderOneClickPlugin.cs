@@ -1,16 +1,17 @@
 ﻿using Nop.Core;
+using Nop.Core.Domain.Messages;
 using Nop.Ithoot.Plugin.Order.OneClick.Components;
 using Nop.Services.Cms;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
-using Nop.Services.Orders;
+using Nop.Services.Messages;
 using Nop.Services.Plugins;
-using Nop.Services.Shipping;
 using Nop.Web.Framework.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Nop.Ithoot.Plugin.Order.OneClick
@@ -29,11 +30,12 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ILocalizationService _localizationService;
-        private readonly IShoppingCartService _shoppingCartService;
         private readonly ISettingService _settingService;
-        private readonly IShippingService _shippingService;
-        private readonly IStoreContext _storeContext;
         private readonly IWebHelper _webHelper;
+        private readonly IEmailAccountService _emailAccountService;
+        private readonly EmailAccountSettings _emailAccountSettings;
+        private readonly IMessageTemplateService _messageTemplateService;
+
 
         public bool HideInWidgetList { get; }
 
@@ -43,28 +45,28 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
 
         public OrderOneClickPlugin(
             ILocalizationService localizationService,
-            IShoppingCartService shoppingCartService,
             ISettingService settingService,
-            IShippingService shippingService,
-            IStoreContext storeContext,
             IWebHelper webHelper,
-            OrderOneClickSettings novaPoshtaSettings,
+            OrderOneClickSettings settings,
             IAddressAttributeService addressAttributeService,
             ICustomerActivityService customerActivityService,
             ILocalizedEntityService localizedEntityService,
-            ILanguageService languageService)
+            ILanguageService languageService,
+            IEmailAccountService emailAccountService,
+            EmailAccountSettings emailAccountSettings,
+            IMessageTemplateService messageTemplateService)
         {
             _localizationService = localizationService;
-            _shoppingCartService = shoppingCartService;
             _settingService = settingService;
-            _shippingService = shippingService;
-            _storeContext = storeContext;
             _webHelper = webHelper;
-            _oneClickSettings = novaPoshtaSettings;
+            _oneClickSettings = settings;
             _addressAttributeService = addressAttributeService;
             _customerActivityService = customerActivityService;
             _localizedEntityService = localizedEntityService;
             _languageService = languageService;
+            _emailAccountService = emailAccountService;
+            _emailAccountSettings = emailAccountSettings;
+            _messageTemplateService = messageTemplateService;
         }
 
         #endregion
@@ -109,6 +111,37 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
                 ["Plugins.Order.OneClick.Fields.Phone"] = "Телефон",
             });
 
+            var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId) ??
+                              (await _emailAccountService.GetAllEmailAccountsAsync()).FirstOrDefault();
+
+            var emailTemplate = new MessageTemplate
+            {
+                Name = MessageTemplateSystemNames.OneClickOrderPlaced,
+                Subject = "%Store.Name%. New one click order placed form %Customer.Name% phone %Customer.Phone%",
+                Body = $"<p>{Environment.NewLine}<br />{Environment.NewLine}A new one click order has been placed by client <a href=\"%Customer.URL%\">%Customer.Name%</a>{Environment.NewLine}<br /> phone: <a href=\"tel:%Customer.Phone%\">%Customer.Phone%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Requested product: <br />{Environment.NewLine}<a href=\"%Product.Url%\">%Product.Name%</a><br />{Environment.NewLine}</p>",
+                IsActive = true,
+                EmailAccountId = emailAccount.Id
+            };
+            await _messageTemplateService.InsertMessageTemplateAsync(emailTemplate);
+
+            var languages = await _languageService.GetAllLanguagesAsync(true);
+            var ukrainianLanguage = languages.Where(l => l.UniqueSeoCode == "ua").FirstOrDefault();
+
+            if (ukrainianLanguage != null)
+            {
+                await _localizedEntityService.SaveLocalizedValueAsync(
+                    emailTemplate,
+                    x => x.Subject,
+                    "%Store.Name%. Надійшло нове швидке замовлення від %Customer.Name% тел. %Customer.Phone%",
+                    ukrainianLanguage.Id);
+
+                await _localizedEntityService.SaveLocalizedValueAsync(
+                    emailTemplate,
+                    x => x.Body,
+                    $"<p>{Environment.NewLine}<br />{Environment.NewLine}Нове швидке замовлення надійшло від клієнта <a href=\"%Customer.URL%\">%Customer.Name%</a> <br />{Environment.NewLine}телефон: <a href=\"tel:%Customer.Phone%\">%Customer.Phone%</a><br />{Environment.NewLine}<br />{Environment.NewLine}Товар: <br />{Environment.NewLine}<a href=\"%Product.Url%\">%Product.Name%</a><br />{Environment.NewLine}</p>",
+                    ukrainianLanguage.Id);
+            }
+
             await base.InstallAsync();
         }
 
@@ -124,6 +157,13 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
             //locales
             await _localizationService.DeleteLocaleResourcesAsync("Plugins.Order.OneClick");
 
+            // email templates
+            var emailTemplates = await _messageTemplateService.GetMessageTemplatesByNameAsync(MessageTemplateSystemNames.OneClickOrderPlaced);
+            foreach (var emailTemplate in emailTemplates)
+            {
+                await _messageTemplateService.DeleteMessageTemplateAsync(emailTemplate);
+            }
+
             await base.UninstallAsync();
         }
 
@@ -131,7 +171,8 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
         {
             return Task.FromResult<IList<string>>(new List<string>
             {
-                PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore
+                PublicWidgetZones.ProductDetailsInsideOverviewButtonsBefore,
+                PublicWidgetZones.OrderSummaryTotals
             });
         }
 
@@ -140,10 +181,10 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
             if (widgetZone is null)
                 throw new ArgumentNullException(nameof(widgetZone));
 
-            //if (widgetZone.Equals(AdminWidgetZones.OrderShipmentAddButtons))
-            //{
-            //    return typeof(WidgetsAdminNovaPoshtaViewComponent);
-            //}
+            if (widgetZone.Equals(PublicWidgetZones.OrderSummaryTotals))
+            {
+                return typeof(WidgetsOrderOneClickViewComponent);
+            }
 
             return typeof(WidgetsOrderOneClickViewComponent);
         }
