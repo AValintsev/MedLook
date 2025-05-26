@@ -63,6 +63,7 @@
                 phone:  $('#oneClickOrderDialog input[type="text"]').val(),
                 productId: $('#productId').val(),
                 productSeName: $('#productSeName').val(),
+                productSize: $(".attributes").find("input[type='radio']:checked").next('label').text()
             },
             success: function(response){
                 $('#oneClickOrderDialog').dialog('close');

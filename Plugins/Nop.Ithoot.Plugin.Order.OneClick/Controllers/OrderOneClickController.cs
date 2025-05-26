@@ -99,7 +99,8 @@ namespace Nop.Ithoot.Plugin.Order.OneClick.Controllers
                 new Token("Customer.URL", customerEditUrl),
                 new Token("Customer.Name", customerName),
                 new Token("Product.Url", productUrl),
-                new Token("Product.Name", productName)
+                new Token("Product.Name", productName),
+                new Token("Product.Size", model.ProductSize)
             };
 
             var messageTemplate = await _messageTemplateService.GetMessageTemplatesByNameAsync(MessageTemplateSystemNames.OneClickOrderPlaced);

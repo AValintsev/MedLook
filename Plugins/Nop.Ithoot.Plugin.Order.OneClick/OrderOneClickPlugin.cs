@@ -118,7 +118,7 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
             {
                 Name = MessageTemplateSystemNames.OneClickOrderPlaced,
                 Subject = "%Store.Name%. New one click order placed form %Customer.Name% phone %Customer.Phone%",
-                Body = $"<p>{Environment.NewLine}<br />{Environment.NewLine}A new one click order has been placed by client <a href=\"%Customer.URL%\">%Customer.Name%</a>{Environment.NewLine}<br /> phone: <a href=\"tel:%Customer.Phone%\">%Customer.Phone%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Requested product: <br />{Environment.NewLine}<a href=\"%Product.Url%\">%Product.Name%</a><br />{Environment.NewLine}</p>",
+                Body = $"<p>{Environment.NewLine}<br />{Environment.NewLine}A new one click order has been placed by client <a href=\"%Customer.URL%\">%Customer.Name%</a>{Environment.NewLine}<br /> phone: <a href=\"tel:%Customer.Phone%\">%Customer.Phone%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Requested product: <br />{Environment.NewLine}size: %Product.Size% <a href=\"%Product.Url%\">%Product.Name%</a><br />{Environment.NewLine}</p>",
                 IsActive = true,
                 EmailAccountId = emailAccount.Id
             };
@@ -138,7 +138,7 @@ namespace Nop.Ithoot.Plugin.Order.OneClick
                 await _localizedEntityService.SaveLocalizedValueAsync(
                     emailTemplate,
                     x => x.Body,
-                    $"<p>{Environment.NewLine}<br />{Environment.NewLine}Нове швидке замовлення надійшло від клієнта <a href=\"%Customer.URL%\">%Customer.Name%</a> <br />{Environment.NewLine}телефон: <a href=\"tel:%Customer.Phone%\">%Customer.Phone%</a><br />{Environment.NewLine}<br />{Environment.NewLine}Товар: <br />{Environment.NewLine}<a href=\"%Product.Url%\">%Product.Name%</a><br />{Environment.NewLine}</p>",
+                    $"<p>{Environment.NewLine}<br />{Environment.NewLine}Нове швидке замовлення надійшло від клієнта <a href=\"%Customer.URL%\">%Customer.Name%</a> <br />{Environment.NewLine}телефон: <a href=\"tel:%Customer.Phone%\">%Customer.Phone%</a><br />{Environment.NewLine}<br />{Environment.NewLine}Товар: <br />{Environment.NewLine}розмір: %Product.Size% <a href=\"%Product.Url%\">%Product.Name%</a><br />{Environment.NewLine}</p>",
                     ukrainianLanguage.Id);
             }
 

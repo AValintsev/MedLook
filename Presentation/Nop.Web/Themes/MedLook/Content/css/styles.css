@@ -4381,6 +4381,22 @@ svg {
         padding: 30px 15px;
     }
 
+.edit-address .generate-email-buttons {
+    display: flex;
+    float: left;
+    gap: 8px;
+}
+
+.edit-address .btn-generate-email {
+    display: block;
+    border: 0;
+    background-color: #eaeaea;
+    padding: 8px;
+    text-align: left;
+    font-size: 12px;
+    color: #666;
+}
+
 .recurring-payments table td {
     white-space: nowrap;
 }

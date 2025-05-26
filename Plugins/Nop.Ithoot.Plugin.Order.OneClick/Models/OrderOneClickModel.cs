@@ -10,5 +10,7 @@ namespace Nop.Ithoot.Plugin.Order.OneClick.Models
         public int? ProductId { get; set; }
 
         public string ProductSeName { get; set; }
+
+        public string ProductSize { get; set; }
     }
 }
