@@ -44,10 +44,6 @@
       "Version": "1.0"
     },
     {
-      "SystemName": "Misc.Sendinblue",
-      "Version": "3.56"
-    },
-    {
       "SystemName": "ExternalAuth.Google",
       "Version": "1.00"
     },
