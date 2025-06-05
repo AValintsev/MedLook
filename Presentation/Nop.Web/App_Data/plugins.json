@@ -44,10 +44,6 @@
       "Version": "1.0"
     },
     {
-      "SystemName": "ExternalAuth.Google",
-      "Version": "1.00"
-    },
-    {
       "SystemName": "Widgets.CategorySlider",
       "Version": "1.0"
     },
@@ -58,6 +54,14 @@
     {
       "SystemName": "Order.OneClick",
       "Version": "1.71"
+    },
+    {
+      "SystemName": "Nasca.Plugin.Core",
+      "Version": "1.0"
+    },
+    {
+      "SystemName": "Nasca.Plugin.ExternalAuth.Google",
+      "Version": "1.0"
     }
   ],
   "PluginNamesToUninstall": [],

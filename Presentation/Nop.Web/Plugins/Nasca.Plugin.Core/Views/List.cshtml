@@ -1,0 +1,178 @@
+﻿@model NascaPluginSearchModel
+@using Nasca.Plugin.Core.Models.NascaPlugins
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Nasca.Core.Plugins.Fields.Plugins.Local").Text;
+
+    NopHtml.SetActiveMenuItemSystemName("NascaCore");
+}
+
+@{
+    const string hideSearchBlockAttributeName = "LocaLPluginsPage.HideSearchBlock";
+    var hideSearchBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideSearchBlockAttributeName);
+}
+
+<form asp-controller="Plugin" asp-action="List" id="plugins-form-local">
+    <div class="content-header clearfix">
+        <h1 class="float-left">
+            @T("Nasca.Core.Plugins.Fields.Plugins.Local")
+        </h1>    
+        <div class="float-right">
+            @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.PluginListButtons, additionalData = Model })
+        </div>
+    </div>
+
+    <section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+
+            <div class="cards-group">
+                <div class="card card-default card-search">
+                    <div class="card-body">
+                        <div class="row search-row @(!hideSearchBlock ? "opened" : "")" data-hideAttribute="@hideSearchBlockAttributeName">
+                            <div class="search-text">@T("Admin.Common.Search")</div>
+                            <div class="icon-search"><i class="fas fa-search" aria-hidden="true"></i></div>
+                            <div class="icon-collapse"><i class="far fa-angle-@(!hideSearchBlock ? "up" : "down")" aria-hidden="true"></i></div>
+                        </div>
+
+                        <div class="search-body @(hideSearchBlock ? "closed" : "")">
+                            <p>
+                                <h4>@T("Nasca.Core.Plugins.Desciption.Activate")</h4>
+                                <ol>
+                                    <li>@T("Nasca.Core.Plugins.Desciption.Activate.Step1")</li>
+                                    <li>@T("Nasca.Core.Plugins.Desciption.Activate.Step2")</li>
+                                    <li>@T("Nasca.Core.Plugins.Desciption.Activate.Step3")</li>
+                                </ol>
+                            </p>
+         
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchFriendlyName" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchFriendlyName" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="text-center col-12">
+                                    <button type="button" id="search-plugins-local" class="btn btn-primary btn-search">
+                                        <i class="fas fa-search"></i>
+                                        @T("Admin.Common.Search")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-default">
+                    <div class="card-body">
+                        @await Html.PartialAsync("Table", new DataTablesModel
+                        {
+                            Name = "plugins-local-grid",
+                            UrlRead = new DataUrl("ListSelect", "NascaCore", null),
+                            SearchButtonId = "search-plugins-local",
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes,
+                            Filters = new List<FilterParameter>
+                            {
+                                new FilterParameter(nameof(Model.SearchFriendlyName)),
+                            },
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(NascaPluginModel.FriendlyName))
+                                {
+                                    Title = T("Nasca.Core.Plugins.Fields.FriendlyName").Text,
+                                    Width = "200",
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                },
+                                new ColumnProperty(nameof(NascaPluginModel.LogoUrl))
+                                {
+                                    Title = T("Nasca.Core.Plugins.Fields.Logo").Text,
+                                    Width = "200",
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderPicture()
+                                },
+                                new ColumnProperty(nameof(NascaPluginModel.PluginDescriptor.Description))
+                                {
+                                    Title = T("Admin.Configuration.Plugins.Info").Text,
+                                    Width = "400",
+                                    Render = new RenderCustom("renderColumnDescription")
+                                },
+                                new ColumnProperty(nameof(NascaPluginModel.SubscriptionKey))
+                                {
+                                    Title = T("Nasca.Core.Plugins.Fields.SubscriptionKey").Text,
+                                    Width = "700",
+                                    ClassName = "subsecription-key"
+                                },
+                                new ColumnProperty(nameof(NascaPluginModel.NeedKey))
+                                {
+                                    Title = T("Nasca.Core.Plugins.Fields.NeedKey").Text,
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderBoolean()
+                                },
+                                new ColumnProperty(nameof(NascaPluginModel.SystemName))
+                                {
+                                    Title = T("Nasca.Core.Plugins.Fields.Edit").Text,
+                                    Width = "100",
+                                    ClassName =  NopColumnClassDefaults.Button,
+                                    Render = new RenderCustom("renderColumnEdit")
+                                }
+                            }
+                        })
+                        <style>
+                            .subsecription-key{
+                              line-break: anywhere;
+                            }
+                        </style>
+                        <script asp-location="Footer">
+                            var textRenderer = $.fn.dataTable.render.text().display;
+
+                            function renderColumnDescription(data, type, row, meta) {
+                                    var res = '<b>' + textRenderer(row.PluginDescriptor.FriendlyName) + '</b>';
+
+                                    if (row.PluginDescriptor.Description) {
+                                        res = res + '<br />' + textRenderer(row.PluginDescriptor.Description);
+                                }
+                                res = res + '<br />';
+                                //allow configuration only when a plugin has a configuration URL specified
+                                    if (row.PluginDescriptor.ConfigurationUrl && row.PluginDescriptor.ConfigurationUrl.length > 0) {
+                                        res = res + '<a class="btn btn-default margin-r-5" href="' + row.PluginDescriptor.ConfigurationUrl + '"><i class="fas fa-cog"></i>@T("Admin.Configuration.Plugins.Fields.Configure").Text</a>';
+                                }
+
+                                return res;
+                            }
+
+                            function renderColumnEdit(data, type, row, meta) {
+                                if(row.NeedKey)
+                                return '<a class="btn btn-default" href="javascript:OpenWindow(\'@Url.Content("~/Admin/NascaCore/EditPopup")?systemName=' + row.SystemName + '&btnId=btnRefreshList&formId=plugins-form-local\', 800, 500, true);"><i class="fas fa-pencil-alt"></i>@T("Admin.Common.Edit").Text</a>';
+                                return '';
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+    <div>
+        <button type="submit" id="btnRefreshList" style="display: none"></button>
+        <script>
+            $(document).ready(function () {
+                $('#btnRefreshList').click(function () {
+                    //refresh grid
+                    updateTable('#plugins-local-grid');
+
+                    //return false to don't reload a page
+                    return false;
+                });
+            });
+        </script>
+    </div>
+    @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.PluginDetailsBlock, additionalData = Model })
+</form>

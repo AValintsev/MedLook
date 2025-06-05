@@ -1,0 +1,37 @@
+@model NascaPluginModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="SystemName" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="form-horizontal">
+            <div class="cards-group">
+                @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.PluginDetailsTop, additionalData = Model })
+                <div class="card card-default card-popup">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-sm-3">
+                                <nop-label asp-for="SubscriptionKey" />
+                            </div>
+                            <div class="col-sm-9">
+                                <nop-editor asp-for="SubscriptionKey" />
+                                <span asp-validation-for="SubscriptionKey"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.PluginDetailsBottom, additionalData = Model })
+            </div>
+        </div>
+    </div>
+</section>

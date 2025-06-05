@@ -1,0 +1,14 @@
+﻿{
+  "Group": "Nasca Plugins",
+  "FriendlyName": "Nasca Core",
+  "SystemName": "Nasca.Plugin.Core",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.60" ],
+  "Author": "Nasca team",
+  "DisplayOrder": 1,
+  "FileName": "Nasca.Plugin.Core.dll",
+  "Description": "This plugin allow admin to view and activate all nasca plugins and provide jwt login ",
+  "CustomProperties": {
+    "NeedKey": true
+  }
+}

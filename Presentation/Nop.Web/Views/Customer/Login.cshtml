@@ -104,13 +104,14 @@
                     </div>
                     <div class="buttons">
                         <button type="submit" class="button-1 login-button">@T("Account.Login.LoginButton")</button>
+                        <div class="external-authentication">
+                            @await Component.InvokeAsync(typeof(ExternalMethodsViewComponent), "ExternalAuthentication")
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="external-authentication">
-            @await Component.InvokeAsync(typeof(ExternalMethodsViewComponent), "ExternalAuthentication")
-        </div>
+        
         @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "LoginRegistrationInfo" })
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LoginBottom, additionalData = Model })
     </div>

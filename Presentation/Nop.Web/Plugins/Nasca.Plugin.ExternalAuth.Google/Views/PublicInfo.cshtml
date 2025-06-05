@@ -1,0 +1,9 @@
+﻿@{
+    Layout = ""; 
+}
+<link rel="stylesheet" href="~/Plugins/Nasca.Plugin.ExternalAuth.Google/Content/googlestyles.css" />
+<div class="facebook-login-block">
+    <div class="buttons">
+        <a asp-controller="googleauthentication" asp-action="login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" class="google-btn"></a>
+    </div>
+</div>

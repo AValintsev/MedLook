@@ -1,0 +1,18 @@
+﻿{
+  "Group": "Nasca Plugins",
+  "FriendlyName": "Nasca Google authentication",
+  "SupportedVersions": [
+    "4.60"
+  ],
+  "Author": "Nasca team",
+  "DisplayOrder": 3,
+  "FileName": "Nasca.Plugin.ExternalAuth.Google.dll",
+  "Description": "This plugin enables google authentication",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [
+    "Nasca.Plugin.Core"
+  ],
+  "SystemName": "Nasca.Plugin.ExternalAuth.Google",
+  "Version": "1.0"
+}

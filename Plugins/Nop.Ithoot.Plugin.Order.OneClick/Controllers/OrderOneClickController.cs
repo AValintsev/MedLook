@@ -116,7 +116,7 @@ namespace Nop.Ithoot.Plugin.Order.OneClick.Controllers
                     emailAccount,
                     language.Id,
                     commonTokens,
-                    email,
+                    email.Trim(),
                     null);
             }
         }
