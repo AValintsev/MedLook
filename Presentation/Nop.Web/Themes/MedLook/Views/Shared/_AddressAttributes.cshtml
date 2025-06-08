@@ -9,8 +9,13 @@
     var textPrompt = attribute.Name;
 
     <div class="inputs custom-attributes">
-        <label>@textPrompt:</label>
-
+        <div class="label-container">
+            <label>@textPrompt:</label>
+            @if (attribute.IsRequired)
+            {
+                <nop-required />
+            }
+        </div>
         @switch (attribute.AttributeControlType)
         {
             case AttributeControlType.DropdownList:
@@ -70,9 +75,6 @@
                 }
                 break;
         }
-        @if (attribute.IsRequired)
-        {
-            <nop-required />
-        }
+       
     </div>
 }

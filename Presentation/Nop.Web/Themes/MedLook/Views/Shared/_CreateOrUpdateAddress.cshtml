@@ -3,34 +3,42 @@
 <input asp-for="Id" type="hidden" />
 <div class="edit-address">
     <div class="inputs">
-        <label asp-for="FirstName" asp-postfix=":"></label>
+        <div class="label-container">
+            <label asp-for="FirstName" asp-postfix=":"></label>
+            <nop-required />
+        </div>
         <input asp-for="FirstName" />
-        <nop-required />
         <span asp-validation-for="FirstName"></span>
     </div>
     <div class="inputs">
-        <label asp-for="LastName" asp-postfix=":"></label>
+        <div class="label-container">
+            <label asp-for="LastName" asp-postfix=":"></label>
+            <nop-required />
+        </div>
         <input asp-for="LastName" />
-        <nop-required />
         <span asp-validation-for="LastName"></span>
     </div>
 
     @if (Model.PhoneEnabled)
     {
         <div class="inputs">
-            <label asp-for="PhoneNumber" asp-postfix=":"></label>
+            <div class="label-container">
+                <label asp-for="PhoneNumber" asp-postfix=":"></label>
+                @if (Model.PhoneRequired)
+                {
+                    <nop-required />
+                }
+            </div>
             <input asp-for="PhoneNumber" />
-            @if (Model.PhoneRequired)
-            {
-                <nop-required />
-            }
             <span asp-validation-for="PhoneNumber"></span>
         </div>
     }
     <div class="inputs">
-        <label asp-for="Email" asp-postfix=":"></label>
+        <div class="label-container">
+            <label asp-for="Email" asp-postfix=":"></label>
+            <nop-required />
+        </div>
         <input asp-for="Email" />
-        <nop-required />
         <div class="generate-email-buttons">
             <button id="btn-generate-email-info" class="button-2 btn-generate-email">?</button>
             <div id="generate-email-info" title="Email">@T("Email.Generate.Info")</div>
@@ -78,25 +86,29 @@
     @if (Model.CompanyEnabled)
     {
         <div class="inputs">
-            <label asp-for="Company" asp-postfix=":"></label>
-            <input asp-for="Company" />
-            @if (Model.CompanyRequired)
-            {
-                <nop-required />
-            }
+            <div class="label-container">
+                <label asp-for="Company" asp-postfix=":"></label>
+                @if (Model.CompanyRequired)
+                {
+                    <nop-required />
+                }
+                <input asp-for="Company" />
+            </div>
             <span asp-validation-for="Company"></span>
         </div>
     }
     @if (Model.CountryEnabled)
     {
         <div class="inputs">
-            <label asp-for="CountryId" asp-postfix=":"></label>
+            <div class="label-container">
+                <label asp-for="CountryId" asp-postfix=":"></label>
+                <nop-required />
+            </div>
             <select asp-for="CountryId" asp-items="Model.AvailableCountries"
                     data-trigger="country-select"
                     data-url="@(Url.RouteUrl("GetStatesByCountryId"))"
                     data-stateprovince="#@Html.IdFor(model => model.StateProvinceId)"
                     data-loading="#states-loading-progress"></select>
-            <nop-required />
             <span asp-validation-for="CountryId"></span>
         </div>
     }
@@ -113,60 +125,71 @@
     @if (Model.CountyEnabled)
     {
         <div class="inputs">
-            <label asp-for="County" asp-postfix=":"></label>
+            <div class="label-container">
+
+                <label asp-for="County" asp-postfix=":"></label>
+                @if (Model.CountyRequired)
+                {
+                    <nop-required />
+                }
+            </div>
             <input asp-for="County" />
-            @if (Model.CountyRequired)
-            {
-                <nop-required />
-            }
             <span asp-validation-for="County"></span>
         </div>
     }
     @if (Model.CityEnabled)
     {
         <div class="inputs">
-            <label asp-for="City" asp-postfix=":"></label>
+            <div class="label-container">
+                <label asp-for="City" asp-postfix=":"></label>
+                @if (Model.CityRequired)
+                {
+                    <nop-required />
+                }
+            </div>
             <input asp-for="City" />
-            @if (Model.CityRequired)
-            {
-                <nop-required />
-            }
             <span asp-validation-for="City"></span>
         </div>
     }
     @if (Model.StreetAddressEnabled)
     {
         <div class="inputs">
-            <label asp-for="Address1" asp-postfix=":"></label>
+            <div class="label-container">
+                <label asp-for="Address1" asp-postfix=":"></label>
+                @if (Model.StreetAddressRequired)
+                {
+                    <nop-required />
+                }
+            </div>
             <input asp-for="Address1" />
-            @if (Model.StreetAddressRequired)
-            {
-                <nop-required />
-            }
             <span asp-validation-for="Address1"></span>
         </div>
     }
     @if (Model.StreetAddress2Enabled)
     {
         <div class="inputs">
-            <label asp-for="Address2" asp-postfix=":"></label>
+            <div class="label-container">
+                <label asp-for="Address2" asp-postfix=":"></label>
+                @if (Model.StreetAddress2Required)
+                {
+                    <nop-required />
+                }
+            </div>
             <input asp-for="Address2" />
-            @if (Model.StreetAddress2Required)
-            {
-                <nop-required />
-            }
             <span asp-validation-for="Address2"></span>
         </div>
     }
     @if (Model.ZipPostalCodeEnabled)
     {
         <div class="inputs">
-            <label asp-for="ZipPostalCode" asp-postfix=":"></label>
+            <div class="label-container">
+                <label asp-for="ZipPostalCode" asp-postfix=":"></label>
+                @if (Model.ZipPostalCodeRequired)
+                {
+                    <nop-required />
+                }
+            </div>
             <input asp-for="ZipPostalCode" />
-            @if (Model.ZipPostalCodeRequired)
-            {
-                <nop-required />
-            }
             <span asp-validation-for="ZipPostalCode"></span>
         </div>
     }
@@ -174,12 +197,14 @@
     @if (Model.FaxEnabled)
     {
         <div class="inputs">
-            <label asp-for="FaxNumber" asp-postfix=":"></label>
+            <div class="label-container">
+                <label asp-for="FaxNumber" asp-postfix=":"></label>
+                @if (Model.FaxRequired)
+                {
+                    <nop-required />
+                }
+            </div>
             <input asp-for="FaxNumber" />
-            @if (Model.FaxRequired)
-            {
-                <nop-required />
-            }
             <span asp-validation-for="FaxNumber"></span>
         </div>
     }

@@ -1,0 +1,216 @@
+﻿@model Nop.Ithoot.Plugin.Shipping.NovaPoshta.Models.ConfigurationModel
+@using Nop.Web.Framework.Models.AdminAreaTour
+
+@{
+    Layout = "_ConfigurePlugin";
+
+    //tour step
+    ViewBag.TourStep = TourStep.ShippingManual;
+}
+
+@await Html.PartialAsync("_AdminTour")
+
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+
+
+
+<form asp-controller="NovaPoshtaAdmin" asp-action="Configure" method="post">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card card-default">
+                <div class="card-body">
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="ApiKey" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="ApiKey" />
+                            <span asp-validation-for="ApiKey"></span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="City" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="City" />
+                            <input type="hidden" name="CityId" id="CityId" value="@Model.CityId" />
+                            <span asp-validation-for="CityId"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="Warehouse" />
+                        </div>
+                        <div class="col-md-9">
+                            <select id="WarehouseSelect">
+                                <option id="@Model.WarehouseId" value="@Model.Warehouse">@Model.Warehouse</option>
+                            </select>
+                            <input type="hidden" name="Warehouse" id="Warehouse" value="@Model.Warehouse" />
+                            <input type="hidden" name="WarehouseId" id="WarehouseId" value="@Model.WarehouseId" />
+                            <span asp-validation-for="WarehouseId"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="PrepaymentValue" />
+                        </div>
+                        <div class="col-md-9">
+                            <nop-editor asp-for="PrepaymentValue" />
+                            <span asp-validation-for="PrepaymentValue"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="SenderFirstName" />
+                        </div>
+                        <div class="col-md-9">
+                            @Model.SenderFirstName
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="SenderLastName" />
+                        </div>
+                        <div class="col-md-9">
+                            @Model.SenderLastName
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="SenderMidName" />
+                        </div>
+                        <div class="col-md-9">
+                            @Model.SenderMidName
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="SenderPhone" />
+                        </div>
+                        <div class="col-md-9">
+                            @Model.SenderPhone
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="DefaultWeight" />
+                        </div>
+                        <div class="col-md-9">
+                            @Model.DefaultWeight
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <nop-label asp-for="DefaultVolumeGeneral" />
+                        </div>
+                        <div class="col-md-9">
+                            @Model.DefaultVolumeGeneral
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <div class="col-md-9 offset-md-3">
+                            <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
+
+<!-- Select2 JS -->
+<script asp-location="Footer" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+<script asp-location="Footer">
+    $(document).ready(function () {
+
+
+        var $city = $('#City');
+        var $cityHidden = $('#CityId');
+
+        $city.autocomplete({
+            source: '@Url.RouteUrl("NovaPoshtaCities")',
+            minLength: 2,
+            select: function (evt, ui) {
+                $cityHidden.val(ui.item.id);
+            }
+        });
+
+        var $warehouse = $('#WarehouseSelect');
+        var $warehouseValueHiddenWarehouse = $('#Warehouse');
+        var $warehouseHidden = $('#WarehouseId');
+        $warehouse.select2({
+            ajax: {
+                cache: true,
+                url: '@Url.RouteUrl("NovaPoshtaWirehouses")',
+                dataType: 'json',
+                data: function (params) {
+                    if (!$cityHidden.val()) return null;
+
+                    var qParams = {
+                        cityId: $cityHidden.val(),
+                        term: params.term
+                    };
+                    return qParams;
+                },
+                processResults: function (data, params) {
+                    var results = $.map(data, function (obj) {
+                        return { id: obj.id, text: obj.label }
+                    });
+                    return {
+                        results
+                    }
+                }
+            }
+        });
+
+        $warehouse.on('select2:select', function (e) {
+            $warehouseHidden.val(e.params.data.id);
+            $warehouseValueHiddenWarehouse.val(e.params.data.text);
+        });
+
+    })
+</script>
+
+<style>
+    .inputs.custom-attributes {
+        display: none;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single {
+        border-radius: 0 !important;
+        border: 1px solid #ddd;
+        height: 36px;
+        text-align: left;
+    }
+
+    .select2-selection__rendered {
+        font-size: 14px;
+        color: #777 !important;
+        height: 36px;
+        line-height: 36px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+    }
+</style>
+<nop-alert asp-alert-id="saveModeAlert" asp-alert-message="@T("Admin.Common.Alert.Save.Error")" />
